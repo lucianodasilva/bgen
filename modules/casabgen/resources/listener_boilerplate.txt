@@ -1,0 +1,63 @@
+// listeners boilerplate code
+
+template <
+    class _pt,
+    class _rt,
+    _rt (*_call_t)(const _pt &)
+>
+inline void handle_post ( http_request & request ) {
+    status_code status;
+    value return_value;
+
+    request
+            .extract_json()
+            .then ([&status, &return_value](pplx::task<json::value> task) {
+                try {
+                    typename decay <_pt>::type parameter = {};
+                    parser::read (task.get(), parameter);
+
+                    _rt ret = _call_t (parameter);
+
+                    // serialize to json
+                    return_value = parser::write (ret);
+                    status = status_codes::OK;
+
+                } catch ( http_exception ex ) {
+                    status = status_codes::InternalError;
+                    return_value = value (ex.what());
+                }
+            })
+            .wait ();
+
+    request.reply (status, return_value);
+};
+
+template <
+        class _rt,
+        _rt (*_call_t)()
+>
+inline void handle_get ( http_request & request ) {
+    status_code status;
+    value return_value;
+
+    request
+            .extract_json()
+            .then ([&status, &return_value](pplx::task<json::value> task) {
+                try {
+                    typename decay <_rt>::type ret = _call_t ();
+
+                    // serialize to json
+                    return_value = parser::write (ret);
+                    status = status_codes::OK;
+
+                } catch ( http_exception ex ) {
+                    status = status_codes::InternalError;
+                    return_value = value (ex.what());
+                }
+            })
+            .wait ();
+
+    request.reply (status, return_value);
+};
+
+// generated code

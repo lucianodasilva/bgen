@@ -1,0 +1,3 @@
+[submodule "modules/bgen/deps/cmd_args"]
+	path = modules/bgen/deps/cmd_args
+	url = https://github.com/lucianodasilva/cmd_args

@@ -1,0 +1,153 @@
+// parser boilerplate code
+namespace details {
+
+    template<
+            class _t,
+            class _class_t,
+            bool (_class_t::*_val_method)() const,
+            _t (_class_t::*_get_method)() const
+    >
+    inline bool read(const _class_t &source, _t &dest) {
+        if (!(source.*_val_method)())
+            return false;
+        dest = (source.*_get_method)();
+        return true;
+    }
+
+    inline bool read(const value & source, string & dest) {
+        if (!source.is_string ())
+            return false;
+        dest = source.as_string();
+        return true;
+    }
+}
+
+
+inline bool read (const value & source, bool & dest ) {
+    return details::read <
+            bool,
+            value,
+            &value::is_boolean,
+            &value::as_bool
+    > ( source, dest);
+}
+
+inline bool read (const value & source, string & dest ) {
+    return details::read (source, dest);
+}
+
+inline bool read (const value & source, int32_t & dest ) {
+    if (!source.is_number ())
+        return false;
+
+    return details::read <
+            int32_t,
+            number,
+            &number::is_int32,
+            &number::to_int32
+    >( source.as_number (), dest );
+}
+
+inline bool read (const value & source, int64_t & dest ) {
+    if (!source.is_number ())
+        return false;
+
+    return details::read <
+            int64_t,
+            number,
+            &number::is_int64,
+            &number::to_int64
+    >( source.as_number (), dest );
+}
+
+inline bool read (const value & source, uint32_t & dest ) {
+    if (!source.is_number ())
+        return false;
+
+    return details::read <
+            uint32_t,
+            number,
+            &number::is_uint32,
+            &number::to_uint32
+    >( source.as_number (), dest );
+}
+
+inline bool read (const value & source, uint64_t & dest ) {
+    if (!source.is_number ())
+        return false;
+
+    return details::read <
+            uint64_t,
+            number,
+            &number::is_uint64,
+            &number::to_uint64
+    >( source.as_number (), dest );
+}
+
+template < class _t >
+inline bool read (const value & source, vector < _t > & dest) {
+    if (!source.is_array())
+        return false;
+
+    auto array_obj = source.as_array ();
+    uint64_t size = static_cast < uint64_t > (array_obj.size ());
+
+    dest.resize (size);
+
+    bool success = true;
+
+    for (uint64_t i = 0; i < size; ++i)
+        success = read (array_obj.at(i), dest[i]) && success;
+
+    return success;
+}
+
+template < class _t > inline bool read_field_details (const object & obj, const char * field_name, _t & dest ) {
+    auto it = obj.find (field_name);
+
+    if (it == obj.end ())
+        return false;
+
+    return read ((*it).second, dest);
+}
+
+// writers
+inline value write (const std::string & source) {
+    return web::json::value::string(source);
+}
+
+inline value write (bool source) {
+    return web::json::value::boolean(source);
+}
+
+inline value write (const unsigned int & source) {
+    return web::json::value::number (source);
+}
+
+inline value write (const double & source ) {
+    return web::json::value::number (source);
+}
+
+inline value write_null () {
+    return web::json::value::null();
+}
+
+template <
+        class _t
+>
+inline value write (const vector < _t > & source) {
+
+    size_t size = source.size ();
+
+    if (size == 0)
+        return write_null();
+
+    auto array = value::array(size);
+
+    for (size_t i = 0; i < size; ++i)
+        array[i] = write (source[i]);
+
+    return array;
+}
+
+// generated code

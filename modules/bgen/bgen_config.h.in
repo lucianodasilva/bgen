@@ -1,0 +1,29 @@
+#pragma once
+#ifndef _bgen_config_h_in_
+#define _bgen_config_h_in_
+
+#include <bgen.h>
+#include <vector>
+
+using namespace std;
+
+namespace bgen {
+
+	${BGEN_LANGUAGE_PLUGIN_DEF}
+
+	struct config : no_copy {
+	public:
+		
+		static inline const vector < base_language_plugin * > & get_language_plugins () {
+			static const plugin_vector plugins = {
+				${BGEN_LANGUAGE_PLUGIN_LIST}
+			};
+			
+			return plugins;
+		}
+		
+	};
+
+}
+
+#endif
