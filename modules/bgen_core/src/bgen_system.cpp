@@ -5,13 +5,38 @@
 
 #if defined (BGEN_OS_WINDOWS)
 
+#elif defined (BGEN_OS_LINUX)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <limits>
+#include <cinttypes>
+
+namespace bgen {
+    namespace system {
+        
+        string get_executable_path () {
+            char * path = realpath ("/prod/self/exe", nullptr);
+            
+            if (!path)
+                return "";
+            
+            string result = path;
+            free (path);
+            return result;
+        }
+        
+    }
+}
+
 
 #elif defined (BGEN_OS_DARWIN)
 
 #include <mach-o/dyld.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include <limits>
+#include <stdlib>
+#include <string>
 #include <dlfcn.h>
 
 namespace bgen {

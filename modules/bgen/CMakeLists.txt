@@ -27,3 +27,9 @@ if (APPLE)
         "$<TARGET_FILE:${PROJECT_NAME}>"
     )
 endif()
+
+install(
+    TARGETS bgen 
+    RUNTIME DESTINATION bin
+    CONFIGURATIONS Release
+)
