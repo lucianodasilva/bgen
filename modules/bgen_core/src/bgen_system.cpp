@@ -34,8 +34,8 @@ namespace bgen {
 #elif defined (BGEN_OS_DARWIN)
 
 #include <mach-o/dyld.h>
-#include <limits>
-#include <stdlib>
+#include <limits.h>
+#include <stdlib.h>
 #include <string>
 #include <dlfcn.h>
 
