@@ -28,8 +28,16 @@ if (APPLE)
     )
 endif()
 
-install(
-    TARGETS bgen 
-    RUNTIME DESTINATION bin
-    CONFIGURATIONS Release
-)
+if (UNIX OR APPLE)
+
+    install(
+        TARGETS bgen 
+        RUNTIME DESTINATION bgen
+        CONFIGURATIONS Release
+    )
+
+    # create bin symlink
+    install (
+        CODE "EXECUTE_PROCESS(COMMAND ln -sf ${CMAKE_INSTALL_PREFIX}/bgen/bgen /usr/local/bin/bgen)"
+    )
+endif ()

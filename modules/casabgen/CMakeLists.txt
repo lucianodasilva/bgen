@@ -5,5 +5,5 @@ add_custom_command (TARGET casabgen
 )
 
 install (
-    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/resources DESTINATION bin
+    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/resources DESTINATION bgen
 )

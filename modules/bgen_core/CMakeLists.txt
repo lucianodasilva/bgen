@@ -19,6 +19,11 @@ else ()
 	    add_custom_command (TARGET bgen_core 
 			POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib $<TARGET_FILE_DIR:bgen_core>
 		)
+        install (
+            FILES ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib 
+            DESTINATION /usr/local/bgen/
+            CONFIGURATIONS Release
+        )
 	endif ()
 	
 	list (APPEND core_dependencies clang)  
