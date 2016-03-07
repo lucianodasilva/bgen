@@ -57,7 +57,7 @@ endmacro ()
 
 macro (eval_cmakelists module_path)
 	if (EXISTS ${module_path}/CMakeLists.txt)
-		include (${module_path}/CMAKELists.txt)
+		include (${module_path}/CMakeLists.txt)
 	endif ()
 endmacro ()
 
