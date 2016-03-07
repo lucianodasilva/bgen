@@ -14,15 +14,15 @@ if (MSVC)
 	)
 
 	list(APPEND core_dependencies libClang)
+else ()
+	if (APPLE)
+	    add_custom_command (TARGET bgen_core 
+			POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib $<TARGET_FILE_DIR:bgen_core>
+		)
+	endif ()
+	
+	list (APPEND core_dependencies clang)  
 endif()
-
-if (APPLE)
-    add_custom_command (TARGET bgen_core 
-		POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib $<TARGET_FILE_DIR:bgen_core>
-	)
-
-	list (APPEND core_dependencies clang)   
-endif ()
 
 add_module_dependencies (bgen_core ${core_dependencies})
 
