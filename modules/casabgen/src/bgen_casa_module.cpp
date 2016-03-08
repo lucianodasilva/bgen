@@ -33,6 +33,7 @@ namespace bgen {
         
         root->make_item < gen::cpp::includes > ( vector <string> {
             "cpprest/json.h",
+            "cpprest/http_listener.h",
             "cinttypes",
             "map",
             "memory",
@@ -40,6 +41,13 @@ namespace bgen {
             "vector",
             "type_traits"
         });
+        
+        root->make_item < gen::text > ("using namespace web;");
+        root->make_item < gen::text > ("using namespace web::json;");
+        root->make_item < gen::text > ("using namespace web::http;");
+        root->make_item < gen::text > ("using namespace web::http::experimental::listener;");
+        
+        root->make_item < gen::text > ("using namespace std;");
         
         auto nspace = root->make_item < gen::cpp::cpp_namespace > (
             vector < string > {"poww", "rest"}

@@ -120,11 +120,15 @@ inline value write (bool source) {
     return web::json::value::boolean(source);
 }
 
-inline value write (const unsigned int & source) {
+inline value write (int source) {
     return web::json::value::number (source);
 }
 
-inline value write (const double & source ) {
+inline value write (unsigned int source) {
+    return web::json::value::number (source);
+}
+
+inline value write ( double source ) {
     return web::json::value::number (source);
 }
 
