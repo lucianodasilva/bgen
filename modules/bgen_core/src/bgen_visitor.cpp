@@ -2,8 +2,9 @@
 
 #include "bgen_clang.h"
 #include "bgen_details.h"
-#include "bgen_parameters.h"
 #include "bgen_logger.h"
+#include "bgen_parameters.h"
+#include "bgen_error_status.h"
 
 namespace bgen {
 
@@ -482,7 +483,7 @@ namespace bgen {
 			break;
 		case CXCursorKind::CXCursor_FunctionTemplate:
             logger::write (clang::get_location(cursor)) << "function templates not supported";
-            cxt.warn();
+            error_status::warn();
 			break;
 		case CXCursorKind::CXCursor_Constructor:
 			internal::handle_method_def (cxt, cursor, true);
@@ -504,7 +505,7 @@ namespace bgen {
 		return CXChildVisitResult::CXChildVisit_Continue;
 	}
 
-	success_type visitor::parse(
+	void visitor::parse(
 		base_language_plugin * plugin,
         type_map & out_map
 	) {
@@ -552,11 +553,12 @@ namespace bgen {
 				//TODO: diagnostic messages outside the set 
 				//		of source files should not be considered
 				internal::report_diagnostics(cxt, tu);
-                cxt.warn ();
+                error_status::warn ();
                 
                 if (internal::check_for_errors (tu)) {
                     out_map = type_map ();
-                    return success_type::failure;
+                    error_status::fail ();
+                    return ;
                 }
 			}
 
@@ -575,12 +577,10 @@ namespace bgen {
 
 		dependency::sort (cxt.types._sorted_dependencies);
         
-        if (cxt.state() == success_type::failure)
+        if (error_status::status () == error_status_type::failure)
             out_map = type_map ();
         else
             out_map = move (cxt.types);
-		
-        return cxt.state ();
 	}
 	
 }

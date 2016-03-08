@@ -35,21 +35,11 @@ namespace bgen {
             
             map < string, dependency > 
                                 active_dependencies;
-            
-        private:
-            success_type        _state;
-        public:
-            
-            inline success_type state () { return _state; }
-            
-            inline void warn () { if (_state != success_type::failure) _state = success_type::warnings; }
-            
-            inline void fail () { _state = success_type::failure; }
 		};
 
 	public:
 
-		static success_type parse(
+		static void parse(
 			base_language_plugin * plugin, type_map & out_map
 		);
 

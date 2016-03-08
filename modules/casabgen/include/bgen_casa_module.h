@@ -7,7 +7,7 @@
 namespace bgen {
 
 	class casablanca_plugin : public base_language_plugin {
-	private:
+    public:
 
 		virtual string handled_language() const override;
 		virtual bool handles_language(const std::string & lang) const override;

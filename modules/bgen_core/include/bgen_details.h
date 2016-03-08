@@ -85,12 +85,6 @@ namespace bgen {
 #	define macro_cat_impl(x,y) x##y
 #	define macro_cat(x,y) macro_cat_impl (x, y)
 #	define auto_guard auto macro_cat (__scopeguard_, __LINE__) = bgen::scope_guard
-
-    enum struct success_type : uint32_t {
-        success,
-        warnings,
-        failure
-    };
     
 }
 

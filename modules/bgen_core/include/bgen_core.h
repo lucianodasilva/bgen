@@ -4,6 +4,7 @@
 
 #include "bgen_details.h"
 #include "bgen_dependency.h"
+#include "bgen_error_status.h"
 #include "bgen_gen_cpp.h"
 #include "bgen_gen_elements.h"
 #include "bgen_gen_file.h"

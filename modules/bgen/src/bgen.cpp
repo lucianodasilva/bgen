@@ -8,17 +8,11 @@
 #include <iostream>
 #include <string>
 
+#include "bgen_error_status.h"
 #include "bgen_parameters.h"
 
 using namespace std;
 using namespace bgen;
-
-/*
- * TODO: In java packages must correspond to the proper folder
- * structure of the source code. Therefore the file generator
- * must also be a "folder" generator.
- *
- */
 
 void show_version( parameters & params ) {
 	cout << "bgen version 0.01" << endl;
@@ -75,35 +69,13 @@ void process(parameters & params) {
 
     auto types = type_map ();
     
-    auto state = visitor::parse( plugin, types);
+    visitor::parse( plugin, types);
     
-    if (state != success_type::failure)
+    if (error_status::status () != error_status_type::failure)
         plugin->generate (types);
 }
 
 int main(int arg_c, char * arg_v[]) {
-
-    /*
-	// demo
-    auto & demo_params = parameters::get ();
-    demo_params.language = "casablanca";
-     
-    // testing
-    // demo_params.source_files.push_back("Z:\\dev\\clang_parser\\generator\\generator\\Test.h");
-    // stl
-    // demo_params.include_paths.push_back("C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\include");
-     
-    demo_params.include_paths.push_back("/Library/Developer/CommandLineTools/usr/include/c++/v1/");
-    demo_params.include_paths.push_back("/Library/Developer/CommandLineTools/usr/lib/clang/7.0.2/include");
-     
-    demo_params.source_files.push_back ("/Users/lucianosilva/dev/casablanca-demo.git/src/services.h");
-     
-    demo_params.client_dest = "/Users/lucianosilva/dev/bgen.git/build/";
-    demo_params.host_dest = "/Users/lucianosilva/dev/bgen.git/build/";
-     
-	process(demo_params);
-	return 0;
-     */
     
 	using namespace command_line;
 
@@ -127,9 +99,13 @@ int main(int arg_c, char * arg_v[]) {
 	auto & params = parameters::get();
 
 	if (!parse (expression, arg_c, arg_v, params)) {
+        error_status::fail ();
         logger::write () << "unexpected command line arguments found";
         show_usage(params);
 	}
-
+    
+    if (error_status::status () == error_status_type::failure)
+        return -1;
+    
 	return 0;
 }

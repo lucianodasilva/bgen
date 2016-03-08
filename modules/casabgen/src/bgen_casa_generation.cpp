@@ -218,6 +218,7 @@ namespace bgen {
                 
                 if (!stream) {
                     logger::write () << "failed to read resource file at " << _file_name;
+                    error_status::fail();
                     return;
                 }
                 
