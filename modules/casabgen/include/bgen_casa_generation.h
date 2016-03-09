@@ -21,12 +21,34 @@ namespace bgen {
             
             string method_listener_name (const method_info & info, const string & rest_method);
 
+            class parser_reader_pre : public bgen::gen::element_base {
+            private:
+                struct_info::shared _info;
+            public:
+                
+                parser_reader_pre (const struct_info::shared & info);
+                
+                virtual void write (bgen::gen::output & out) const override;
+                
+            };
+            
             class parser_reader : public bgen::gen::element_base {
             private:
                 struct_info::shared _info;
             public:
                 
                 parser_reader (const struct_info::shared & info);
+                
+                virtual void write (bgen::gen::output & out) const override;
+                
+            };
+            
+            class parser_writer_pre : public bgen::gen::element_base {
+            private:
+                struct_info::shared _info;
+            public:
+                
+                parser_writer_pre (const struct_info::shared & info);
                 
                 virtual void write (bgen::gen::output & out) const override;
                 

@@ -47,6 +47,15 @@ namespace bgen {
                 return stream.str ();
             }
             
+            parser_reader_pre::parser_reader_pre (const struct_info::shared & info) : _info (info) {}
+            
+            void parser_reader_pre::write (bgen::gen::output & out) const {
+                out.line ()
+                    << "inline bool read (const value & source, "
+                    << _info->native_name ()
+                    << " & dest );";
+            }
+            
             parser_reader::parser_reader (const struct_info::shared & info) : _info (info) {}
             
             void parser_reader::write (bgen::gen::output & out) const {
@@ -106,6 +115,15 @@ namespace bgen {
                 
                 out.line ()
                     << "}";
+            }
+            
+            parser_writer_pre::parser_writer_pre (const struct_info::shared & info) : _info (info) {}
+            
+            void parser_writer_pre::write (bgen::gen::output & out) const {
+                out.line ()
+                    << "inline value write (const "
+                    << _info->native_name ()
+                    << " & source );";
             }
             
             listener_post::listener_post (const method_info & info) :

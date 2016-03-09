@@ -57,12 +57,23 @@ namespace bgen {
             vector < string > { "parse" }
         );
         
+        auto source_types = types.sorted_structs();
+        
+        // Generate predefinition
+        for (auto & s : source_types) {
+            if (s->is_visited())
+                nspace_parse->make_item < casa::gen::parser_reader_pre > (s);
+        }
+        
+        for (auto & s : source_types) {
+            if (s->is_visited())
+                nspace_parse->make_item < casa::gen::parser_writer_pre > (s);
+        }
+        
         // Write boilerplate
         string parser_bplate_file = system::merge_path(system::get_executable_dir(), casa::parser_boilerplate_location);
         
         nspace_parse->make_item<casa::gen::boilerplate>(parser_bplate_file);
-        
-        auto source_types = types.sorted_structs();
 
         // Generate serialization reader
         for (auto & s : source_types) {
