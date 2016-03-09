@@ -50,7 +50,7 @@ namespace bgen {
         root->make_item < gen::text > ("using namespace std;");
         
         auto nspace = root->make_item < gen::cpp::cpp_namespace > (
-            vector < string > {"poww", "rest"}
+            vector < string > {"casa", "rest"}
         );
         
         auto nspace_parse = nspace->make_item < gen::cpp::cpp_namespace > (
