@@ -17,7 +17,7 @@ namespace bgen {
     namespace system {
         
         string get_executable_path () {
-            char * path = realpath ("/prod/self/exe", nullptr);
+            char * path = realpath ("/proc/self/exe", nullptr);
             
             if (!path)
                 return "";
