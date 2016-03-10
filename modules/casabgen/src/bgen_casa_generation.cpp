@@ -202,7 +202,7 @@ namespace bgen {
                     out.line ()
                         << "builder.set_path(\"" << namespace_to_uri (m.namespace_name ()) << "/" << m.name () << "\");";
                     out.line ()
-                        << "lv [" << i << "] = http_listener (builder.to_uri().to_string());";
+                        << "new (&lv [" << i << "]) http_listener (builder.to_uri().to_string());";
                     
                     if (m.params ().size () == 0) {
                         out.line ()
