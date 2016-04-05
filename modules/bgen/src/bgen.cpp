@@ -97,10 +97,16 @@ int main(int arg_c, char * arg_v[]) {
 	;
 
 	auto & params = parameters::get();
+    
+    auto parse_result = parse (expression, arg_c, arg_v, params);
 
-	if (!parse (expression, arg_c, arg_v, params)) {
+	if (!parse_result) {
         error_status::fail ();
         logger::write () << "unexpected command line arguments found";
+        
+        for (auto & error : parse_result.messages ())
+            logger::write () << error;
+        
         show_usage(params);
 	}
     
