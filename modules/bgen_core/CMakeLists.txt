@@ -8,6 +8,12 @@ include_directories (${BGEN_LIBCLANG_INCLUDE_PATH})
 link_directories(${BGEN_LIBCLANG_LIB_PATH})
 
 if (MSVC)
+	add_definitions(
+		-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+		-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1
+		-D_CRT_SECURE_NO_WARNINGS=1
+	)
+
 	set (BGEN_LIBCLANG_DLL_PATH "" CACHE FILEPATH "libClang dll file")
 	add_custom_command (TARGET bgen_core 
 		POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_DLL_PATH} $<TARGET_FILE_DIR:bgen_core>

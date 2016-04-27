@@ -5,6 +5,38 @@
 
 #if defined (BGEN_OS_WINDOWS)
 
+#define WIN32_LEAN_AND_MEAN 1
+#include <stdio.h>
+#include <Windows.h>
+
+namespace bgen {
+	namespace system {
+
+		string get_executable_path() {
+			HMODULE hModule = GetModuleHandle(NULL);
+			WCHAR path[MAX_PATH];
+			DWORD len = GetModuleFileNameW(hModule, path, MAX_PATH);
+
+			if (!len)
+				return "";
+
+			DWORD dest_len = wcstombs(nullptr, +path, len);
+
+			if (!dest_len)
+				return "";
+
+			char * dest_buffer = new char[dest_len];
+			auto_guard([&dest_buffer]() {
+				delete[] dest_buffer;
+			});
+
+			wcstombs (dest_buffer, +path, len);
+			return string (dest_buffer, dest_len);
+		}
+
+	}
+}
+
 #elif defined (BGEN_OS_LINUX)
 
 #include <stdio.h>
