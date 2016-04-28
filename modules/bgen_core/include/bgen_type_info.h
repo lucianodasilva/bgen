@@ -4,6 +4,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 using namespace std;
 
@@ -54,6 +55,16 @@ namespace bgen {
 		type_kind_incomplete_array
     };
 
+	struct type_info;
+
+	struct template_param_info {
+	private:
+		shared_ptr < type_info > _type;
+	public:
+		template_param_info (const shared_ptr < type_info > & type_v);
+		shared_ptr < type_info > type () const;
+	};
+
 	struct type_info {
 	public:
 
@@ -71,6 +82,8 @@ namespace bgen {
 
 		shared_ptr < struct_info > _struct_info;
 
+		vector < template_param_info > _template_params;
+
 	public:
 
 		const string & native_type_name () const;
@@ -83,6 +96,8 @@ namespace bgen {
 		type_info::shared base() const;
 
         shared_ptr < struct_info > struct_info () const;
+
+		const vector < template_param_info > template_params () const;
         
         static type_info::shared find_root (type_info::shared type);
 

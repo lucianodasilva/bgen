@@ -18,6 +18,7 @@ namespace bgen {
                 js_int,
                 js_float,
                 boolean,
+                string,
                 array,
                 object
             };

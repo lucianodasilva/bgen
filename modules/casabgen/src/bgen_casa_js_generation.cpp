@@ -98,12 +98,8 @@ namespace bgen {
                     for (int i = 0; i < method_count; ++i) {
                         auto & m = methods[i];
 
-                        js_type type = cast_type_to_js(m.return_type ());
-
-                        if (type == js_type::unknown) {
-                            logger::write (m.location()) << "unsupported type. service ignored.";
+                        if (!check_types_support (m))
                             continue;
-                        }
 
                         casa_urls->make_item < url_element > (m, i == method_count - 1);
 

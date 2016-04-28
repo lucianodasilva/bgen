@@ -39,11 +39,30 @@ namespace bgen {
                         return js_type::js_float;
 
                     case (type_kind::type_kind_struct):
-                        if (type->struct_info()->name () == "vector")
+                    {
+                        struct_info::shared strt = type->struct_info();
+
+                        if (!strt)
+                            return js_type::unknown;
+
+                        if (
+                            strt->name () == "vector" &&
+                            strt->namespace_name().size () > 0 &&
+                            strt->namespace_name()[0] == "std" &&
+                            type->template_params().size () > 0 &&
+                            cast_type_to_js(type->template_params()[0].type ()) != js_type::unknown
+                        )
                             return js_type::array;
 
-                        return js_type::object;
+                        if (
+                            strt->name () == "string" &&
+                            strt->namespace_name ().size () &&
+                            strt->namespace_name ()[0] == "std"
+                        )
+                            return js_type::string;
 
+                        return js_type::object;
+                    }
                     case type_kind::type_kind_void:
                     case type_kind::type_kind_pointer:
                     case type_kind::type_kind_lvalue_ref:
@@ -67,8 +86,18 @@ namespace bgen {
                 js_type rtype = cast_type_to_js(method.return_type());
 
                 if (rtype == js_type::unknown) {
-                    logger::write(method.location()) << "unsupported type.";
+                    logger::write(method.location()) << "unsupported return type";
                     is_supported = false;
+                }
+
+                if (method.params().size () > 0) {
+                    for (auto & p : method.params ()) {
+                        js_type ptype = cast_type_to_js(p.type());
+                        if (ptype == js_type::unknown) {
+                            logger::write (method.location()) << "unsupported parameter \"" << p.name () << "\" type";
+                            is_supported = false;
+                        }
+                    }
                 }
 
                 return is_supported;
