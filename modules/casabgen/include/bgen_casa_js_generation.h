@@ -5,6 +5,7 @@
 #include <bgen_core.h>
 #include <functional>
 #include <string>
+#include "bgen_casa_generation.h"
 
 using namespace std;
 
@@ -12,6 +13,8 @@ namespace bgen {
     namespace casa {
         namespace gen {
             namespace js {
+
+                string map_type_cast (js_type type, const type_info::shared & native_type);
 
                 class struct_definition : public bgen::gen::group {
                 private:
@@ -54,8 +57,17 @@ namespace bgen {
                 class service_post : public bgen::gen::element_base {
                 private:
                     const method_info & _method;
+                    const bool _is_last;
                 public:
                     service_post (const method_info & method, bool is_last);
+                    virtual void write (bgen::gen::output & out) const override;
+                };
+
+                class parser_reader : public bgen::gen::element_base {
+                private:
+                    struct_info::shared _struct;
+                public:
+                    parser_reader (const struct_info::shared & stct);
                     virtual void write (bgen::gen::output & out) const override;
                 };
 

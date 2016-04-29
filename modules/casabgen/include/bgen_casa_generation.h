@@ -15,6 +15,7 @@ namespace bgen {
 
             enum struct js_type : uint32_t {
                 unknown,
+                js_void,
                 js_int,
                 js_float,
                 boolean,

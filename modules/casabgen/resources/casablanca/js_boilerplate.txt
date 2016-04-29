@@ -39,7 +39,7 @@ var casa = {
                 httpRequest.send (null);
             });
         },
-        restPost : function (url, params) {
+        restPost : function (url, param) {
             return new Promise((resolve, reject) => {
                 const httpRequest = new XMLHttpRequest ();
                 httpRequest.onreadystatechange = () => {
@@ -53,7 +53,7 @@ var casa = {
                 }
 
                 httpRequest.open ("POST", url, true);
-                httpRequest.send (params);
+                httpRequest.send (param);
             });
         }
     }

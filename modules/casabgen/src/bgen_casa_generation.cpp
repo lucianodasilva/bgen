@@ -42,6 +42,8 @@ namespace bgen {
                     {
                         struct_info::shared strt = type->struct_info();
 
+                        string dbg_name = strt->name ();
+
                         if (!strt)
                             return js_type::unknown;
 
@@ -49,13 +51,19 @@ namespace bgen {
                             strt->name () == "vector" &&
                             strt->namespace_name().size () > 0 &&
                             strt->namespace_name()[0] == "std" &&
-                            type->template_params().size () > 0 &&
-                            cast_type_to_js(type->template_params()[0].type ()) != js_type::unknown
-                        )
+                            type->template_params().size () > 0
+                        ) {
+                            js_type array_js_type = cast_type_to_js(type->template_params()[0].type ());
+
+                            // do not support nested arrays
+                            if (array_js_type == js_type::unknown || array_js_type == js_type::array)
+                                return js_type::unknown;
+
                             return js_type::array;
+                        }
 
                         if (
-                            strt->name () == "string" &&
+                            strt->name () == "basic_string" &&
                             strt->namespace_name ().size () &&
                             strt->namespace_name ()[0] == "std"
                         )
@@ -63,10 +71,12 @@ namespace bgen {
 
                         return js_type::object;
                     }
-                    case type_kind::type_kind_void:
-                    case type_kind::type_kind_pointer:
                     case type_kind::type_kind_lvalue_ref:
                     case type_kind::type_kind_rvalue_ref:
+                        return cast_type_to_js(type->base());
+                    case type_kind::type_kind_void:
+                        return js_type::js_void;
+                    case type_kind::type_kind_pointer:
                     case type_kind::type_kind_enum:
                     case type_kind::type_kind_constant_array:
                     case type_kind::type_kind_incomplete_array:
@@ -90,7 +100,7 @@ namespace bgen {
                     is_supported = false;
                 }
 
-                if (method.params().size () > 0) {
+                if (method.params().size () == 0) {
                     for (auto & p : method.params ()) {
                         js_type ptype = cast_type_to_js(p.type());
                         if (ptype == js_type::unknown) {
@@ -98,6 +108,9 @@ namespace bgen {
                             is_supported = false;
                         }
                     }
+                } else if (method.params().size() > 1) {
+                    logger::write(method.location()) << "supported methods can only have a single or no parameters";
+                    is_supported = false;
                 }
 
                 return is_supported;

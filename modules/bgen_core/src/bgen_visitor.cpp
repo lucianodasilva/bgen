@@ -96,36 +96,37 @@ namespace bgen {
 		);
 
 		static inline void handle_inplace_struct (context & cxt, const CXType & src_type, const type_info::shared & type) {
+			auto decl_cursor = clang_getTypeDeclaration (src_type);
+			auto decl_type = clang_getCursorType(decl_cursor);
+
+			string native_name = clang::get_spelling(decl_type);
+			string stct_name = clang::get_spelling (decl_cursor);
+
+			bool is_struct = decl_cursor.kind == CXCursor_StructDecl || decl_cursor.kind == CXCursor_ClassDecl;
+
+			if (!is_struct)
+				return;
+
+			type->_kind = type_kind::type_kind_struct;
+			type->_struct_info = cxt.types.make_struct (
+					native_name
+			);
+
+			type->_struct_info->_name = stct_name;
+
+			// extract namespace
+			list < string > nspace_info;
+			CXCursor parent = clang_getCursorSemanticParent(decl_cursor);
+
+			while (parent.kind == CXCursorKind::CXCursor_Namespace) {
+				nspace_info.push_front (clang::get_spelling(parent));
+				parent = clang_getCursorSemanticParent(parent);
+			}
+
+			type->_struct_info->_namespace_name = namespace_info (nspace_info.begin (), nspace_info.end ());
 
 			int t_num = clang_Type_getNumTemplateArguments(src_type);
 			if (t_num != 0) {
-				auto decl_cursor = clang_getTypeDeclaration (src_type);
-				auto decl_type = clang_getCursorType(decl_cursor);
-
-				string native_name = clang::get_spelling(decl_type);
-				string stct_name = clang::get_spelling (decl_cursor);
-
-				bool is_struct = decl_cursor.kind == CXCursor_StructDecl || decl_cursor.kind == CXCursor_ClassDecl;
-
-				type->_kind = type_kind::type_kind_struct;
-				type->_struct_info = cxt.types.make_struct (
-						native_name
-				);
-
-				type->_struct_info->_name = stct_name;
-
-				// extract namespace
-				list < string > nspace_info;
-				CXCursor parent = clang_getCursorSemanticParent(decl_cursor);
-
-				while (parent.kind == CXCursorKind::CXCursor_Namespace) {
-					nspace_info.push_front (clang::get_spelling(parent));
-					parent = clang_getCursorSemanticParent(parent);
-				}
-
-
-				type->_struct_info->_namespace_name = namespace_info (nspace_info.begin (), nspace_info.end ());
-
 				for (int ti = 0; ti < t_num; ++ti) {
 					auto ttype = clang_Type_getTemplateArgumentAsType(src_type, ti);
 					if (ttype.kind == CXType_Invalid) {
@@ -268,21 +269,14 @@ namespace bgen {
 					type->_base = handle_type(cxt, clang_getPointeeType(src_type));
 					break;
 				case (type_kind::type_kind_struct) :
-                    {
-                        string struct_name = native_name;
-                        
-                        int t_num = clang_Type_getNumTemplateArguments(src_type);
-                        if (t_num != 0) {
-                            auto decl = clang_getTypeDeclaration (src_type);
-                            auto decl_type = clang_getCursorType(decl);
-                            struct_name = clang::get_spelling(decl_type);
-                        }
-                        
-                        type->_struct_info = cxt.types.make_struct(struct_name);
-                    }
+					handle_inplace_struct(cxt, src_type, type);
 					break;
                 case (type_kind::type_kind_unhandled) :
-                    handle_inplace_struct(cxt, src_type, type);
+					{
+						int t_num = clang_Type_getNumTemplateArguments(src_type);
+						if (t_num != 0)
+							handle_inplace_struct(cxt, src_type, type);
+					}
                     break;
 				case (type_kind::type_kind_enum) :
 					// still not supported
