@@ -94,7 +94,7 @@ namespace bgen {
                 };
 
                 void generate (
-                    type_map & types,
+                    bgen::type_map & types,
                     const string & output_file_name,
                     const string & parser_boilerplate_location,
                     const string & listener_boilerplate_location

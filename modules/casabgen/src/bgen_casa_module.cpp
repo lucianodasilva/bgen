@@ -1,5 +1,7 @@
 #include "bgen_casa_module.h"
+#include "bgen_casa_common.h"
 #include "bgen_casa_generation.h"
+#include "bgen_casa_validation.h"
 #include "bgen_casa_cpp_generation.h"
 #include "bgen_casa_js_generation.h"
 
@@ -21,7 +23,11 @@ namespace bgen {
         return lang == "casablanca";
     }
 
-    void casablanca_plugin::generate (type_map & types) const {
+    void casablanca_plugin::generate (bgen::type_map & types) const {
+
+        casa::type_map intermediate;
+
+        casa::validation::validate_and_set(types, intermediate);
 
         bgen::casa::gen::cpp::generate (
             types,
@@ -31,7 +37,7 @@ namespace bgen {
         );
 
         bgen::casa::gen::js::generate (
-            types,
+            intermediate,
             "casa_rest_client.js",
             "resources/casablanca/js_boilerplate.txt"
         );

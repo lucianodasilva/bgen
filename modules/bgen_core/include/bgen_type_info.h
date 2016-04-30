@@ -97,7 +97,7 @@ namespace bgen {
 
         shared_ptr < struct_info > struct_info () const;
 
-		const vector < template_param_info > template_params () const;
+		const vector < template_param_info > & template_params () const;
         
         static type_info::shared find_root (type_info::shared type);
 

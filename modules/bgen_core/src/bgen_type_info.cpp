@@ -39,7 +39,7 @@ namespace bgen {
         return _struct_info;
     }
 
-	const vector < template_param_info > type_info::template_params() const {
+	const vector < template_param_info > & type_info::template_params() const {
 		return _template_params;
 	}
     
