@@ -14,35 +14,33 @@ namespace bgen {
 
             namespace cpp {
 
-                string method_listener_name(const method_info &info, const string &rest_method) {
+                string method_listener_name(const shared_ptr < service > & service_inst, const string &rest_method) {
                     stringstream stream;
 
                     stream
-                    << "handle_"
-                    << gen::namespace_to_listener(info.namespace_name())
-                    << "_"
-                    << info.name()
-                    << "_"
-                    << rest_method;
+                        << "handle_"
+                        << gen::namespace_to_listener(service_inst->native_method.namespace_name())
+                        << "_"
+                        << service_inst->name
+                        << "_"
+                        << rest_method;
 
                     return stream.str();
                 }
 
-                parser_reader_pre::parser_reader_pre(const struct_info::shared &info) : _info(info) { }
+                struct_element::struct_element(const shared_ptr<structure> &stct) : _struct (stct){}
 
                 void parser_reader_pre::write(bgen::gen::output &out) const {
                     out.line()
                     << "inline bool read (const value & source, "
-                    << _info->native_name()
+                    << _struct->native_struct->native_name()
                     << " & dest );";
                 }
-
-                parser_reader::parser_reader(const struct_info::shared &info) : _info(info) { }
 
                 void parser_reader::write(bgen::gen::output &out) const {
                     out.line()
                     << "inline bool read (const value & source, "
-                    << _info->native_name()
+                    << _struct->native_struct->native_name()
                     << " & dest ) {";
 
                     ++out.indent;
@@ -54,9 +52,9 @@ namespace bgen {
                     out.line();
                     out.line() << "bool success = true;";
 
-                    for (auto &f : _info->fields()) {
+                    for (auto &f : _struct->fields) {
                         out.line() << "success = read_field_details (source_obj, \""
-                        << f.name() << "\", dest." << f.name() <<
+                        << f.name << "\", dest." << f.name <<
                         ") && success;";
                     }
 
@@ -69,13 +67,11 @@ namespace bgen {
                     out.line();
                 }
 
-                parser_writer::parser_writer(const struct_info::shared &info) : _info(info) { }
-
                 void parser_writer::write(bgen::gen::output &out) const {
 
                     out.line()
                     << "inline value write (const "
-                    << _info->native_name()
+                    << _struct->native_struct->native_name()
                     << " & source ) {";
 
                     ++out.indent;
@@ -83,10 +79,10 @@ namespace bgen {
                     out.line()
                     << "auto object = web::json::value::object ();";
 
-                    for (auto &f : _info->fields()) {
+                    for (auto &f : _struct->fields) {
                         out.line()
-                        << "object [\"" << f.name() << "\"] = write (source."
-                        << f.name() << ");";
+                        << "object [\"" << f.name << "\"] = write (source."
+                        << f.name << ");";
                     }
 
                     out.line()
@@ -98,32 +94,30 @@ namespace bgen {
                     << "}";
                 }
 
-                parser_writer_pre::parser_writer_pre(const struct_info::shared &info) : _info(info) { }
-
                 void parser_writer_pre::write(bgen::gen::output &out) const {
                     out.line()
                     << "inline value write (const "
-                    << _info->native_name()
+                    << _struct->native_struct->native_name()
                     << " & source );";
                 }
 
-                listener_post::listener_post(const method_info &info) :
-                        _info(info) { }
+                listener_post::listener_post(const shared_ptr < service > & service_inst) :
+                        _service (service_inst) { }
 
                 void listener_post::write(bgen::gen::output &out) const {
 
                     out.line()
                     << "inline void "
-                    << method_listener_name(_info, "post")
+                    << method_listener_name(_service, "post")
                     << " (http_request request) {";
 
                     ++out.indent;
 
                     out.line()
                     << "handle_post <"
-                    << _info.params()[0].type()->native_type_name() << ", "
-                    << _info.return_type()->native_type_name() << ", "
-                    << namespace_to_string(_info.namespace_name(), "::") << "::" << _info.name()
+                    << _service->param_type->native_type->native_type_name() << ", "
+                    << _service->return_type->native_type->native_type_name() << ", "
+                    << namespace_to_string(_service->native_method.namespace_name(), "::") << "::" << _service->name
                     << "> (request);";
 
                     --out.indent;
@@ -132,22 +126,22 @@ namespace bgen {
                     << "}";
                 }
 
-                listener_get::listener_get(const method_info &info) :
-                        _info(info) { }
+                listener_get::listener_get(const shared_ptr < service > & service_inst) :
+                        _service (service_inst) {}
 
                 void listener_get::write(bgen::gen::output &out) const {
 
                     out.line()
                     << "inline void "
-                    << method_listener_name(_info, "get")
+                    << method_listener_name(_service, "get")
                     << " (http_request request) {";
 
                     ++out.indent;
 
                     out.line()
                     << "handle_get <"
-                    << _info.return_type()->native_type_name() << ", "
-                    << namespace_to_string(_info.namespace_name(), "::") << "::" << _info.name()
+                    << _service->return_type->native_type->native_type_name() << ", "
+                    << namespace_to_string(_service->native_method.namespace_name(), "::") << "::" << _service->name
                     << "> (request);";
 
                     --out.indent;
@@ -156,13 +150,18 @@ namespace bgen {
                     << "}";
                 }
 
-                register_listeners::register_listeners(const struct_info::shared &info) : _info(info) { }
-
+                register_listeners::register_listeners(const vector<shared_ptr<service> > &services)
+                    : _services (services)
+                {}
 
                 void register_listeners::write(bgen::gen::output &out) const {
 
-                    out.line()
-                    << "inline std::vector < http_listener > register_listeners ( const std::string & address ) {";
+                    out.line() << "inline std::vector < http_listener > register_listeners (";
+                    ++out.indent;
+                    out.line() << "const std::string & address, ";
+                    out.line() << "http_listener_config config = http_listener_config ()";
+                    --out.indent;
+                    out.line() << ") {";
 
                     ++out.indent;
 
@@ -170,27 +169,27 @@ namespace bgen {
                     << "std::vector < http_listener > lv;";
 
                     out.line()
-                    << "lv.reserve (" << _info->methods().size() << ");";
+                    << "lv.reserve (" << _services.size() << ");";
 
                     out.line()
                     << "uri_builder builder (address);";
 
                     int i = 0;
 
-                    for (auto &m : _info->methods()) {
+                    for (auto & s: _services ) {
                         out.line()
-                        << "builder.set_path(\"" << namespace_to_uri(m.namespace_name()) << "/" << m.name() << "\");";
+                        << "builder.set_path(\"" << namespace_to_uri(s->native_method.namespace_name()) << "/" << s->name << "\");";
                         out.line()
-                        << "new (&lv [" << i << "]) http_listener (builder.to_uri().to_string());";
+                        << "new (&lv [" << i << "]) http_listener (builder.to_uri().to_string(), config);";
 
-                        if (m.params().size() == 0) {
+                        if (!s->param_type) {
                             out.line()
-                            << "lv [" << i << "].support(methods::GET, listeners::" << method_listener_name(m, "get") <<
+                            << "lv [" << i << "].support(methods::GET, listeners::" << method_listener_name(s, "get") <<
                             ");";
                         } else {
                             out.line()
                             << "lv [" << i << "].support(methods::POST, listeners::" <<
-                            method_listener_name(m, "post") <<
+                            method_listener_name(s, "post") <<
                             ");";
                         }
 
@@ -209,7 +208,7 @@ namespace bgen {
                 }
 
                 void generate (
-                        bgen::type_map & types,
+                        casa::type_map & types,
                         const string & output_file_name,
                         const string & parser_boilerplate_location,
                         const string & listener_boilerplate_location
@@ -250,36 +249,24 @@ namespace bgen {
                             vector < string > { "parse" }
                     );
 
-                    auto source_types = types.sorted_structs();
-
-                    // Generate predefinition
-                    for (auto & s : source_types) {
-                        if (s->is_visited())
-                            nspace_parse->make_item < parser_reader_pre > (s);
-                    }
-
-                    for (auto & s : source_types) {
-                        if (s->is_visited())
-                            nspace_parse->make_item < casa::gen::cpp::parser_writer_pre > (s);
-                    }
+                    auto nspace_parse_readers_predef = nspace_parse->make_item < bgen::gen::group >();
+                    auto nspace_parse_writers_predef = nspace_parse->make_item < bgen::gen::group >();
 
                     // Write boilerplate
                     string parser_bplate_file = system::merge_path(system::get_executable_dir(), parser_boilerplate_location);
-
                     nspace_parse->make_item<casa::gen::boilerplate>(parser_bplate_file);
 
-                    // Generate serialization reader
-                    for (auto & s : source_types) {
-                        if (s->is_visited())
-                            nspace_parse->make_item < parser_reader > (s);
-                    }
+                    auto nspace_parse_writers = nspace_parse->make_item < bgen::gen::group > ();
+                    auto nspace_parse_readers = nspace_parse->make_item < bgen::gen::group > ();
 
-                    // Generate serialization writer
-                    for (auto & s : source_types) {
-                        if (s->is_visited())
-                            nspace_parse->make_item < parser_writer > (s);
-                    }
+                    for (auto & sp : types.structures) {
+                        auto & s = sp.second;
 
+                        nspace_parse_readers_predef->make_item < parser_reader_pre > (s);
+                        nspace_parse_writers_predef->make_item < parser_writer_pre > (s);
+                        nspace_parse_readers->make_item < parser_reader > (s);
+                        nspace_parse_writers->make_item < parser_writer > (s);
+                    }
 
                     // Generate http listeners
                     auto nlisteners = nspace->make_item<bgen::gen::cpp::cpp_namespace> (
@@ -291,17 +278,16 @@ namespace bgen {
 
                     nlisteners->make_item<casa::gen::boilerplate>(listener_bplate_file);
 
-                    for (auto & m : types.global()->methods ()) {
-                        if (m.params ().size () == 0)
-                            nlisteners->make_item<listener_get>(m);
-                        else if (m.params ().size () == 1)
-                            nlisteners->make_item<listener_post>(m);
+                    for (auto & s : types.services) {
+                        if (!s->param_type)
+                            nlisteners->make_item<listener_get>(s);
                         else
-                            logger::write(m.location ()) << "unsupported signature for rest service";
+                            nlisteners->make_item<listener_post>(s);
+
                     }
 
                     // Generate user entry point
-                    nspace->make_item<register_listeners>(types.global());
+                    nspace->make_item<register_listeners>(types.services);
 
                     // write output
                     rest_server_header.write ();

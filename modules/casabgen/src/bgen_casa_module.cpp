@@ -30,7 +30,7 @@ namespace bgen {
         casa::validation::validate_and_set(types, intermediate);
 
         bgen::casa::gen::cpp::generate (
-            types,
+            intermediate,
             "casa_rest_server.h",
             "resources/casablanca/parser_boilerplate.txt",
             "resources/casablanca/listener_boilerplate.txt"

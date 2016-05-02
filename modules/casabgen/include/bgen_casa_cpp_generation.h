@@ -4,6 +4,7 @@
 
 #include <bgen_core.h>
 #include <string>
+#include "bgen_casa_common.h"
 
 using namespace std;
 
@@ -14,87 +15,66 @@ namespace bgen {
             
             namespace cpp {
 
-                string method_listener_name(const method_info &info, const string &rest_method);
+                string method_listener_name(const shared_ptr < service > & service_inst, const string &rest_method);
 
-                class parser_reader_pre : public bgen::gen::element_base {
-                private:
-                    struct_info::shared _info;
+                class struct_element : public bgen::gen::element_base {
+                protected:
+                    shared_ptr < structure > _struct;
                 public:
+                    struct_element (const shared_ptr < structure > & stct);
+                };
 
-                    parser_reader_pre(const struct_info::shared &info);
-
+                class parser_reader_pre : public struct_element {
+                public:
+                    using struct_element::struct_element;
                     virtual void write(bgen::gen::output &out) const override;
 
                 };
 
-                class parser_reader : public bgen::gen::element_base {
-                private:
-                    struct_info::shared _info;
+                class parser_reader : public struct_element {
                 public:
-
-                    parser_reader(const struct_info::shared &info);
-
+                    using struct_element::struct_element;
                     virtual void write(bgen::gen::output &out) const override;
-
                 };
 
-                class parser_writer_pre : public bgen::gen::element_base {
-                private:
-                    struct_info::shared _info;
+                class parser_writer_pre : public struct_element {
                 public:
-
-                    parser_writer_pre(const struct_info::shared &info);
-
+                    using struct_element::struct_element;
                     virtual void write(bgen::gen::output &out) const override;
-
                 };
 
-                class parser_writer : public bgen::gen::element_base {
-                private:
-                    struct_info::shared _info;
+                class parser_writer : public struct_element {
                 public:
-
-                    parser_writer(const struct_info::shared &info);
-
+                    using struct_element::struct_element;
                     virtual void write(bgen::gen::output &out) const override;
-
                 };
 
                 class listener_post : public bgen::gen::element_base {
                 private:
-                    method_info _info;
+                    shared_ptr < service > _service;
                 public:
-
-                    listener_post(const method_info &info);
-
+                    listener_post(const shared_ptr < service > & service_inst);
                     virtual void write(bgen::gen::output &out) const override;
-
                 };
 
                 class listener_get : public bgen::gen::element_base {
                 private:
-                    method_info _info;
+                    shared_ptr < service > _service;
                 public:
-
-                    listener_get(const method_info &info);
-
+                    listener_get(const shared_ptr < service > & service_inst);
                     virtual void write(bgen::gen::output &out) const override;
-
                 };
 
                 class register_listeners : public bgen::gen::element_base {
-                private:
-                    struct_info::shared _info;
+                protected:
+                    const vector < shared_ptr < service > > & _services;
                 public:
-
-                    register_listeners(const struct_info::shared &info);
-
+                    register_listeners (const vector < shared_ptr < service > > & services);
                     virtual void write(bgen::gen::output &out) const override;
-
                 };
 
                 void generate (
-                    bgen::type_map & types,
+                    casa::type_map & types,
                     const string & output_file_name,
                     const string & parser_boilerplate_location,
                     const string & listener_boilerplate_location

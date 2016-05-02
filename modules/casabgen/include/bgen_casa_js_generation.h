@@ -68,6 +68,14 @@ namespace bgen {
                     virtual void write (bgen::gen::output & out) const override;
                 };
 
+                class init_element : public bgen::gen::element_base {
+                private:
+                    const vector < shared_ptr < service > > & _services;
+                public:
+                    init_element (const vector < shared_ptr < service > > & services);
+                    virtual void write (bgen::gen::output & out) const override;
+                };
+
                 void generate (
                         casa::type_map & types,
                         const string & output_file_name,

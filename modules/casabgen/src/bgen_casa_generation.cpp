@@ -86,34 +86,6 @@ namespace bgen {
                     default:
                         return js_type::unknown;
                 }
-
-            }
-
-            bool check_types_support (const method_info & method ) {
-
-                bool is_supported = true;
-
-                js_type rtype = cast_type_to_js(method.return_type());
-
-                if (rtype == js_type::unknown) {
-                    logger::write(method.location()) << "unsupported return type";
-                    is_supported = false;
-                }
-
-                if (method.params().size () == 0) {
-                    for (auto & p : method.params ()) {
-                        js_type ptype = cast_type_to_js(p.type());
-                        if (ptype == js_type::unknown) {
-                            logger::write (method.location()) << "unsupported parameter \"" << p.name () << "\" type";
-                            is_supported = false;
-                        }
-                    }
-                } else if (method.params().size() > 1) {
-                    logger::write(method.location()) << "supported methods can only have a single or no parameters";
-                    is_supported = false;
-                }
-
-                return is_supported;
             }
             
             string namespace_to_string (const namespace_info & info, const string & separator) {

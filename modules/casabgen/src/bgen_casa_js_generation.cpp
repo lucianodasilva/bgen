@@ -192,6 +192,23 @@ namespace bgen {
                     out.line () << "};";
                 }
 
+                init_element::init_element(const vector<shared_ptr<service> > &services) : _services (services){}
+
+                void init_element::write(bgen::gen::output &out) const {
+                    out.line ()
+                            << "casa.init = function (url_base) {";
+                    ++out.indent;
+
+                    for (auto & s : _services) {
+                        out.line ()
+                                << "casa.urls." << s->name << " = url_base + casa.urls." << s->name << ";";
+                    }
+
+                    --out.indent;
+                    out.line ()
+                            << "};";
+                }
+
                 void generate (
                         casa::type_map & types,
                         const string & output_file_name,
@@ -213,6 +230,9 @@ namespace bgen {
 
                     auto casa_urls = rest_client.make_item < struct_definition > ("casa.urls");
                     auto casa_services = rest_client.make_item < struct_definition > ("casa.services");
+
+                    rest_client.make_item < init_element > (types.services);
+
                     auto casa_structs = rest_client.make_item < bgen::gen::group > ();
 
                     // write services
