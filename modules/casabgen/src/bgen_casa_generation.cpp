@@ -88,26 +88,31 @@ namespace bgen {
                 }
             }
             
-            string namespace_to_string (const namespace_info & info, const string & separator) {
+            string id_to_string (const casa::id_t & id, const string & separator) {
                 stringstream stream;
                 
-                size_t size = info.size ();
+                size_t size = id.nspace.size ();
                 
                 if (size > 0)
-                    stream << info[0];
+                    stream << id.nspace[0];
                 
-                for (int i = 1; i < size; ++i)
-                    stream << separator << info [i];
+                for (size_t i = 1; i < size; ++i)
+                    stream << separator << id.nspace [i];
+
+                if (size > 0)
+                    stream << separator;
+
+                stream << id.name;
                 
                 return stream.str ();
             }
             
-            string namespace_to_uri (const namespace_info & info) {
-                return namespace_to_string (info, "/");
+            string id_to_uri (const casa::id_t & id) {
+                return id_to_string (id, "/");
             }
             
-            string namespace_to_listener (const namespace_info & info) {
-                return namespace_to_string (info, "_");
+            string id_to_listener (const casa::id_t & id) {
+                return id_to_string (id, "_");
             }
             
             boilerplate::boilerplate ( const string & file )

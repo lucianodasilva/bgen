@@ -28,6 +28,17 @@ namespace bgen {
 
         js_type js_type_from_native (const type_info::shared & type);
 
+        struct id_t {
+            string name;
+            bgen::namespace_info nspace;
+
+            inline bool operator < (const casa::id_t & idv) const {
+                return
+                        name < idv.name ||
+                        nspace < idv.nspace;
+            }
+        };
+
         struct structure;
 
         struct type {
@@ -43,22 +54,22 @@ namespace bgen {
         };
 
         struct structure {
-            string              name;
+            casa::id_t          id;
             vector < field >    fields;
             struct_info::shared native_struct;
         };
 
         struct service {
-            string name;
+            casa::id_t          id;
             shared_ptr < type > return_type;
             shared_ptr < type > param_type;
-            method_info native_method;
+            method_info         native_method;
         };
 
         struct type_map {
             map < string, shared_ptr < type > > types;
             vector < shared_ptr < service > > services;
-            map < string, shared_ptr < structure > > structures;
+            map < id_t, shared_ptr < structure > > structures;
         };
 
     }

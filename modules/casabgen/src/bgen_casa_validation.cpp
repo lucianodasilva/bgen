@@ -35,15 +35,18 @@ namespace bgen {
 
             shared_ptr < structure > struct_check (const struct_info::shared & src, casa::type_map & dest) {
 
-                auto struct_it = dest.structures.find (src->name ());
+                casa::id_t id = { src->name (), src->namespace_name () };
+
+                auto struct_it = dest.structures.find (id);
                 if (struct_it != dest.structures.end ())
                     return struct_it->second;
 
                 auto struct_inst = make_shared < structure > ();
-                dest.structures [src->name ()] = struct_inst;
 
-                struct_inst->name = src->name ();
+                struct_inst->id = id;
                 struct_inst->native_struct = src;
+
+                dest.structures [struct_inst->id] = struct_inst;
 
                 for ( auto & f : src->fields ()) {
                     if (f.visibility() != visibility_type::visibility_public)
@@ -70,7 +73,7 @@ namespace bgen {
                 bool is_supported = true;
                 auto service_inst = make_shared < service > ();
 
-                service_inst->name = src.name ();
+                service_inst->id = { src.name (), src.namespace_name() };
                 service_inst->native_method = src;
 
                 service_inst->return_type = type_check (src.return_type(), dest);

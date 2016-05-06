@@ -19,9 +19,7 @@ namespace bgen {
 
                     stream
                         << "handle_"
-                        << gen::namespace_to_listener(service_inst->native_method.namespace_name())
-                        << "_"
-                        << service_inst->name
+                        << gen::id_to_listener(service_inst->id)
                         << "_"
                         << rest_method;
 
@@ -117,7 +115,7 @@ namespace bgen {
                     << "handle_post <"
                     << _service->param_type->native_type->native_type_name() << ", "
                     << _service->return_type->native_type->native_type_name() << ", "
-                    << namespace_to_string(_service->native_method.namespace_name(), "::") << "::" << _service->name
+                    << id_to_cpp (_service->id)
                     << "> (request);";
 
                     --out.indent;
@@ -141,7 +139,7 @@ namespace bgen {
                     out.line()
                     << "handle_get <"
                     << _service->return_type->native_type->native_type_name() << ", "
-                    << namespace_to_string(_service->native_method.namespace_name(), "::") << "::" << _service->name
+                    << id_to_cpp (_service->id)
                     << "> (request);";
 
                     --out.indent;
@@ -178,7 +176,7 @@ namespace bgen {
 
                     for (auto & s: _services ) {
                         out.line()
-                        << "builder.set_path(\"" << namespace_to_uri(s->native_method.namespace_name()) << "/" << s->name << "\");";
+                        << "builder.set_path(\"" << id_to_uri (s->id) << "\");";
                         out.line()
                         << "new (&lv [" << i << "]) http_listener (builder.to_uri().to_string(), config);";
 

@@ -19,7 +19,7 @@ namespace bgen {
                         case casa::js_type::array:
                             return "casa.details.castToArray";
                         case casa::js_type::object:
-                            return ctype->structure->name + ".fromJson";
+                            return ctype->structure->id.name + ".fromJson";
                         default:
                             return "";
                     }
@@ -66,22 +66,22 @@ namespace bgen {
 
                 void url_element::write(bgen::gen::output &out) const {
                     out.line ()
-                            << _service->name << " : " << "\""
-                            << namespace_to_uri(_service->native_method.namespace_name())
-                            << "/" << _service->name << "\""
+                            << id_to_var_name (_service->id) << " : " << "\""
+                            << id_to_uri (_service->id)
+                            << "\""
                             << (!_is_last ? "," : "");
                 }
 
                 void service_get::write (bgen::gen::output & out) const {
-                    out.line () << _service->name << " : () => {";
+                    out.line () << id_to_js (_service->id) << " : () => {";
                     ++out.indent;
 
                     casa::js_type ret_js_type = _service->return_type->js;
 
                     if (ret_js_type == casa::js_type::js_void) {
-                        out.line () << "return casa.details.restGet (casa.urls." << _service->name << ");";
+                        out.line () << "return casa.details.restGet (casa.urls." << id_to_var_name (_service->id) << ");";
                     } else {
-                        out.line () << "return casa.details.restGet (casa.urls." << _service->name << ")";
+                        out.line () << "return casa.details.restGet (casa.urls." << id_to_var_name (_service->id) << ")";
                         out.line() << ".then((response) => {";
 
                         ++out.indent;
@@ -111,16 +111,16 @@ namespace bgen {
                 }
 
                 void service_post::write (bgen::gen::output & out) const {
-                    out.line () << _service->name << " : (param) => {";
+                    out.line () << id_to_js (_service->id) << " : (param) => {";
                     ++out.indent;
 
                     casa::js_type ret_js_type = _service->return_type->js;
 
                     if (ret_js_type == casa::js_type::js_void) {
-                        out.line() << "return casa.details.restPost (casa.urls." << _service->name <<
+                        out.line() << "return casa.details.restPost (casa.urls." << id_to_var_name (_service->id) <<
                         ", JSON.stringify(param));";
                     } else {
-                        out.line () << "return casa.details.restPost (casa.urls." << _service->name << ", JSON.stringify(param))";
+                        out.line () << "return casa.details.restPost (casa.urls." << id_to_var_name (_service->id) << ", JSON.stringify(param))";
                         out.line() << ".then((response) => {";
 
                         ++out.indent;
@@ -152,8 +152,10 @@ namespace bgen {
                 parser_reader::parser_reader(const shared_ptr<structure> & stct) : _struct (stct) {}
 
                 void parser_reader::write(bgen::gen::output &out) const {
+                    string js_name = id_to_js (_struct->id);
+
                     out.line ()
-                            << _struct->name << " = function " << _struct->name << " () {";
+                            << js_name << " = function " << js_name << " () {";
 
                     ++out.indent;
 
@@ -163,14 +165,14 @@ namespace bgen {
                     --out.indent;
 
                     out.line () << "};";
-                    out.line () << _struct->name << ".fromJson = (data) => {";
+                    out.line () << id_to_js (_struct->id) << ".fromJson = (data) => {";
                     ++out.indent;
                     out.line () << "if (!data)";
                     ++out.indent;
                     out.line () << "return this";
                     --out.indent;
 
-                    out.line () << "var obj = new " << _struct->name << "();";
+                    out.line () << "var obj = new " << js_name << "();";
 
                     for ( auto & f : _struct->fields) {
                         casa::js_type f_type = f.type->js;
@@ -200,8 +202,10 @@ namespace bgen {
                     ++out.indent;
 
                     for (auto & s : _services) {
+                        string var_name = id_to_var_name (s->id);
+
                         out.line ()
-                                << "casa.urls." << s->name << " = url_base + casa.urls." << s->name << ";";
+                                << "casa.urls." << var_name << " = url_base + casa.urls." << var_name << ";";
                     }
 
                     --out.indent;

@@ -17,6 +17,14 @@ namespace bgen {
 
                 string map_type_cast (js_type type, const type_info::shared & native_type);
 
+                inline string id_to_js (const casa::id_t & id) {
+                    return id_to_string (id, ".");
+                }
+
+                inline string id_to_var_name (const casa::id_t & id) {
+                    return id_to_string (id, "_");
+                }
+
                 class struct_definition : public bgen::gen::group {
                 private:
                     string _id;

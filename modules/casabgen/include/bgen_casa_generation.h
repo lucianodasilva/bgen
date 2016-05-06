@@ -5,6 +5,7 @@
 #include <bgen_core.h>
 #include <string>
 #include <cinttypes>
+#include "bgen_casa_common.h"
 
 using namespace std;
 
@@ -27,12 +28,12 @@ namespace bgen {
             js_type cast_type_to_js ( const bgen::type_info::shared & type );
 
             bool check_types_support ( const method_info & method );
-            
-            string namespace_to_string (const namespace_info & info, const string & separator);
-            
-            string namespace_to_uri (const namespace_info & info);
-            
-            string namespace_to_listener (const namespace_info & info);
+
+            string id_to_string ( const casa::id_t & id, const string & separator);
+
+            string id_to_uri ( const casa::id_t & id);
+
+            string id_to_listener ( const casa::id_t & id );
 
             class boilerplate : public bgen::gen::element_base {
             private:

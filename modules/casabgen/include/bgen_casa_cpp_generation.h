@@ -5,6 +5,7 @@
 #include <bgen_core.h>
 #include <string>
 #include "bgen_casa_common.h"
+#include "bgen_casa_generation.h"
 
 using namespace std;
 
@@ -16,6 +17,10 @@ namespace bgen {
             namespace cpp {
 
                 string method_listener_name(const shared_ptr < service > & service_inst, const string &rest_method);
+
+                inline string id_to_cpp (const casa::id_t & id) {
+                    return id_to_string (id, "::");
+                }
 
                 class struct_element : public bgen::gen::element_base {
                 protected:
