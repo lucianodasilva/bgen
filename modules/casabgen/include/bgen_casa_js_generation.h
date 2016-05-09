@@ -25,6 +25,40 @@ namespace bgen {
                     return id_to_string (id, "_");
                 }
 
+                struct nspace_node {
+                    using shared = shared_ptr < nspace_node >;
+                    using list = vector < shared >;
+
+                    string name;
+                    
+                    nspace_node (const string & name_v);
+
+                    list nodes;
+                    vector < shared_ptr < service > > services;
+                    vector < shared_ptr < structure > > structures;
+                };
+
+                class inline_definition : public bgen::gen::element_base {
+                private:
+
+                    nspace_node::shared _root;
+                    
+                    nspace_node::shared get_parent ( const id_t & id );
+                    
+                    void write_struct (bgen::gen::output & out, const shared_ptr < structure > & strt, bool is_last) const;
+                    void write_service (bgen::gen::output & out, const shared_ptr < service > & serv, bool is_last) const;
+                    void write_node_children (bgen::gen::output & out, const shared_ptr < nspace_node > & n) const;
+                    void write_node (bgen::gen::output & out, const shared_ptr < nspace_node > & n, bool is_last) const;
+                    
+                public:
+                
+                    void add (const shared_ptr < casa::structure > & stct);
+                    void add (const shared_ptr < casa::service > & serv);
+
+                    inline_definition ();
+                    virtual void write (bgen::gen::output & out) const override;
+                };
+
                 class struct_definition : public bgen::gen::group {
                 private:
                     string _id;
@@ -33,38 +67,12 @@ namespace bgen {
                     virtual void write (bgen::gen::output & out) const override;
                 };
 
-                class function_definition : public bgen::gen::group {
+                class url_element : public bgen::gen::element_base {
                 private:
-                    string _id;
-                    vector < string > _params;
+                    shared_ptr < service > _service;
+                    bool _is_last;
                 public:
-                    function_definition (const string & id, const vector < string > & params);
-                    virtual void write (bgen::gen::output & out) const override;
-                };
-
-                class service_element : public bgen::gen::element_base {
-                protected:
-                    shared_ptr < service >  _service;
-                    bool                    _is_last;
-                public:
-                    service_element (const shared_ptr < service > serv_inst, bool is_last);
-                };
-
-                class url_element : public service_element {
-                public:
-                    using service_element::service_element;
-                    virtual void write (bgen::gen::output & out) const override;
-                };
-
-                class service_get : public service_element {
-                public:
-                    using service_element::service_element;
-                    virtual void write (bgen::gen::output & out) const override;
-                };
-
-                class service_post : public service_element {
-                public:
-                    using service_element::service_element;
+                    url_element (const shared_ptr < service > & serv, bool is_last);
                     virtual void write (bgen::gen::output & out) const override;
                 };
 
