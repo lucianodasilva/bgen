@@ -77,61 +77,42 @@ namespace bgen {
                     --out.indent;
                     out.line () << "}"
                                 << (is_last ? "" : ",");
-/*
-                    out.line () << "};";
-                    out.line () << id_to_js (strt->id) << ".fromJson = (data) => {";
-                    ++out.indent;
-                    out.line () << "if (!data)";
-                    ++out.indent;
-                    out.line () << "return this";
-                    --out.indent;
-
-                    out.line () << "var obj = new " << js_name << "();";
-
-                    for ( auto & f : strt->fields) {
-                        casa::js_type f_type = f.type->js;
-
-                        if (f_type == casa::js_type::array) {
-                            out.line ()
-                                << "obj." << f.name << " = " << map_type_cast (f.type)
-                                << "(data ['" << f.name << "'], " << map_type_cast (f.type->array_type) << ");";
-                        } else {
-                            out.line ()
-                            << "obj." << f.name
-                            << " = " << map_type_cast(f.type)
-                            << "(data['" << f.name << "']);";
-                        }
-                    }
-
-                    out.line () << "return obj;";
-                    --out.indent;
-                    out.line () << "}"
-                                << (is_last ? "," : "");
-                                */
                 }
                 
                 void inline_definition::write_service (bgen::gen::output & out, const shared_ptr < service > & serv, bool is_last) const {
                     string js_name = id_to_var_name (serv->id);
 
-                    out.line () << serv->id.name << " : function " << js_name << "() {";
+                    out.line () << serv->id.name
+                                << " : function " << js_name << "("
+                                << ( serv->param_type ? "param, " : "")
+                                << "resolve, reject) {";
                     ++out.indent;
 
                     casa::js_type ret_js_type = serv->return_type->js;
 
                     if (ret_js_type == casa::js_type::js_void) {
                         if (serv->param_type) 
-                            out.line () << "return casa.details.restPost (casa.urls." << id_to_var_name (serv->id) 
-                                        << ", JSON.stringify(param));";
+                            out.line () << "casa.details.restPost (casa.urls." << id_to_var_name (serv->id)
+                                        << ", JSON.stringify(param), ";
                         else
-                            out.line () << "return casa.details.restGet (casa.urls." << id_to_var_name (serv->id) << ");";
+                            out.line () << "casa.details.restGet (casa.urls." << id_to_var_name (serv->id) << ", ";
+
+                        ++out.indent;
+                        out.line () << "() => { if (resolve != null) resolve (); },";
+                        out.line () << "reject";
+                        --out.indent;
+
+                        out.line () << ");";
+
                     } else {
                         if (serv->param_type)
-                            out.line () << "return casa.details.restPost (casa.urls." << id_to_var_name (serv->id) 
-                                        << ", JSON.stringify(param))";
+                            out.line () << "casa.details.restPost (casa.urls." << id_to_var_name (serv->id)
+                                        << ", JSON.stringify(param), ";
                         else
-                            out.line () << "return casa.details.restGet (casa.urls." << id_to_var_name (serv->id) << ")";
-                            
-                        out.line() << ".then((response) => {";
+                            out.line () << "casa.details.restGet (casa.urls." << id_to_var_name (serv->id) << ", ";
+
+                        ++out.indent;
+                        out.line() << "(response) => {";
 
                         ++out.indent;
                         out.line() << "let value = JSON.parse(response);";
@@ -147,11 +128,12 @@ namespace bgen {
                                 << "(value);";
                         }
 
-                        out.line()
-                        << "return ret;";
+                        out.line () << "if (resolve != null) resolve (ret);";
+
                         --out.indent;
-                        out.line()
-                        << "});";
+                        out.line() << "}, reject";
+                        --out.indent;
+                        out.line () << ");";
                     }
 
                     --out.indent;

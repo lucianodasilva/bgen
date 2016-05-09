@@ -22,40 +22,40 @@ var casa = {
                 return typeCast(item);
             });
         },
-        restGet : function (url) {
-            return new Promise((resolve, reject) => {
-                const httpRequest = new XMLHttpRequest ();
-                httpRequest.onreadystatechange = () => {
-
-                    if (httpRequest.readyState == 4) {
-                        if (httpRequest.status == 200)
+        restGet : function (url, resolve, reject) {
+            const httpRequest = new XMLHttpRequest ();
+            httpRequest.onreadystatechange = () => {
+                if (httpRequest.readyState == 4) {
+                    if (httpRequest.status == 200) {
+                        if (resolve != null)
                             resolve (httpRequest.responseText);
-                        else
+                    } else {
+                        if (reject != null)
                             reject("failed calling service at: " + url + " with status code: " + httpRequest.status);
                     }
                 }
+            }
 
-                httpRequest.open ("GET", url, true);
-                httpRequest.send (null);
-            });
+            httpRequest.open ("GET", url, true);
+            httpRequest.send (null);
         },
-        restPost : function (url, param) {
-            return new Promise((resolve, reject) => {
-                const httpRequest = new XMLHttpRequest ();
-                httpRequest.onreadystatechange = () => {
-
-                    if (httpRequest.readyState == 4) {
-                        if (httpRequest.status == 200)
+        restPost : function (url, param, resolve, reject) {
+            const httpRequest = new XMLHttpRequest ();
+            httpRequest.onreadystatechange = () => {
+                if (httpRequest.readyState == 4) {
+                    if (httpRequest.status == 200) {
+                        if (resolve != null)
                             resolve (httpRequest.responseText);
-                        else
+                    } else {
+                        if (reject != null)
                             reject("failed calling service at: " + url + " with status code: " + httpRequest.status);
                     }
                 }
+            }
 
-                httpRequest.open ("POST", url, true);
-                httpRequest.setRequestHeader ("Content-Type", "application/json");
-                httpRequest.send (param);
-            });
+            httpRequest.open ("POST", url, true);
+            httpRequest.setRequestHeader ("Content-Type", "application/json");
+            httpRequest.send (param);
         }
     }
 };
