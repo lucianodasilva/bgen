@@ -34,7 +34,7 @@ namespace bgen {
 			for (uint32_t i = 0; i < diag_count; ++i) {
 				auto diag = clang_getDiagnostic(tu, i);
 
-				location loc = clang::get_location(diag);
+				source_location loc = clang::get_location(diag);
 				string message = clang::get_spelling(diag);
 
                 logger::write(loc) << message;

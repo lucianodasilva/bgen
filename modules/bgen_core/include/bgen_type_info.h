@@ -10,7 +10,7 @@ using namespace std;
 
 namespace bgen {
     
-    struct location {
+    struct source_location {
         uint32_t	line,
         column;
         string		file;

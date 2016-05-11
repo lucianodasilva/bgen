@@ -35,7 +35,7 @@ namespace bgen {
         namespace_info 		_namespace_name;
         string				_name;
         type_info::shared	_type;
-        location            _location;
+        source_location            _location;
         visibility_type		_visibility;
     public:
         
@@ -51,7 +51,7 @@ namespace bgen {
             return _type;
         }
         
-        inline const location & location () const {
+        inline const source_location & location () const {
             return _location;
         }
         
@@ -87,7 +87,7 @@ namespace bgen {
 
 		namespace_info 		_namespace_name;
         
-        location            _location;
+        source_location     _location;
         
         visibility_type		_visibility;
         
@@ -115,7 +115,7 @@ namespace bgen {
             return _namespace_name;
         }
         
-        inline const location & location () const {
+        inline const source_location & location () const {
             return _location;
         }
         
@@ -153,7 +153,7 @@ namespace bgen {
         
         vector < dependency >   _dependencies;
         
-        location                _location;
+        source_location         _location;
         
         bool                    _is_visited;
         struct_type             _type;
@@ -177,7 +177,7 @@ namespace bgen {
         
         const vector < dependency > & dependencies () const;
         
-        const location & location () const;
+        const source_location & location () const;
 
 		friend class visitor;
         friend class type_map;

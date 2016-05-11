@@ -14,9 +14,9 @@ namespace bgen {
 
 	namespace details {
         struct message_builder {
-            bgen::location		location;
-            bool				has_copy;
-            stringstream		builder;
+            bgen::source_location   location;
+            bool                    has_copy;
+            stringstream            builder;
             
             template < class _t >
             inline message_builder & operator << (const _t & v) {
@@ -24,7 +24,7 @@ namespace bgen {
                 return *this;
             }
             
-            inline message_builder (const bgen::location & loc) :
+            inline message_builder (const bgen::source_location & loc) :
                 location (loc),
                 has_copy (false)
             {}
@@ -53,7 +53,7 @@ namespace bgen {
 	struct logger {
 		public:
         
-        inline static details::message_builder write (const location & loc) {
+        inline static details::message_builder write (const source_location & loc) {
             return details::message_builder(loc);
         }
         

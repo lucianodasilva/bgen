@@ -9,8 +9,8 @@ namespace bgen {
 	namespace clang {
 
 		template < class _t >
-		inline bgen::location get_location(const _t & item, CXSourceLocation (*_location_f)(_t)) {
-			bgen::location ret;
+		inline bgen::source_location get_location(const _t & item, CXSourceLocation (*_location_f)(_t)) {
+			bgen::source_location ret;
 
 			auto loc = _location_f(item);
 			CXFile loc_file;
@@ -27,11 +27,11 @@ namespace bgen {
 			return ret;
 		}
 
-		inline bgen::location get_location(const CXCursor & cursor) {
+		inline bgen::source_location get_location(const CXCursor & cursor) {
 			return get_location(cursor, clang_getCursorLocation);
 		}
 
-		inline bgen::location get_location(const CXDiagnostic & diag) {
+		inline bgen::source_location get_location(const CXDiagnostic & diag) {
 			return get_location(diag, clang_getDiagnosticLocation);
 		}
 

@@ -40,7 +40,7 @@ namespace bgen {
         return _dependencies;
     }
     
-    const location & struct_info::location () const {
+    const source_location & struct_info::location () const {
         return _location;
     }
 
