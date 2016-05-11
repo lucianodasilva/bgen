@@ -40,7 +40,7 @@ namespace bgen {
 
                     case (type_kind::type_kind_struct):
                     {
-                        struct_info::shared strt = type->struct_info();
+                        struct_info::shared strt = type->structure();
 
                         string dbg_name = strt->name ();
 

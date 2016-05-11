@@ -232,13 +232,13 @@ namespace bgen {
                 type->_kind == type_kind::type_kind_rvalue_ref;
             
             // register dependency
-            auto it = cxt.active_dependencies.find (root->struct_info()->native_name());
+            auto it = cxt.active_dependencies.find (root->structure()->native_name());
                 
             if (it != cxt.active_dependencies.end ())
                 return;
                 
-            cxt.active_dependencies [root->struct_info()->native_name()] = {
-                root->struct_info()->native_name() ,
+            cxt.active_dependencies [root->structure()->native_name()] = {
+                root->structure()->native_name() ,
                 is_soft_dependency
             };
         }

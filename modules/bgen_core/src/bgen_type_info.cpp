@@ -35,7 +35,7 @@ namespace bgen {
 		return _base;
 	}
 
-    shared_ptr < struct_info > type_info::struct_info() const {
+    shared_ptr < struct_info > type_info::structure() const {
         return _struct_info;
     }
 

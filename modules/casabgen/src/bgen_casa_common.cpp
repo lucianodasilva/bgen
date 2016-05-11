@@ -31,7 +31,7 @@ namespace bgen {
                     return js_type::js_float;
                 case (type_kind::type_kind_struct):
                 {
-                    struct_info::shared strt = type->struct_info();
+                    struct_info::shared strt = type->structure();
 
                     if (!strt)
                         return js_type::unknown;

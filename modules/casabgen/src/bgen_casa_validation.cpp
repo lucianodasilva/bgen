@@ -27,7 +27,7 @@ namespace bgen {
                 }
 
                 if (jst == js_type::object) {
-                    type_inst->structure = struct_check (native_type->struct_info(), dest);
+                    type_inst->structure = struct_check (native_type->structure(), dest);
                 }
 
                 return type_inst;
