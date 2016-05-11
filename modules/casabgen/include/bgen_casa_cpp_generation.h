@@ -24,9 +24,9 @@ namespace bgen {
 
                 class struct_element : public bgen::gen::element_base {
                 protected:
-                    shared_ptr < structure > _struct;
+                    shared_ptr < simple_struct > _struct;
                 public:
-                    struct_element (const shared_ptr < structure > & stct);
+                    struct_element (const shared_ptr < simple_struct > & stct);
                 };
 
                 class parser_reader_pre : public struct_element {

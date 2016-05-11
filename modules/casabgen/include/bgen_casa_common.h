@@ -39,37 +39,37 @@ namespace bgen {
             }
         };
 
-        struct structure;
+        struct simple_struct;
 
-        struct type {
-            js_type                  js;
-            shared_ptr < structure > structure;
-            shared_ptr < type >      array_type;
-            type_info::shared        native_type;
+        struct simple_type {
+            js_type                         js;
+            shared_ptr < simple_struct >    structure;
+            shared_ptr < simple_type >      array_type;
+            type_info::shared               native_type;
         };
 
-        struct field {
-            string              name;
-            shared_ptr < type > type;
+        struct simple_field {
+            string                      name;
+            shared_ptr < simple_type >  type;
         };
 
-        struct structure {
-            casa::id_t          id;
-            vector < field >    fields;
-            struct_info::shared native_struct;
+        struct simple_struct {
+            casa::id_t              id;
+            vector < simple_field > fields;
+            struct_info::shared     native_struct;
         };
 
         struct service {
             casa::id_t          id;
-            shared_ptr < type > return_type;
-            shared_ptr < type > param_type;
-            method_info         native_method;
+            shared_ptr < simple_type >  return_type;
+            shared_ptr < simple_type >  param_type;
+            method_info                 native_method;
         };
 
         struct type_map {
-            map < string, shared_ptr < type > > types;
-            vector < shared_ptr < service > > services;
-            map < id_t, shared_ptr < structure > > structures;
+            map < string, shared_ptr < simple_type > >  types;
+            vector < shared_ptr < service > >           services;
+            map < id_t, shared_ptr < simple_struct > >  structures;
         };
 
     }

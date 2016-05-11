@@ -5,7 +5,7 @@ namespace bgen {
         
         namespace validation {
 
-            shared_ptr < type > type_check (const type_info::shared & native_type, casa::type_map & dest) {
+            shared_ptr < simple_type > type_check (const type_info::shared & native_type, casa::type_map & dest) {
 
                 auto type_it = dest.types.find (native_type->native_type_name());
                 if (type_it != dest.types.end ())
@@ -16,7 +16,7 @@ namespace bgen {
                 if (jst == js_type::unknown)
                     return nullptr;
 
-                auto type_inst = make_shared < type > ();
+                auto type_inst = make_shared < simple_type > ();
                 dest.types [native_type->native_type_name()] = type_inst;
 
                 type_inst->js = jst;
@@ -33,7 +33,7 @@ namespace bgen {
                 return type_inst;
             }
 
-            shared_ptr < structure > struct_check (const struct_info::shared & src, casa::type_map & dest) {
+            shared_ptr < simple_struct > struct_check (const struct_info::shared & src, casa::type_map & dest) {
 
                 casa::id_t id = { src->name (), src->namespace_name () };
 
@@ -41,7 +41,7 @@ namespace bgen {
                 if (struct_it != dest.structures.end ())
                     return struct_it->second;
 
-                auto struct_inst = make_shared < structure > ();
+                auto struct_inst = make_shared < simple_struct > ();
 
                 struct_inst->id = id;
                 struct_inst->native_struct = src;
@@ -52,7 +52,7 @@ namespace bgen {
                     if (f.visibility() != visibility_type::visibility_public)
                         continue;
 
-                    shared_ptr < type > ftype = type_check (f.type (), dest);
+                    shared_ptr < simple_type > ftype = type_check (f.type (), dest);
 
                     if (!ftype) {
                         logger::write(f.location()) << "\"" << src->name () << ":" << f.name () << "\" unsupported type";

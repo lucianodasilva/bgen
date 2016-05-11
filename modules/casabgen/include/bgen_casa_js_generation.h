@@ -35,7 +35,7 @@ namespace bgen {
 
                     list nodes;
                     vector < shared_ptr < service > > services;
-                    vector < shared_ptr < structure > > structures;
+                    vector < shared_ptr < simple_struct > > structures;
                 };
 
                 class inline_definition : public bgen::gen::element_base {
@@ -45,14 +45,14 @@ namespace bgen {
                     
                     nspace_node::shared get_parent ( const id_t & id );
                     
-                    void write_struct (bgen::gen::output & out, const shared_ptr < structure > & strt, bool is_last) const;
+                    void write_struct (bgen::gen::output & out, const shared_ptr < simple_struct > & strt, bool is_last) const;
                     void write_service (bgen::gen::output & out, const shared_ptr < service > & serv, bool is_last) const;
                     void write_node_children (bgen::gen::output & out, const shared_ptr < nspace_node > & n) const;
                     void write_node (bgen::gen::output & out, const shared_ptr < nspace_node > & n, bool is_last) const;
                     
                 public:
                 
-                    void add (const shared_ptr < casa::structure > & stct);
+                    void add (const shared_ptr < casa::simple_struct > & stct);
                     void add (const shared_ptr < casa::service > & serv);
 
                     inline_definition ();
@@ -78,9 +78,9 @@ namespace bgen {
 
                 class parser_reader : public bgen::gen::element_base {
                 private:
-                    shared_ptr < structure >  _struct;
+                    shared_ptr < simple_struct >  _struct;
                 public:
-                    parser_reader (const shared_ptr < structure > & stct);
+                    parser_reader (const shared_ptr < simple_struct > & stct);
                     virtual void write (bgen::gen::output & out) const override;
                 };
 

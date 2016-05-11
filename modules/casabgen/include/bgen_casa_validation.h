@@ -13,9 +13,9 @@ namespace bgen {
     namespace casa {
         namespace validation {
 
-            shared_ptr < type > type_check (const type_info::shared & native_type, casa::type_map & dest);
+            shared_ptr < simple_type > type_check (const type_info::shared & native_type, casa::type_map & dest);
 
-            shared_ptr < structure > struct_check (const struct_info::shared & src, casa::type_map & dest);
+            shared_ptr < simple_struct > struct_check (const struct_info::shared & src, casa::type_map & dest);
 
             void service_check (const method_info & src, casa::type_map & dest);
 

@@ -26,7 +26,7 @@ namespace bgen {
                     return stream.str();
                 }
 
-                struct_element::struct_element(const shared_ptr<structure> &stct) : _struct (stct){}
+                struct_element::struct_element(const shared_ptr<simple_struct> &stct) : _struct (stct){}
 
                 void parser_reader_pre::write(bgen::gen::output &out) const {
                     out.line()

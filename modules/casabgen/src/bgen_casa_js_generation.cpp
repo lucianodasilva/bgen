@@ -8,7 +8,7 @@ namespace bgen {
         namespace gen {
             namespace js {
 
-                string map_type_cast (const shared_ptr < type > & ctype) {
+                string map_type_cast (const shared_ptr < simple_type > & ctype) {
                     switch (ctype->js) {
                         case casa::js_type::string:
                             return "casa.details.castToString";
@@ -63,7 +63,7 @@ namespace bgen {
                     return parent;
                 }
                 
-                void inline_definition::write_struct (bgen::gen::output & out, const shared_ptr < structure > & strt, bool is_last) const {
+                void inline_definition::write_struct (bgen::gen::output & out, const shared_ptr < simple_struct > & strt, bool is_last) const {
                     string js_name = id_to_var_name (strt->id);
                     
                     out.line ()
@@ -199,7 +199,7 @@ namespace bgen {
                         (is_last ? "," : "");
                 }
                 
-                void inline_definition::add (const shared_ptr < casa::structure > & stct) {
+                void inline_definition::add (const shared_ptr < casa::simple_struct > & stct) {
                     auto parent = get_parent (stct->id);
                     parent->structures.push_back (stct);
                 }
@@ -239,7 +239,7 @@ namespace bgen {
                             << (!_is_last ? "," : "");
                 }
 
-                parser_reader::parser_reader(const shared_ptr<structure> & stct) : _struct (stct) {}
+                parser_reader::parser_reader(const shared_ptr<simple_struct> & stct) : _struct (stct) {}
 
                 void parser_reader::write(bgen::gen::output &out) const {
                     string js_name = id_to_var_name (_struct->id) + "_fromJson";
