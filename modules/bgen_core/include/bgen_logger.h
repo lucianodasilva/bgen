@@ -42,7 +42,7 @@ namespace bgen {
                     cout << builder.str();
                     
                     if (!location.is_empty ())
-                        cout << " @" << location.file << ":" << location.line << ":" << location.column;
+                        cout << " @" << location.file () << ":" << location.line ()<< ":" << location.column ();
                     
                     cout << endl;
                 }

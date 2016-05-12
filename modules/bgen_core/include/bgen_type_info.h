@@ -10,12 +10,24 @@ using namespace std;
 
 namespace bgen {
     
-    struct source_location {
-        uint32_t	line,
-        column;
-        string		file;
+    class source_location {
+    private:
+        uint32_t    _line {0},
+        _column {0};
+        string      _file;
+    public:
+        uint32_t        line () const   { return _line; }
+        uint32_t        column () const { return _column; }
+        const string &  file () const   { return _file; }
         
-        inline bool is_empty () { return file.empty(); }
+        source_location () = default;
+        source_location (uint32_t line_v, uint32_t column_v, const string & file_v) :
+            _line (line_v),
+            _column (column_v),
+            _file (file_v)
+        {}
+        
+        inline bool is_empty () const { return _file.empty(); }
     };
 
 	struct  struct_info;

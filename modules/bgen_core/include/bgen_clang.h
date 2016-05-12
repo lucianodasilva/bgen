@@ -10,21 +10,26 @@ namespace bgen {
 
 		template < class _t >
 		inline bgen::source_location get_location(const _t & item, CXSourceLocation (*_location_f)(_t)) {
-			bgen::source_location ret;
-
 			auto loc = _location_f(item);
+            
 			CXFile loc_file;
 
-			uint32_t offset;
-			clang_getSpellingLocation(loc, &loc_file, &ret.line, &ret.column, &offset);
+			uint32_t
+                offset,
+                line,
+                column;
+            
+            string file;
+        
+			clang_getSpellingLocation(loc, &loc_file, &line, &column, &offset);
 
 			if (loc_file) {
 				auto file_spelling = clang_getFileName(loc_file);
-				ret.file = clang_getCString(file_spelling);
+				file = clang_getCString(file_spelling);
 				clang_disposeString(file_spelling);
 			}
 
-			return ret;
+            return { line, column, file };
 		}
 
 		inline bgen::source_location get_location(const CXCursor & cursor) {
