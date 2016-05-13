@@ -95,7 +95,7 @@ namespace bgen {
 			CXClientData client_data
 		);
 
-		static inline void handle_inplace_struct (context & cxt, const CXType & src_type, const type_info::shared & type) {
+		static inline void handle_inplace_struct (context & cxt, const CXType & src_type, const type_info * type) {
 			auto decl_cursor = clang_getTypeDeclaration (src_type);
 			auto decl_type = clang_getCursorType(decl_cursor);
 
@@ -133,7 +133,7 @@ namespace bgen {
 						logger::write (clang::get_location (decl_cursor)) << "unsupported template argument kind";
 						continue;
 					}
-
+                    
 					type->_template_params.push_back (template_param_info (
 							handle_type(cxt, ttype)
 					));
@@ -352,13 +352,23 @@ namespace bgen {
 
 			auto native_type = clang_getCursorType(cursor);
 			auto native_name = clang::get_spelling(native_type);
+            
+            struct_info * base_struct = nullptr;
+            auto strct_map_it = cxt.symbols._structs.find (native_name);
+            
+            if (strct_map_it == cxt.symbols._structs.end()) {
+                cxt.symbols._structs [native_name]
+                    = new struct_info (
+                        
+                    );
+            }
 
 			cxt.active_struct->_base_structs.push_back(cxt.types.make_struct(native_name));
 		}
 
 		static inline void handle_method_def(context & cxt, const CXCursor & cursor, bool is_constructor) {
 
-            bool is_global = cxt.active_struct.get() == cxt.types._global.get();
+            bool is_global = cxt.active_struct == cxt.symbols._global;
             
             visibility_type vis = visibility_type::visibility_private;
             
@@ -529,7 +539,7 @@ namespace bgen {
 
 	void visitor::parse(
 		base_language_plugin * plugin,
-        type_map & out_map
+        code_map & symbols
 	) {
 
 		context cxt;

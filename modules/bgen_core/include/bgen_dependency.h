@@ -10,23 +10,24 @@ using namespace std;
 
 namespace bgen {
     
-    struct struct_info;
-    
-    struct dependency {
+    class dependency {
     private:
         string  _struct_name;
-        bool    _is_soft;
+        bool    _is_soft { false };
     public: 
     
-        dependency ();
-        dependency (const string & name, bool soft_deo);
+        dependency () = default;
+        inline dependency (const string & name, bool soft_dep) :
+            _struct_name (name),
+            _is_soft (soft_dep)
+        {}
         
-        inline string struct_name () const { return _struct_name; } 
+        inline const string & struct_name () const { return _struct_name; }
         inline bool is_soft () const { return _is_soft; }
-        
-        static void sort ( vector < shared_ptr < struct_info > > & dep_structs );
 
-    };    
+    };
+    
+    
     
 }
 

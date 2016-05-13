@@ -12,8 +12,8 @@ namespace bgen {
     
     class source_location {
     private:
-        uint32_t    _line {0},
-        _column {0};
+        uint32_t    _line   {0},
+                    _column {0};
         string      _file;
     public:
         inline uint32_t        line () const   { return _line; }
@@ -30,8 +30,8 @@ namespace bgen {
         inline bool is_empty () const { return _file.empty(); }
     };
 
-	struct  struct_info;
-	class   visitor;
+	class struct_info;
+	class visitor;
     
     enum class type_kind : uint32_t {
 		type_kind_invalid,
@@ -67,55 +67,87 @@ namespace bgen {
 		type_kind_incomplete_array
     };
 
-	struct type_info;
+	class type_info;
 
-	struct template_param_info {
+	class template_param_info {
 	private:
-		shared_ptr < type_info > _type;
+		const type_info & _type;
 	public:
-		template_param_info (const shared_ptr < type_info > & type_v);
-		shared_ptr < type_info > type () const;
+        
+		explicit template_param_info (const type_info & type_v);
+        
+		const type_info & type () const;
 	};
+    
+    using template_param_vector = vector < template_param_info >;
 
-	struct type_info {
-	public:
-
-		using shared = shared_ptr < type_info >;
-
+	class type_info {
 	private:
-
-		string 		_native_type_name;
-		bool		_is_const;;
         
-        type_kind	_kind;
-		uint32_t	_dimention;
-
-		type_info::shared _base;
-
-		shared_ptr < struct_info > _struct_info;
-
-		vector < template_param_info > _template_params;
+		string                  _native_type_name;
+        template_param_vector   _template_params;
+        
+        const type_info *       _base_type { nullptr };
+        const struct_info *     _base_struct { nullptr };
+        
+        bool                    _is_const { false };
+        
+        type_kind               _kind { type_kind::type_kind_unhandled };
+        uint32_t                _dimention {};
 
 	public:
-
-		const string & native_type_name () const;
-
-		bool		is_const () const;
-
-        type_kind	kind () const;
-		uint32_t	dimention () const;
-
-		type_info::shared base() const;
-
-        shared_ptr < struct_info > structure () const;
-
-		const vector < template_param_info > & template_params () const;
         
-        static type_info::shared find_root (type_info::shared type);
-
+        type_info () = default;
+        
+        type_info (
+            const string &                  native_type_name_v,
+            const template_param_vector &   template_params_v,
+            const type_info *               base_type_v,
+            const struct_info *             base_struct_v,
+            bool                            is_const_v,
+            type_kind                       kind_v,
+            uint32_t                        dimention_v
+        );
+        
+        type_info (
+            const string &                  native_type_name_v,
+            const template_param_vector &   template_params_v,
+            const type_info *               base_type_v,
+            const struct_info *             base_struct_v,
+            bool                            is_const_v,
+            type_kind                       kind_v
+        );
+        
+        type_info (
+            const string &                  native_type_name_v,
+            const type_info *               base_type_v,
+            const struct_info *             base_struct_v,
+            bool                            is_const_v,
+            type_kind                       kind_v,
+            uint32_t                        dimention_v
+        );
+        
+        type_info (
+            const string &                  native_type_name_v,
+            const type_info *               base_type_v,
+            const struct_info *             base_struct_v,
+            bool                            is_const_v,
+            type_kind                       kind_v
+        );
+        
+        const string &                  native_type_name () const;
+        const template_param_vector &   template_params () const;
+        const type_info *               base_type () const;
+        const struct_info *             base_struct () const;
+        bool                            is_const () const;
+        type_kind                       kind () const;
+        uint32_t                        dimention () const;
+        
 		friend class visitor;
 
 	};
+    
+    const type_info * find_root_type (const type_info * type);
 
 }
 

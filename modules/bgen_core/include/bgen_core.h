@@ -2,6 +2,7 @@
 #ifndef _bgen_core_h_
 #define _bgen_core_h_
 
+#include "bgen_code_map.h"
 #include "bgen_details.h"
 #include "bgen_dependency.h"
 #include "bgen_error_status.h"
@@ -16,7 +17,6 @@
 #include "bgen_system.h"
 #include "bgen_struct_info.h"
 #include "bgen_type_info.h"
-#include "bgen_type_map.h"
 #include "bgen_visitor.h"
 
 #endif
