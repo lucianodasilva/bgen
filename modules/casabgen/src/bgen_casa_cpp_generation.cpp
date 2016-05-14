@@ -31,14 +31,14 @@ namespace bgen {
                 void parser_reader_pre::write(bgen::gen::output &out) const {
                     out.line()
                     << "inline bool read (const value & source, "
-                    << _struct->native_struct->native_name()
+                    << _struct->native_struct->native_name
                     << " & dest );";
                 }
 
                 void parser_reader::write(bgen::gen::output &out) const {
                     out.line()
                     << "inline bool read (const value & source, "
-                    << _struct->native_struct->native_name()
+                    << _struct->native_struct->native_name
                     << " & dest ) {";
 
                     ++out.indent;
@@ -69,7 +69,7 @@ namespace bgen {
 
                     out.line()
                     << "inline value write (const "
-                    << _struct->native_struct->native_name()
+                    << _struct->native_struct->native_name
                     << " & source ) {";
 
                     ++out.indent;
@@ -95,7 +95,7 @@ namespace bgen {
                 void parser_writer_pre::write(bgen::gen::output &out) const {
                     out.line()
                     << "inline value write (const "
-                    << _struct->native_struct->native_name()
+                    << _struct->native_struct->native_name
                     << " & source );";
                 }
 
@@ -113,8 +113,8 @@ namespace bgen {
 
                     out.line()
                     << "handle_post <"
-                    << _service->param_type->native_type->native_type_name() << ", "
-                    << _service->return_type->native_type->native_type_name() << ", "
+                    << _service->param_type->native_type->native_name << ", "
+                    << _service->return_type->native_type->native_name << ", "
                     << id_to_cpp (_service->id)
                     << "> (request);";
 
@@ -138,7 +138,7 @@ namespace bgen {
 
                     out.line()
                     << "handle_get <"
-                    << _service->return_type->native_type->native_type_name() << ", "
+                    << _service->return_type->native_type->native_name << ", "
                     << id_to_cpp (_service->id)
                     << "> (request);";
 

@@ -15,7 +15,7 @@ namespace bgen {
         namespace gen {
             namespace js {
 
-                string map_type_cast (js_type type, const type_info::shared & native_type);
+                string map_type_cast (js_type type, const type_info * native_type);
 
                 inline string id_to_js (const casa::id_t & id) {
                     return id_to_string (id, ".");

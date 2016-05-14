@@ -4,8 +4,8 @@
 namespace bgen {
     namespace casa {
 
-        js_type js_type_from_native ( const type_info::shared & type ) {
-            switch (type->kind ()) {
+        js_type js_type_from_native ( const type_info * type ) {
+            switch (type->kind) {
                 case type_kind::type_kind_bool:
                     return js_type::boolean;
                 case type_kind::type_kind_char:
@@ -31,18 +31,18 @@ namespace bgen {
                     return js_type::js_float;
                 case (type_kind::type_kind_struct):
                 {
-                    struct_info::shared strt = type->structure();
+                    auto strt = type->base_struct;
 
                     if (!strt)
                         return js_type::unknown;
 
                     if (
-                            strt->name () == "vector" &&
-                            strt->namespace_name().size () > 0 &&
-                            strt->namespace_name()[0] == "std" &&
-                            type->template_params().size () > 0
+                            strt->name == "vector" &&
+                            strt->namespace_name.size () > 0 &&
+                            strt->namespace_name[0] == "std" &&
+                            type->template_params.size () > 0
                     ) {
-                        js_type param_js_type = js_type_from_native (type->template_params()[0].type ());
+                        js_type param_js_type = js_type_from_native (type->template_params[0].type);
 
                         // TODO: find a way to support nested arrays
                         if (param_js_type == js_type::unknown || param_js_type == js_type::array)
@@ -52,9 +52,9 @@ namespace bgen {
                     }
 
                     if (
-                        strt->name () == "basic_string" &&
-                        strt->namespace_name ().size () &&
-                        strt->namespace_name ()[0] == "std"
+                        strt->name == "basic_string" &&
+                        strt->namespace_name.size () &&
+                        strt->namespace_name[0] == "std"
                     )
                         return js_type::string;
 
@@ -62,7 +62,7 @@ namespace bgen {
                 }
                 case type_kind::type_kind_lvalue_ref:
                 case type_kind::type_kind_rvalue_ref:
-                    return js_type_from_native (type->base());
+                    return js_type_from_native (type->base_type);
                 case type_kind::type_kind_void:
                     return js_type::js_void;
                 case type_kind::type_kind_pointer:

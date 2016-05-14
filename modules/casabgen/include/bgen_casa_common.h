@@ -26,7 +26,7 @@ namespace bgen {
             object
         };
 
-        js_type js_type_from_native (const type_info::shared & type);
+        js_type js_type_from_native (const type_info * type);
 
         struct id_t {
             string name;
@@ -45,7 +45,7 @@ namespace bgen {
             js_type                         js;
             shared_ptr < simple_struct >    structure;
             shared_ptr < simple_type >      array_type;
-            type_info::shared               native_type;
+            const type_info *               native_type;
         };
 
         struct simple_field {
@@ -56,7 +56,7 @@ namespace bgen {
         struct simple_struct {
             casa::id_t              id;
             vector < simple_field > fields;
-            struct_info::shared     native_struct;
+            const struct_info *     native_struct;
         };
 
         struct service {

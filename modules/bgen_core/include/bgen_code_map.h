@@ -14,34 +14,20 @@ using namespace std;
 
 namespace bgen {
     
-    class visitor;
+    using dependency_vector     = vector < struct_info * >;
+    using struct_map            = map < string, unique_ptr < struct_info > >;
+    using type_map              = map < string, unique_ptr < type_info > >;
+
+    struct code_map {
+        unique_ptr < struct_info >  global;
     
-    using dependency_vector = vector < struct_info * >;
-    using struct_map = map < string, unique_ptr < struct_info > >;
-    using type_map = map < string, unique_ptr < type_info > >;
-
-    class code_map {
-    private:
-
-        unique_ptr < struct_info >  _global;
-        
-		type_map                    _types;
-		struct_map                  _structs;
-        dependency_vector           _sorted_dependencies;
-
-    public:
-
-		code_map ();
-
-		const struct_info &         global () const;
-        
-        const type_map &            types () const;
-        const struct_map &          structs () const;
-        
-        const dependency_vector &   sorted_dependencies () const;
-
-        friend class visitor;
+		type_map                    types;
+		struct_map                  structs;
+        dependency_vector           sorted_dependencies;
     };
+    
+    struct_info * get_or_make_struct (code_map & symbols, const string & native_name);
+    type_info * get_or_make_type (code_map & symbols, const string & native_name);
 
 }
 

@@ -10,7 +10,7 @@ using namespace std;
 
 namespace bgen {
 
-	class code_map;
+	struct code_map;
 
 	class base_language_plugin {
 	public:
@@ -20,7 +20,7 @@ namespace bgen {
 		virtual string handled_language() const = 0;
 		virtual bool handles_language (const std::string & lang) const = 0;
 
-		virtual void generate (code_map & types) const = 0;
+		virtual void generate (const code_map & types) const = 0;
 
 	};
 

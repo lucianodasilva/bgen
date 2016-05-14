@@ -67,12 +67,10 @@ void process(parameters & params) {
     if (!plugin)
         return;
 
-    auto types = type_map ();
-    
-    visitor::parse( plugin, types);
-    
+    code_map symbols = visitor::parse(plugin);
+ 
     if (error_status::status () != error_status_type::failure)
-        plugin->generate (types);
+        plugin->generate (symbols);
 }
 
 int main(int arg_c, char * arg_v[]) {

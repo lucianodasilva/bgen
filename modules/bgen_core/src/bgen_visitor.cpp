@@ -95,7 +95,7 @@ namespace bgen {
 			CXClientData client_data
 		);
 
-		static inline void handle_inplace_struct (context & cxt, const CXType & src_type, const type_info * type) {
+		static inline void handle_inplace_struct (context & cxt, const CXType & src_type, type_info * type) {
 			auto decl_cursor = clang_getTypeDeclaration (src_type);
 			auto decl_type = clang_getCursorType(decl_cursor);
 
@@ -107,12 +107,10 @@ namespace bgen {
 			if (!is_struct)
 				return;
 
-			type->_kind = type_kind::type_kind_struct;
-			type->_struct_info = cxt.types.make_struct (
-					native_name
-			);
+			type->kind = type_kind::type_kind_struct;
+			type->base_struct = get_or_make_struct (cxt.symbols, native_name);
 
-			type->_struct_info->_name = stct_name;
+			type->base_struct->name = stct_name;
 
 			// extract namespace
 			list < string > nspace_info;
@@ -123,7 +121,7 @@ namespace bgen {
 				parent = clang_getCursorSemanticParent(parent);
 			}
 
-			type->_struct_info->_namespace_name = namespace_info (nspace_info.begin (), nspace_info.end ());
+			type->base_struct->namespace_name = namespace_info (nspace_info.begin (), nspace_info.end ());
 
 			int t_num = clang_Type_getNumTemplateArguments(src_type);
 			if (t_num != 0) {
@@ -134,9 +132,7 @@ namespace bgen {
 						continue;
 					}
                     
-					type->_template_params.push_back (template_param_info (
-							handle_type(cxt, ttype)
-					));
+                    type->template_params.push_back (template_param_info {handle_type(cxt, ttype)});
 				}
 			}
 		}
@@ -211,39 +207,41 @@ namespace bgen {
 
 		}
 
-		static inline bool is_valid_kind(type_info * info) {
-			return info->_kind != type_kind::type_kind_invalid && info->_kind != type_kind::type_kind_unhandled;
+		static inline bool is_valid_kind(const type_info * info) {
+			return info->kind != type_kind::type_kind_invalid && info->kind != type_kind::type_kind_unhandled;
 		}
         
-        static inline void register_dependency ( context & cxt, type_info::shared type ) {
+        static inline void register_dependency ( context & cxt, type_info * type ) {
             
             if (!cxt.active_struct)
                 return;
                 
-            auto root = type_info::find_root (type);
+            auto root = find_root_type(type);
             
             // if is not a structure cancel
-            if (root->_kind != type_kind::type_kind_struct)
+            if (root->kind != type_kind::type_kind_struct)
                 return;
                 
             bool is_soft_dependency = 
-                type->_kind == type_kind::type_kind_pointer ||
-                type->_kind == type_kind::type_kind_lvalue_ref ||
-                type->_kind == type_kind::type_kind_rvalue_ref;
+                type->kind == type_kind::type_kind_pointer ||
+                type->kind == type_kind::type_kind_lvalue_ref ||
+                type->kind == type_kind::type_kind_rvalue_ref;
             
             // register dependency
-            auto it = cxt.active_dependencies.find (root->structure()->native_name());
+            const string & native_name = root->base_struct->native_name;
+            
+            auto it = cxt.active_dependencies.find (native_name);
                 
             if (it != cxt.active_dependencies.end ())
                 return;
-                
-            cxt.active_dependencies [root->structure()->native_name()] = {
-                root->structure()->native_name() ,
+    
+            cxt.active_dependencies [native_name] = {
+                native_name ,
                 is_soft_dependency
             };
         }
 
-		static inline type_info::shared handle_type(context & cxt, const CXType & native_type) {
+		static inline type_info * handle_type(context & cxt, const CXType & native_type) {
             
             CXType src_type = native_type;
             
@@ -252,21 +250,21 @@ namespace bgen {
 			
 			string native_name = clang::get_spelling(src_type);
 
-			bool is_new_type = !cxt.types.has_type(native_name);
-			auto type = cxt.types.make_type(native_name);
+            bool is_new_type = cxt.symbols.types.find (native_name) == cxt.symbols.types.end ();
+			auto type = get_or_make_type (cxt.symbols, native_name);
             
 			if (is_new_type) {
 
-				type->_dimention = 0;
-				type->_is_const = clang_isConstQualifiedType(src_type) != 0;
-				type->_kind = handle_type_kind(cxt, src_type);
-				type->_native_type_name = native_name;
+				type->dimention = 0;
+				type->is_const = clang_isConstQualifiedType(src_type) != 0;
+				type->kind = handle_type_kind(cxt, src_type);
+				type->native_name = native_name;
 
-				switch (type->_kind) {
+				switch (type->kind) {
 				case (type_kind::type_kind_pointer) :
 				case (type_kind::type_kind_lvalue_ref) :
 				case (type_kind::type_kind_rvalue_ref) :
-					type->_base = handle_type(cxt, clang_getPointeeType(src_type));
+					type->base_type = handle_type(cxt, clang_getPointeeType(src_type));
 					break;
 				case (type_kind::type_kind_struct) :
 					handle_inplace_struct(cxt, src_type, type);
@@ -280,14 +278,14 @@ namespace bgen {
                     break;
 				case (type_kind::type_kind_enum) :
 					// still not supported
-					type->_kind = type_kind::type_kind_unhandled;
+					type->kind = type_kind::type_kind_unhandled;
 					break;
 				case (type_kind::type_kind_constant_array) :
-					type->_dimention = static_cast <uint32_t> (clang_getNumElements(src_type));
-					type->_base = handle_type(cxt, clang_getArrayElementType(src_type));
+					type->dimention = static_cast <uint32_t> (clang_getNumElements(src_type));
+					type->base_type = handle_type(cxt, clang_getArrayElementType(src_type));
 					break;
 				case (type_kind::type_kind_incomplete_array) :
-					type->_base = handle_type(cxt, clang_getArrayElementType(src_type));
+					type->base_type = handle_type(cxt, clang_getArrayElementType(src_type));
 					break;
 				default:
 					break;
@@ -297,11 +295,11 @@ namespace bgen {
             
             register_dependency ( cxt, type );
 
-			if (type->_base && !is_valid_kind(type->_base.get())) {
+			if (type->base_type && !is_valid_kind(type->base_type)) {
 				// invalid or unhandled base type should 
 				// render children invalid / unhandled
-				type->_kind = type->_base->_kind;
-				type->_base.reset();
+				type->kind = type->base_type->kind;
+                type->base_type = nullptr;
 			}
 
 			return type;
@@ -322,20 +320,20 @@ namespace bgen {
             swap (backup_dependencies, cxt.active_dependencies);
 
 			// create and fill struct info
-			cxt.active_struct = cxt.types.make_struct(clang_type_name);
-            cxt.active_struct->_is_visited = true;
-			cxt.active_struct->_name = name;
-			cxt.active_struct->_native_name = clang_type_name;
-			cxt.active_struct->_namespace_name = cxt.active_namespace;
-			cxt.active_struct->_type = type;
-            cxt.active_struct->_location = clang::get_location (cursor);
+			cxt.active_struct = get_or_make_struct (cxt.symbols, clang_type_name);
+            cxt.active_struct->is_visited = true;
+			cxt.active_struct->name = name;
+			cxt.active_struct->native_name = clang_type_name;
+			cxt.active_struct->namespace_name = cxt.active_namespace;
+			cxt.active_struct->type = type;
+            cxt.active_struct->location = clang::get_location (cursor);
             
 			// visit children
 			clang_visitChildren(cursor, handle_visit_children, &cxt);
 
             // pack dependency map into struct
             for ( auto d : cxt.active_dependencies ) {
-                cxt.active_struct->_dependencies.push_back (d.second);
+                cxt.active_struct->dependencies.push_back (d.second);
             }
 
 			cxt.active_struct = backup_struct;
@@ -353,22 +351,12 @@ namespace bgen {
 			auto native_type = clang_getCursorType(cursor);
 			auto native_name = clang::get_spelling(native_type);
             
-            struct_info * base_struct = nullptr;
-            auto strct_map_it = cxt.symbols._structs.find (native_name);
-            
-            if (strct_map_it == cxt.symbols._structs.end()) {
-                cxt.symbols._structs [native_name]
-                    = new struct_info (
-                        
-                    );
-            }
-
-			cxt.active_struct->_base_structs.push_back(cxt.types.make_struct(native_name));
+            cxt.active_struct->base_structs.push_back (get_or_make_struct (cxt.symbols, native_name));
 		}
 
 		static inline void handle_method_def(context & cxt, const CXCursor & cursor, bool is_constructor) {
 
-            bool is_global = cxt.active_struct == cxt.symbols._global;
+            bool is_global = cxt.active_struct == cxt.symbols.global.get ();
             
             visibility_type vis = visibility_type::visibility_private;
             
@@ -386,47 +374,47 @@ namespace bgen {
 
             cxt.active_method = {};
             
-            cxt.active_method._name = clang::get_spelling(cursor);
-            cxt.active_method._namespace_name = cxt.active_namespace;
-            cxt.active_method._location = clang::get_location (cursor);
-            cxt.active_method._visibility = vis;
-            cxt.active_method._is_virtual = clang_CXXMethod_isVirtual(cursor) != 0;
-            cxt.active_method._is_pure = clang_CXXMethod_isPureVirtual(cursor) != 0;
-            cxt.active_method._is_static = clang_CXXMethod_isStatic(cursor) != 0 || is_global;
-            cxt.active_method._is_const = clang_CXXMethod_isConst(cursor) != 0;
-            cxt.active_method._is_ctor = is_constructor;
+            cxt.active_method.name = clang::get_spelling(cursor);
+            cxt.active_method.namespace_name = cxt.active_namespace;
+            cxt.active_method.location = clang::get_location (cursor);
+            cxt.active_method.visibility = vis;
+            cxt.active_method.is_virtual = clang_CXXMethod_isVirtual(cursor) != 0;
+            cxt.active_method.is_pure = clang_CXXMethod_isPureVirtual(cursor) != 0;
+            cxt.active_method.is_static = clang_CXXMethod_isStatic(cursor) != 0 || is_global;
+            cxt.active_method.is_const = clang_CXXMethod_isConst(cursor) != 0;
+            cxt.active_method.is_ctor = is_constructor;
 
 			if (!is_constructor) {
 				// unfold return type
 				auto ftype = clang_getCursorType(cursor);
 				auto rtype = clang_getResultType(ftype);
 
-				cxt.active_method._return_type = handle_type(cxt, rtype);
+				cxt.active_method.return_type = handle_type(cxt, rtype);
 
 				clang_visitChildren(cursor, handle_visit_children, &cxt);
 
-				if (!is_valid_kind(cxt.active_method._return_type.get())) {
+				if (!is_valid_kind(cxt.active_method.return_type)) {
                     logger::write (clang::get_location(cursor)) << "invalid or unexpected type for method";
 					return;
 				}
 			}
 
 			// add namespace for use with globals
-			cxt.active_method._namespace_name = cxt.active_namespace;
+			cxt.active_method.namespace_name = cxt.active_namespace;
 
 			// TODO: check for validity of parameters
-			cxt.active_struct->_methods.push_back(cxt.active_method);
+			cxt.active_struct->methods.push_back(cxt.active_method);
 		}
 
 		static inline void handle_param_def(context & cxt, const CXCursor & cursor) {
 			auto native_type = clang_getCursorType(cursor);
 			auto type = handle_type(cxt, native_type);
             
-            cxt.active_method._params.emplace_back();
-            auto & p = cxt.active_method._params.back ();
+            cxt.active_method.params.emplace_back();
+            auto & p = cxt.active_method.params.back ();
             
-            p._name = clang::get_spelling (cursor);
-            p._type = type;
+            p.name = clang::get_spelling (cursor);
+            p.type = type;
             
 		}
 
@@ -446,20 +434,20 @@ namespace bgen {
 
 			auto type = handle_type(cxt, native_type);
 
-			if (!is_valid_kind(type.get ())) {
+			if (!is_valid_kind(type)) {
                 logger::write(clang::get_location(cursor)) << "invalid or unexpected type for field";
 				return;
 			}
 
-            cxt.active_struct->_fields.emplace_back ();
+            cxt.active_struct->fields.emplace_back ();
             
-            auto & f = cxt.active_struct->_fields.back ();
+            auto & f = cxt.active_struct->fields.back ();
             
-            f._namespace_name = cxt.active_namespace;
-            f._name = name;
-            f._type = type;
-            f._location = clang::get_location (cursor);
-            f._visibility = vis;
+            f.namespace_name = cxt.active_namespace;
+            f.name = name;
+            f.type = type;
+            f.location = clang::get_location (cursor);
+            f.visibility = vis;
 
 		}
 
@@ -503,9 +491,9 @@ namespace bgen {
 			break;
         case CXCursorKind::CXCursor_FunctionDecl:
             if (!cxt.active_struct) {
-                cxt.active_struct = cxt.types._global;
+                cxt.active_struct = cxt.symbols.global.get ();
                 internal::handle_method_def(cxt, cursor, false);
-                cxt.active_struct.reset();
+                cxt.active_struct = nullptr;
             } else {
                 internal::handle_method_def (cxt, cursor, false);
             }
@@ -537,11 +525,9 @@ namespace bgen {
 		return CXChildVisitResult::CXChildVisit_Continue;
 	}
 
-	void visitor::parse(
-		base_language_plugin * plugin,
-        code_map & symbols
+	code_map visitor::parse(
+		base_language_plugin * plugin
 	) {
-
 		context cxt;
 
 		auto & params = parameters::get();
@@ -588,9 +574,8 @@ namespace bgen {
                 error_status::warn ();
                 
                 if (internal::check_for_errors (tu)) {
-                    out_map = type_map ();
                     error_status::fail ();
-                    return ;
+                    return {};
                 }
 			}
 
@@ -603,16 +588,16 @@ namespace bgen {
 		}
 
 		// pack structures and sort per dependencies
-		for ( auto & s : cxt.types._structs) {
-			cxt.types._sorted_dependencies.push_back (s.second);
+		for (auto & s : cxt.symbols.structs) {
+			cxt.symbols.sorted_dependencies.push_back (s.second.get ());
 		}
 
-		dependency::sort (cxt.types._sorted_dependencies);
+        cxt.symbols.sorted_dependencies = arrange_by_dependencies(cxt.symbols.sorted_dependencies);
         
         if (error_status::status () == error_status_type::failure)
-            out_map = type_map ();
+            return {};
         else
-            out_map = move (cxt.types);
+            return move (cxt.symbols);
 	}
 	
 }

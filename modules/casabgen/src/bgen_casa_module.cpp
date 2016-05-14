@@ -23,11 +23,11 @@ namespace bgen {
         return lang == "casablanca";
     }
 
-    void casablanca_plugin::generate (bgen::type_map & types) const {
+    void casablanca_plugin::generate (const code_map & symbols) const {
 
         casa::type_map intermediate;
 
-        casa::validation::validate_and_set(types, intermediate);
+        casa::validation::validate_and_set(symbols, intermediate);
 
         bgen::casa::gen::cpp::generate (
             intermediate,

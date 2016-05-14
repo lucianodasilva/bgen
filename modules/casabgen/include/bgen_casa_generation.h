@@ -25,7 +25,7 @@ namespace bgen {
                 object
             };
 
-            js_type cast_type_to_js ( const bgen::type_info::shared & type );
+            js_type cast_type_to_js ( const type_info * type );
 
             bool check_types_support ( const method_info & method );
 
