@@ -19,7 +19,7 @@ namespace bgen {
     using type_map              = map < string, unique_ptr < type_info > >;
 
     struct code_map {
-        unique_ptr < struct_info >  global;
+        unique_ptr < struct_info >  global {new struct_info ()};
     
 		type_map                    types;
 		struct_map                  structs;

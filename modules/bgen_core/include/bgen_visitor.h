@@ -27,7 +27,7 @@ namespace bgen {
             
 			code_map		symbols;
 
-			struct_info *   active_struct;
+            struct_info *   active_struct { nullptr };
 			method_info		active_method;
 			namespace_info	active_namespace;
 
