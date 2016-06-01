@@ -3,6 +3,7 @@
 #define _bgen_system_h_
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -15,6 +16,8 @@ namespace bgen {
         char get_path_separator ();
         
         string merge_path ( const string & p1, const string & p2);
+        
+        vector < string > get_include_paths ();
         
     }
 }
