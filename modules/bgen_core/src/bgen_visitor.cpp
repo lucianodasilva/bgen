@@ -7,6 +7,7 @@
 #include "bgen_logger.h"
 #include "bgen_parameters.h"
 #include "bgen_error_status.h"
+#include "bgen_system.h"
 
 namespace bgen {
 
@@ -534,7 +535,24 @@ namespace bgen {
 
 		string pch_file = params.client_dest + "/bgen.pch";
 
-		auto args = internal::make_clang_arguments(params.include_files, params.include_paths);
+        auto include_search_paths = params.include_paths;
+        
+        // check for default include search paths
+        if (!params.no_default_includes) {
+            auto default_includes = bgen::system::get_include_paths ();
+            
+            include_search_paths.reserve (
+                include_search_paths.size () + default_includes.size ()
+            );
+            
+            include_search_paths.insert (
+                include_search_paths.end (),
+                default_includes.begin (),
+                default_includes.end ()
+            );
+        }
+        
+		auto args = internal::make_clang_arguments(params.include_files, include_search_paths);
 
 		auto index = clang_createIndex(0, 0);
 		auto_guard([&index]() {

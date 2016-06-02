@@ -2,6 +2,7 @@
 #include "bgen_details.h"
 
 #include <cinttypes>
+#include <regex>
 
 #if defined (BGEN_API_WIN32)
 
@@ -43,12 +44,18 @@ namespace bgen {
                     result += buffer;
             }
             
+            // remove trailing line feed
+            if (*result.rbegin () == '\n')
+                result.resize(result.size() - 1);
+            
             return result;
         }
         
         vector < string > get_include_paths () {
-            // find available compiler
             string not_found = "not found";
+            string reg_expression = "\\s(\\/((?!framework).)*)+\n";
+            
+            // find available compiler
             string compiler_path = "";
             
             for (auto & compiler_name : compilers) {
@@ -63,7 +70,7 @@ namespace bgen {
                     not_found.rbegin ()
                 )) {
                     compiler_path = exec_ret;
-                    continue;
+                    break;
                 }
             }
             
@@ -71,11 +78,23 @@ namespace bgen {
                 return {};
             
             // check installation info
-            string compiler_info = execute (compiler_path + "-v -x c++ -E - 2>&1");
+            string compiler_info = execute ("echo "" | " + compiler_path + " -v -x c++ -E - 2>&1");
             if (compiler_info.empty ())
                 return {};
             
+            regex reg_exp (reg_expression, regex_constants::ECMAScript);
+            smatch matches;
             
+            vector < string > includes;
+            
+            while (regex_search (compiler_info, matches, reg_exp)) {
+                if (matches.size () > 0)
+                    includes.push_back (matches [1]);
+                
+                compiler_info = matches.suffix().str ();
+            }
+    
+            return includes;
         }
     }
 }

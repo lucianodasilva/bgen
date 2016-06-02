@@ -39,6 +39,7 @@ void show_usage ( parameters & params ) {
     cout << "-cp (--client-path): path to client output directory" << endl;
     cout << "-hd (--host-path): path to host output directory" << endl;
     cout << "-ca (--compile-args): required compile arguments" << endl;
+    cout << "--no-default-includes: disable default include search paths" << endl;
     
     cout << endl;
     
@@ -85,7 +86,8 @@ int main(int arg_c, char * arg_v[]) {
 			key ("-s", "--source")[&parameters::source_files] |
 			key ("-cp", "--client_path")[&parameters::client_dest] |
 			key ("-hd", "--host-path")[&parameters::host_dest] |
-			key ("-ca", "--compile-args")[&parameters::compile_args]
+			key ("-ca", "--compile-args")[&parameters::compile_args] |
+            option ("--no-default-includes")[&parameters::no_default_includes]
 		);
 
 	auto expression =

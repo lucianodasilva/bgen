@@ -22,6 +22,8 @@ namespace bgen {
 		vector < string >	source_files;
 		vector < string >	include_files;
 		vector < string >	include_paths;
+        
+        bool                no_default_includes;
 
 		static parameters & get();
 
