@@ -13,6 +13,9 @@
 namespace bgen {
     namespace system {
         
+        // nop implementation for windows
+        vector < string > get_include_paths () { return {}; }
+
     }
 }
 

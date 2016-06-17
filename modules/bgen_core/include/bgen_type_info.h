@@ -66,8 +66,8 @@ namespace bgen {
 		string                  native_name;
         template_param_vector   template_params;
         
-        type_info *       base_type { nullptr };
-        struct_info *     base_struct { nullptr };
+        type_info *             base_type { nullptr };
+        struct_info *           base_struct { nullptr };
         
         bool                    is_const { false };
         
