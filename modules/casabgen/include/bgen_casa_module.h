@@ -9,7 +9,7 @@ namespace bgen {
 	class casablanca_plugin : public base_plugin {
     public:
 
-		virtual const string & public_name () const override;
+		virtual string public_name () const override;
 		virtual bool accepts (const std::string & name) const override;
 		virtual void generate (const code_map & symbols) const override;
 

@@ -15,7 +15,7 @@ using namespace std;
 using namespace bgen;
 
 void show_version( parameters & params ) {
-	cout << "bgen version 0.01" << endl;
+	cout << "bgen version 0.02" << endl;
 }
 
 void show_usage ( parameters & params ) {
@@ -88,8 +88,8 @@ int main(int arg_c, char * arg_v[]) {
 	using namespace command_line;
 
 	auto main_expression =
-		*(key("-p", "--plugin")[&parameters::plugins]) >
 		*(
+			key ("-p", "--plugin")[&parameters::plugins] |
 			key ("-i", "--include")[&parameters::include_files] |
             key ("--include-path")[&parameters::include_paths] |
 			key ("-s", "--source")[&parameters::source_files] |
@@ -100,6 +100,7 @@ int main(int arg_c, char * arg_v[]) {
 		);
 
 	auto expression =
+        usage(none)[&show_usage] |
 		usage(option("-v", "--version"))[&show_version] |
 		usage(option("-h", "--help"))[&show_usage] |
 		usage(main_expression)[&process]

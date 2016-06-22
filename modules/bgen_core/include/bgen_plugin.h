@@ -17,7 +17,7 @@ namespace bgen {
 
 		virtual ~base_plugin();
 
-		virtual const string & public_name() const = 0;
+		virtual string public_name() const = 0;
 		virtual bool accepts (const std::string & name) const = 0;
 
 		virtual void generate (const code_map & types) const = 0;

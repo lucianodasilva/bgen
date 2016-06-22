@@ -15,7 +15,7 @@ namespace bgen {
         return new casablanca_plugin();
     }
 
-    const string & casablanca_plugin::public_name () const {
+    string casablanca_plugin::public_name () const {
         return "casablanca";
     }
 
