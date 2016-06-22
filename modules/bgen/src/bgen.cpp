@@ -21,18 +21,18 @@ void show_version( parameters & params ) {
 void show_usage ( parameters & params ) {
 	show_version(params);
 
-	auto plugins = bgen::config::get_language_plugins();
+	auto plugins = bgen::config::get_plugins();
 
 	cout << endl << " - avaliable plugins:" << endl;
 
 	for (auto it = plugins.begin(); it != plugins.end(); ++it) {
 		if (it != plugins.end ())
-			cout << "   " << (*it)->handled_language () << endl;
+			cout << "   " << (*it)->public_name () << endl;
 	}
     
 	cout << endl;
     
-    cout << "-l (--language): plugin name" << endl;
+    cout << "-p (--plugin): plugin names" << endl;
     cout << "-i (--include): additional includes" << endl;
     cout << "--include_path: include paths" << endl;
     cout << "-s (--source): source files" << endl;
@@ -47,31 +47,40 @@ void show_usage ( parameters & params ) {
     cout << "-h (--help): this information" << endl;
 }
 
-bgen::base_language_plugin * get_language_plugin () {
+vector < bgen::base_plugin * > get_plugins () {
     
-	auto plugins = bgen::config::get_language_plugins();
+	auto & plugins = bgen::config::get_plugins();
     auto & args = parameters::get ();
 
-	for (auto * p : plugins) {
-		if (p->handles_language(args.language))
-			return p;
+	vector < bgen::base_plugin * > ret_plugins;
+
+	for (auto & name : args.plugins) {
+		for (auto * p : plugins) {
+			if (p->accepts (name)) {
+				ret_plugins.push_back (p);
+				break;
+			}
+
+			cout << "error: unavailable plugin named \"" << name << "\"" << endl;
+			return {};
+		}
 	}
 
-	cout << "error: unavailable language plugin for \"" << args.language << "\"" << endl;
-    
-	return nullptr;
+	return ret_plugins;
 }
 
 void process(parameters & params) {
-	auto plugin = get_language_plugin ();
+	auto plugins = get_plugins ();
     
-    if (!plugin)
+    if (plugins.size () == 0)
         return;
 
-    code_map symbols = visitor::parse(plugin);
+    code_map symbols = visitor::parse();
  
-    if (error_status::status () != error_status_type::failure)
-        plugin->generate (symbols);
+    if (error_status::status () != error_status_type::failure) {
+		for ( auto p : plugins )
+        	p->generate (symbols);
+	}
 }
 
 int main(int arg_c, char * arg_v[]) {
@@ -79,7 +88,7 @@ int main(int arg_c, char * arg_v[]) {
 	using namespace command_line;
 
 	auto main_expression =
-		key("-l", "--language")[&parameters::language] >
+		*(key("-p", "--plugin")[&parameters::plugins]) >
 		*(
 			key ("-i", "--include")[&parameters::include_files] |
             key ("--include-path")[&parameters::include_paths] |

@@ -6,11 +6,11 @@
 
 namespace bgen {
 
-	class casablanca_plugin : public base_language_plugin {
+	class casablanca_plugin : public base_plugin {
     public:
 
-		virtual string handled_language() const override;
-		virtual bool handles_language(const std::string & lang) const override;
+		virtual const string & public_name () const override;
+		virtual bool accepts (const std::string & name) const override;
 		virtual void generate (const code_map & symbols) const override;
 
 	};

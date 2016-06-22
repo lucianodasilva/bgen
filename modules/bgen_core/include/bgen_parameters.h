@@ -13,7 +13,7 @@ namespace bgen {
 
 	struct parameters : no_copy {
 
-		string				language;
+		vector < string >	plugins;
 		string				compile_args;
 
 		string				client_dest;

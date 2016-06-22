@@ -11,15 +11,15 @@ using namespace std;
 
 namespace bgen {
 
-    base_language_plugin * make_casabgen_plugin() {
+    base_plugin * make_casabgen_plugin() {
         return new casablanca_plugin();
     }
 
-    string casablanca_plugin::handled_language() const {
+    const string & casablanca_plugin::public_name () const {
         return "casablanca";
     }
 
-    bool casablanca_plugin::handles_language(const std::string & lang) const{
+    bool casablanca_plugin::accepts (const std::string & lang) const{
         return lang == "casablanca";
     }
 

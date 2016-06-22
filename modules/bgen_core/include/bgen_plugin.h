@@ -12,19 +12,19 @@ namespace bgen {
 
 	struct code_map;
 
-	class base_language_plugin {
+	class base_plugin {
 	public:
 
-		virtual ~base_language_plugin();
+		virtual ~base_plugin();
 
-		virtual string handled_language() const = 0;
-		virtual bool handles_language (const std::string & lang) const = 0;
+		virtual const string & public_name() const = 0;
+		virtual bool accepts (const std::string & name) const = 0;
 
 		virtual void generate (const code_map & types) const = 0;
 
 	};
 
-	using plugin_vector = vector < base_language_plugin * >;
+	using plugin_vector = vector < base_plugin * >;
 
 }
 

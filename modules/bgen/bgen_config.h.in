@@ -9,14 +9,14 @@ using namespace std;
 
 namespace bgen {
 
-	${BGEN_LANGUAGE_PLUGIN_DEF}
+	${BGEN_PLUGIN_DEF}
 
 	struct config : no_copy {
 	public:
 		
-		static inline const vector < base_language_plugin * > & get_language_plugins () {
+		static inline const vector < base_plugin * > & get_plugins () {
 			static const plugin_vector plugins = {
-				${BGEN_LANGUAGE_PLUGIN_LIST}
+				${BGEN_PLUGIN_LIST}
 			};
 			
 			return plugins;

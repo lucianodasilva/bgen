@@ -39,9 +39,7 @@ namespace bgen {
 
 	public:
 
-		static code_map parse(
-			base_language_plugin * plugin
-		);
+		static code_map parse();
 
 	};
 	

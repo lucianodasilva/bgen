@@ -3,6 +3,6 @@
 
 namespace bgen {
 
-	base_language_plugin::~base_language_plugin() {}
+	base_plugin::~base_plugin() {}
 
 }

@@ -526,9 +526,7 @@ namespace bgen {
 		return CXChildVisitResult::CXChildVisit_Continue;
 	}
 
-	code_map visitor::parse(
-		base_language_plugin * plugin
-	) {
+	code_map visitor::parse() {
 		context cxt;
 
 		auto & params = parameters::get();
