@@ -235,15 +235,15 @@ namespace bgen {
             factory::handler_map_t factory::init_map() {
                 handler_map_t m;
 
-                m[CXCursorKind::CXCursor_ClassDecl] = make_unique < class_def_handler >();
-                m[CXCursorKind::CXCursor_StructDecl] = make_unique < struct_def_handler > ();
-                m[CXCursorKind::CXCursor_CXXBaseSpecifier] = make_unique < struct_base_def_handler > ();
-                m[CXCursorKind::CXCursor_CXXMethod] = make_unique < simple_method_handler > ();
-                m[CXCursorKind::CXCursor_FunctionDecl] = make_unique < simple_method_handler > ();
-                m[CXCursorKind::CXCursor_ParmDecl] = make_unique < param_handler > ();
-                m[CXCursorKind::CXCursor_Constructor] = make_unique < ctor_method_handler > ();
-                m[CXCursorKind::CXCursor_FieldDecl] = make_unique < field_handler > ();
-                m[CXCursorKind::CXCursor_Namespace] = make_unique < namespace_handler > ();
+                m[CXCursorKind::CXCursor_ClassDecl]         = make_unique < class_def_handler >();
+                m[CXCursorKind::CXCursor_StructDecl]        = make_unique < struct_def_handler > ();
+                m[CXCursorKind::CXCursor_CXXBaseSpecifier]  = make_unique < struct_base_def_handler > ();
+                m[CXCursorKind::CXCursor_CXXMethod]         = make_unique < simple_method_handler > ();
+                m[CXCursorKind::CXCursor_FunctionDecl]      = make_unique < simple_method_handler > ();
+                m[CXCursorKind::CXCursor_ParmDecl]          = make_unique < param_handler > ();
+                m[CXCursorKind::CXCursor_Constructor]       = make_unique < ctor_method_handler > ();
+                m[CXCursorKind::CXCursor_FieldDecl]         = make_unique < field_handler > ();
+                m[CXCursorKind::CXCursor_Namespace]         = make_unique < namespace_handler > ();
 
                 return m;
             }
