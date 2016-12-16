@@ -60,13 +60,13 @@ namespace bgen {
                 }
                 
                 inline line_builder (output & out_r) :
-                out (out_r),
-                has_copy (false)
+                    out (out_r),
+                    has_copy (false)
                 {}
                 
                 inline line_builder (line_builder && origin) :
-                out (origin.out),
-                has_copy (false)
+                    out (origin.out),
+                    has_copy (false)
                 {
                     origin.has_copy = true;
                 }

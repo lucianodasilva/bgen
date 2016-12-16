@@ -17,25 +17,25 @@ using namespace std;
 
 namespace bgen {
 
+	struct visitor_context {
+	public:
+
+		code_map		symbols;
+
+		struct_info *   active_struct { nullptr };
+		method_info		active_method;
+		namespace_info	active_namespace;
+
+		string			active_source_file;
+
+		map < string, dependency >
+				active_dependencies;
+	};
+
 	class visitor {
 	private:
 
 		struct internal;
-
-		struct context {
-        public:
-            
-			code_map		symbols;
-
-            struct_info *   active_struct { nullptr };
-			method_info		active_method;
-			namespace_info	active_namespace;
-
-			string			active_source_file;
-            
-            map < string, dependency > 
-                            active_dependencies;
-		};
 
 	public:
 

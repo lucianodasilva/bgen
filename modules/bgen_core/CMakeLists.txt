@@ -4,7 +4,11 @@ include(ExternalProject)
 set (BGEN_LIBCLANG_INCLUDE_PATH "" CACHE PATH "libClang include path")
 set (BGEN_LIBCLANG_LIB_PATH "" CACHE PATH "libClang lib path")
 
-include_directories (${BGEN_LIBCLANG_INCLUDE_PATH})
+include_directories (
+	${BGEN_LIBCLANG_INCLUDE_PATH}
+	${CMAKE_CURRENT_LIST_DIR}/deps/GSL
+)
+
 link_directories(${BGEN_LIBCLANG_LIB_PATH})
 
 if (MSVC)
