@@ -18,24 +18,24 @@ namespace bgen {
     namespace clang {
         namespace handlers {
 
-            class child_handler {
+            class cursor_type_handler {
             public:
                 virtual void visit_start (visitor_context & cxt, const CXCursor & cursor);
                 virtual void visit_end (visitor_context & cxt, const CXCursor & cursor);
             };
 
-            class namespace_handler : public child_handler {
+            class namespace_handler : public cursor_type_handler {
             public:
                 virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
                 virtual void visit_end (visitor_context & cxt, const CXCursor & cursor) override;
             };
 
-            class field_handler : public child_handler {
+            class field_handler : public cursor_type_handler {
             public:
                 virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
             };
 
-            class param_handler : public child_handler {
+            class param_handler : public cursor_type_handler {
             public:
                 virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
             };
@@ -46,13 +46,13 @@ namespace bgen {
                 void method_visit_end (visitor_context & cxt, const CXCursor & cursor, bool is_constructor);
             };
 
-            class ctor_method_handler : public method_handler_base, public child_handler {
+            class ctor_method_handler : public method_handler_base, public cursor_type_handler {
             public:
                 virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
                 virtual void visit_end (visitor_context & cxt, const CXCursor & cursor) override;
             };
 
-            class simple_method_handler : public method_handler_base, public child_handler {
+            class simple_method_handler : public method_handler_base, public cursor_type_handler {
             public:
                 virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
                 virtual void visit_end (visitor_context & cxt, const CXCursor & cursor) override;
@@ -64,19 +64,19 @@ namespace bgen {
                 void struct_visit_end (visitor_context & cxt, const CXCursor & cursor, struct_type type);
             };
 
-            class struct_def_handler : public struct_def_base_handler, public child_handler {
+            class struct_def_handler : public struct_def_base_handler, public cursor_type_handler {
             public:
                 virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
                 virtual void visit_end(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
-            class class_def_handler : public struct_def_base_handler, public child_handler {
+            class class_def_handler : public struct_def_base_handler, public cursor_type_handler {
             public:
                 virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
                 virtual void visit_end(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
-            class struct_base_def_handler : public child_handler {
+            class struct_base_def_handler : public cursor_type_handler {
             public:
                 virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
             };
@@ -84,17 +84,17 @@ namespace bgen {
             class lookup : no_copy {
             private:
 
-                using handler_map_t = map < CXCursorKind, unique_ptr < child_handler > >;
+                using handler_map_t = map < CXCursorKind, unique_ptr < cursor_type_handler > >;
 
                 static handler_map_t init_map ();
 
                 handler_map_t _handlers;
-                unique_ptr < child_handler > _null_handler { make_unique < child_handler > () };
+                unique_ptr < cursor_type_handler > _null_handler { make_unique < cursor_type_handler > () };
 
                 lookup ();
 
             public:
-                static child_handler * get (CXCursorKind kind);
+                static cursor_type_handler & get (CXCursorKind kind);
             };
 
         }

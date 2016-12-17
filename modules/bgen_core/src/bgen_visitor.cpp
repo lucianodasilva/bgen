@@ -112,13 +112,13 @@ namespace bgen {
 		auto & cxt = *(visitor_context *)client_data;
 		auto kind = clang_getCursorKind(cursor);
 
-		auto * handler = clang::handlers::lookup::get(kind);
+		auto handler = clang::handlers::lookup::get(kind);
 
-		handler->visit_start(cxt, cursor);
+		handler.visit_start(cxt, cursor);
 
 		clang_visitChildren(cursor, &visit_child, client_data);
 
-		handler->visit_end (cxt, cursor);
+		handler.visit_end (cxt, cursor);
 
 		return CXChildVisitResult::CXChildVisit_Continue;
 	}

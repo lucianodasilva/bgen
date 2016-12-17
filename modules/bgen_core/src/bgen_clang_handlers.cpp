@@ -19,9 +19,9 @@ namespace bgen {
 
         namespace handlers {
 
-            void child_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {}
+            void cursor_type_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {}
 
-            void child_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {}
+            void cursor_type_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {}
 
             // namespace_handler
             void namespace_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
@@ -251,15 +251,15 @@ namespace bgen {
             lookup::lookup() : _handlers (init_map())
             {}
 
-            child_handler * lookup::get(CXCursorKind kind) {
+            cursor_type_handler & lookup::get(CXCursorKind kind) {
                 static lookup * inst = new lookup ();
 
                 auto it = inst->_handlers.find (kind);
 
                 if (it != inst->_handlers.end ()) {
-                    return it->second.get();
+                    return *it->second.get();
                 } else {
-                    return inst->_null_handler.get();
+                    return *inst->_null_handler.get();
                 }
             }
 
