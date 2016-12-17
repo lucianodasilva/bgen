@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function on_fail {
     echo $1
     exit 1
@@ -5,6 +7,8 @@ function on_fail {
 
 origin=$(pwd)
 work="$origin/libclang_work"
+
+platform=`uname`
 
 if [ -e $work ]; then
     rm -rf $work || on_fail "Failed cleaning work folder"
@@ -65,8 +69,18 @@ mkdir -p $origin_out_lib || on_fail "Failed creating libclang directory"
 
 cp -rf "$clang_out/include/clang-c" $origin_out_include \
     || on_fail "Failed to copy include files to destination"
-    
-cp "$clang_out/lib/libclang.a" "$origin_out_lib/libclang.a" \
+
+libclang_lib="libclang.a"
+
+if [[ "$platform" == "Darwin" ]]; then
+    libclang_lib="libclang.dylib"
+fi
+
+# find file
+libclang_file_path=`find $clang_out -type f -name "$libclang_lib"`
+libclang_file_path=`echo $libclang_file_path | head -1`
+
+cp $libclang_file_path "$origin_out_lib/$libclang_lib" \
     || on_fail "Failed to copy library files to destination"
 
 rm -rf $work || on_fail "Failed to clean up work directory"

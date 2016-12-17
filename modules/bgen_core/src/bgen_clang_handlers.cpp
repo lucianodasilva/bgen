@@ -232,7 +232,7 @@ namespace bgen {
                 cxt.active_struct->base_structs.push_back (get_or_make_struct (cxt.symbols, native_name));
             }
 
-            factory::handler_map_t factory::init_map() {
+            lookup::handler_map_t lookup::init_map() {
                 handler_map_t m;
 
                 m[CXCursorKind::CXCursor_ClassDecl]         = make_unique < class_def_handler >();
@@ -248,11 +248,11 @@ namespace bgen {
                 return m;
             }
 
-            factory::factory() : _handlers (init_map())
+            lookup::lookup() : _handlers (init_map())
             {}
 
-            child_handler * factory::get(CXCursorKind kind) {
-                static factory * inst = new factory ();
+            child_handler * lookup::get(CXCursorKind kind) {
+                static lookup * inst = new lookup ();
 
                 auto it = inst->_handlers.find (kind);
 

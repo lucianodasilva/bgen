@@ -93,7 +93,7 @@ namespace bgen {
 		}
 
 		/* cursor conversion */
-		static CXChildVisitResult handle_visit_children(
+		static CXChildVisitResult visit_child(
 				CXCursor cursor,
 				CXCursor parent,
 				CXClientData client_data
@@ -101,10 +101,10 @@ namespace bgen {
 
 	};
 
-	CXChildVisitResult visitor::internal::handle_visit_children(
-		CXCursor cursor,
-		CXCursor parent,
-		CXClientData client_data
+	CXChildVisitResult visitor::internal::visit_child(
+			CXCursor cursor,
+			CXCursor parent,
+			CXClientData client_data
 	) {
         if (clang_Location_isFromMainFile(clang_getCursorLocation(cursor)) == 0)
             return CXChildVisit_Continue;
@@ -112,11 +112,11 @@ namespace bgen {
 		auto & cxt = *(visitor_context *)client_data;
 		auto kind = clang_getCursorKind(cursor);
 
-		auto * handler = clang::handlers::factory::get(kind);
+		auto * handler = clang::handlers::lookup::get(kind);
 
 		handler->visit_start(cxt, cursor);
 
-		clang_visitChildren(cursor, &handle_visit_children, client_data);
+		clang_visitChildren(cursor, &visit_child, client_data);
 
 		handler->visit_end (cxt, cursor);
 
@@ -194,7 +194,7 @@ namespace bgen {
 
 			// list types in source file
 			auto cursor = clang_getTranslationUnitCursor(tu);
-			clang_visitChildren(cursor, internal::handle_visit_children, &cxt);
+			clang_visitChildren(cursor, internal::visit_child, &cxt);
 
 			// clean up
 			clang_saveTranslationUnit(tu, pch_file.c_str(), clang_defaultSaveOptions(tu));

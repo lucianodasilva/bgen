@@ -81,7 +81,7 @@ namespace bgen {
                 virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
-            class factory : no_copy {
+            class lookup : no_copy {
             private:
 
                 using handler_map_t = map < CXCursorKind, unique_ptr < child_handler > >;
@@ -91,7 +91,7 @@ namespace bgen {
                 handler_map_t _handlers;
                 unique_ptr < child_handler > _null_handler { make_unique < child_handler > () };
 
-                factory ();
+                lookup ();
 
             public:
                 static child_handler * get (CXCursorKind kind);
