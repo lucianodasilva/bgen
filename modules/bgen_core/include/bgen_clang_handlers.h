@@ -8,95 +8,94 @@
 
 #include <clang-c/Index.h>
 #include "bgen_details.h"
-#include "bgen_visitor.h"
+#include "bgen_struct_info.h"
 
 #include <map>
 
 using namespace std;
 
 namespace bgen {
+
+    struct visitor_context;
+
     namespace clang {
         namespace handlers {
 
             class cursor_type_handler {
             public:
-                virtual void visit_start (visitor_context & cxt, const CXCursor & cursor);
-                virtual void visit_end (visitor_context & cxt, const CXCursor & cursor);
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor);
+                virtual void visit_post(visitor_context &cxt, const CXCursor &cursor);
             };
 
             class namespace_handler : public cursor_type_handler {
             public:
-                virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
-                virtual void visit_end (visitor_context & cxt, const CXCursor & cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit_post(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
             class field_handler : public cursor_type_handler {
             public:
-                virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
             class param_handler : public cursor_type_handler {
             public:
-                virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
             class method_handler_base {
             protected:
-                void method_visit_start (visitor_context & cxt, const CXCursor & cursor, bool is_constructor);
-                void method_visit_end (visitor_context & cxt, const CXCursor & cursor, bool is_constructor);
+                void visit_method(visitor_context &cxt, const CXCursor &cursor, bool is_constructor);
+                void visit_method_post(visitor_context &cxt, const CXCursor &cursor, bool is_constructor);
             };
 
             class ctor_method_handler : public method_handler_base, public cursor_type_handler {
             public:
-                virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
-                virtual void visit_end (visitor_context & cxt, const CXCursor & cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit_post(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
             class simple_method_handler : public method_handler_base, public cursor_type_handler {
             public:
-                virtual void visit_start (visitor_context & cxt, const CXCursor & cursor) override;
-                virtual void visit_end (visitor_context & cxt, const CXCursor & cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit_post(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
-            class struct_def_base_handler {
+            class struct_def_handler_base {
             protected:
-                void struct_visit_start (visitor_context & cxt, const CXCursor & cursor, struct_type type);
-                void struct_visit_end (visitor_context & cxt, const CXCursor & cursor, struct_type type);
+                void visit_struct(visitor_context &cxt, const CXCursor &cursor, struct_type type);
+                void visit_struct_post(visitor_context &cxt, const CXCursor &cursor, struct_type type);
             };
 
-            class struct_def_handler : public struct_def_base_handler, public cursor_type_handler {
+            class struct_def_handler : public struct_def_handler_base, public cursor_type_handler {
             public:
-                virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
-                virtual void visit_end(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit_post(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
-            class class_def_handler : public struct_def_base_handler, public cursor_type_handler {
+            class class_def_handler : public struct_def_handler_base, public cursor_type_handler {
             public:
-                virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
-                virtual void visit_end(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit_post(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
             class struct_base_def_handler : public cursor_type_handler {
             public:
-                virtual void visit_start(visitor_context &cxt, const CXCursor &cursor) override;
+                virtual void visit(visitor_context &cxt, const CXCursor &cursor) override;
             };
 
-            class lookup : no_copy {
-            private:
+            using handler_map_t = map < CXCursorKind, unique_ptr < cursor_type_handler > >;
 
-                using handler_map_t = map < CXCursorKind, unique_ptr < cursor_type_handler > >;
+            struct lookup {
 
-                static handler_map_t init_map ();
+				handler_map_t handlers;
+				unique_ptr<cursor_type_handler> null_handler;
 
-                handler_map_t _handlers;
-                unique_ptr < cursor_type_handler > _null_handler { make_unique < cursor_type_handler > () };
-
-                lookup ();
-
-            public:
-                static cursor_type_handler & get (CXCursorKind kind);
             };
 
+            cursor_type_handler & lookup_get (const lookup & ltable, CXCursorKind kind);
+
+            lookup lookup_make_default ();
         }
     }
 }

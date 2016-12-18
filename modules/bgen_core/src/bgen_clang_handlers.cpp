@@ -4,9 +4,9 @@
 #include "bgen_clang_handlers.h"
 #include "bgen_clang.h"
 #include "bgen_clang_type_maker.h"
+#include "bgen_visitor_context.h"
 
 #include <memory>
-#include <map>
 
 using namespace std;
 
@@ -19,21 +19,21 @@ namespace bgen {
 
         namespace handlers {
 
-            void cursor_type_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {}
+            void cursor_type_handler::visit(visitor_context &cxt, const CXCursor &cursor) {}
 
-            void cursor_type_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {}
+            void cursor_type_handler::visit_post(visitor_context &cxt, const CXCursor &cursor) {}
 
             // namespace_handler
-            void namespace_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
+            void namespace_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
                 cxt.active_namespace.push_back(clang::get_spelling(cursor));
             }
 
-            void namespace_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {
+            void namespace_handler::visit_post(visitor_context &cxt, const CXCursor &cursor) {
                 cxt.active_namespace.pop_back();
             }
 
             // fields definition handler
-            void field_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
+            void field_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
                 CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
 
                 visibility_type vis = visibility_type::visibility_private;
@@ -72,7 +72,7 @@ namespace bgen {
             }
 
             // param definition handler
-            void param_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
+            void param_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
                 auto native_type = clang_getCursorType(cursor);
                 auto type = make_type(cxt, native_type);
 
@@ -84,8 +84,8 @@ namespace bgen {
             }
 
             // method definition handler
-            void method_handler_base::method_visit_start(visitor_context &cxt, const CXCursor &cursor,
-                                                         bool is_constructor) {
+            void method_handler_base::visit_method(visitor_context &cxt, const CXCursor &cursor,
+                                                   bool is_constructor) {
 
                 if (!cxt.active_struct)
                     return;
@@ -127,8 +127,8 @@ namespace bgen {
                 }
             }
 
-            void method_handler_base::method_visit_end(visitor_context &cxt, const CXCursor &cursor,
-                                                       bool is_constructor) {
+            void method_handler_base::visit_method_post(visitor_context &cxt, const CXCursor &cursor,
+                                                        bool is_constructor) {
                 if (!cxt.active_struct)
                     return;
 
@@ -146,25 +146,25 @@ namespace bgen {
                 cxt.active_struct->methods.push_back(cxt.active_method);
             }
 
-            void ctor_method_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
-                method_handler_base::method_visit_start(cxt, cursor, true);
+            void ctor_method_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
+                method_handler_base::visit_method(cxt, cursor, true);
             }
 
-            void ctor_method_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {
-                method_handler_base::method_visit_end(cxt, cursor, true);
+            void ctor_method_handler::visit_post(visitor_context &cxt, const CXCursor &cursor) {
+                method_handler_base::visit_method_post(cxt, cursor, true);
             }
 
-            void simple_method_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
-                method_handler_base::method_visit_start(cxt, cursor, false);
+            void simple_method_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
+                method_handler_base::visit_method(cxt, cursor, false);
             }
 
-            void simple_method_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {
-                method_handler_base::method_visit_end(cxt, cursor, true);
+            void simple_method_handler::visit_post(visitor_context &cxt, const CXCursor &cursor) {
+                method_handler_base::visit_method_post(cxt, cursor, true);
             }
 
             // struct definition handler
-            void struct_def_base_handler::struct_visit_start(visitor_context &cxt, const CXCursor &cursor,
-                                                             struct_type type) {
+            void struct_def_handler_base::visit_struct(visitor_context &cxt, const CXCursor &cursor,
+                                                       struct_type type) {
                 string name = clang::get_spelling(cursor);
 
                 CXType clang_type = clang_getCursorType(cursor);
@@ -174,7 +174,7 @@ namespace bgen {
                 auto backup_struct = cxt.active_struct;
 
                 // create empty and swap
-                auto backup_dependencies = map<string, dependency>();
+                auto backup_dependencies = dependency_map ();
                 swap(backup_dependencies, cxt.active_dependencies);
 
                 // create and fill struct info
@@ -188,7 +188,7 @@ namespace bgen {
             }
 
             void
-            struct_def_base_handler::struct_visit_end(visitor_context &cxt, const CXCursor &cursor, struct_type type) {
+            struct_def_handler_base::visit_struct_post(visitor_context &cxt, const CXCursor &cursor, struct_type type) {
                 CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
 
                 visibility_type vis = visibility_type::visibility_private;
@@ -202,23 +202,23 @@ namespace bgen {
                 cxt.active_struct->base_structs.push_back(get_or_make_struct(cxt.symbols, native_name));
             }
 
-            void struct_def_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
-                struct_def_base_handler::struct_visit_start(cxt, cursor, struct_type::struct_type_struct);
+            void struct_def_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
+                struct_def_handler_base::visit_struct(cxt, cursor, struct_type::struct_type_struct);
             }
 
-            void struct_def_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {
-                struct_def_base_handler::struct_visit_end(cxt, cursor, struct_type::struct_type_struct);
+            void struct_def_handler::visit_post(visitor_context &cxt, const CXCursor &cursor) {
+                struct_def_handler_base::visit_struct_post(cxt, cursor, struct_type::struct_type_struct);
             }
 
-            void class_def_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
-                struct_def_base_handler::struct_visit_start(cxt, cursor, struct_type::struct_type_class);
+            void class_def_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
+                struct_def_handler_base::visit_struct(cxt, cursor, struct_type::struct_type_class);
             }
 
-            void class_def_handler::visit_end(visitor_context &cxt, const CXCursor &cursor) {
-                struct_def_base_handler::struct_visit_end(cxt, cursor, struct_type::struct_type_class);
+            void class_def_handler::visit_post(visitor_context &cxt, const CXCursor &cursor) {
+                struct_def_handler_base::visit_struct_post(cxt, cursor, struct_type::struct_type_class);
             }
 
-            void struct_base_def_handler::visit_start(visitor_context &cxt, const CXCursor &cursor) {
+            void struct_base_def_handler::visit(visitor_context &cxt, const CXCursor &cursor) {
                 CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
 
                 visibility_type vis = visibility_type::visibility_private;
@@ -232,7 +232,17 @@ namespace bgen {
                 cxt.active_struct->base_structs.push_back (get_or_make_struct (cxt.symbols, native_name));
             }
 
-            lookup::handler_map_t lookup::init_map() {
+            cursor_type_handler & lookup_get(const lookup & ltable, CXCursorKind kind) {
+                auto it = ltable.handlers.find (kind);
+
+                if (it != ltable.handlers.end ()) {
+                    return *it->second.get();
+                } else {
+                    return *ltable.null_handler.get();
+                }
+            }
+
+            lookup lookup_make_default () {
                 handler_map_t m;
 
                 m[CXCursorKind::CXCursor_ClassDecl]         = make_unique < class_def_handler >();
@@ -245,22 +255,10 @@ namespace bgen {
                 m[CXCursorKind::CXCursor_FieldDecl]         = make_unique < field_handler > ();
                 m[CXCursorKind::CXCursor_Namespace]         = make_unique < namespace_handler > ();
 
-                return m;
-            }
-
-            lookup::lookup() : _handlers (init_map())
-            {}
-
-            cursor_type_handler & lookup::get(CXCursorKind kind) {
-                static lookup * inst = new lookup ();
-
-                auto it = inst->_handlers.find (kind);
-
-                if (it != inst->_handlers.end ()) {
-                    return *it->second.get();
-                } else {
-                    return *inst->_null_handler.get();
-                }
+                return {
+                    move(m),
+                    make_unique < cursor_type_handler >()
+                };
             }
 
         }

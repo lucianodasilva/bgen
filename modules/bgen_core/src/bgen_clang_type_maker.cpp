@@ -4,6 +4,7 @@
 #include "bgen_clang_type_maker.h"
 #include "bgen_type_info.h"
 #include "bgen_clang.h"
+#include "bgen_visitor_context.h"
 
 #include <list>
 

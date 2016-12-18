@@ -1,14 +1,14 @@
 #include <clang-c/Index.h>
 #include <list>
-#include <bgen_clang_handlers.h>
+#include "bgen_clang_handlers.h"
 #include "bgen_visitor.h"
-
 #include "bgen_clang.h"
-#include "bgen_details.h"
-#include "bgen_logger.h"
 #include "bgen_parameters.h"
 #include "bgen_error_status.h"
 #include "bgen_system.h"
+#include "bgen_visitor_context.h"
+
+using namespace bgen::clang;
 
 namespace bgen {
 
@@ -112,13 +112,13 @@ namespace bgen {
 		auto & cxt = *(visitor_context *)client_data;
 		auto kind = clang_getCursorKind(cursor);
 
-		auto handler = clang::handlers::lookup::get(kind);
+		auto handler = handlers::lookup_get(cxt.handler_lookup, kind);
 
-		handler.visit_start(cxt, cursor);
+        handler.visit(cxt, cursor);
 
 		clang_visitChildren(cursor, &visit_child, client_data);
 
-		handler.visit_end (cxt, cursor);
+		handler.visit_post(cxt, cursor);
 
 		return CXChildVisitResult::CXChildVisit_Continue;
 	}

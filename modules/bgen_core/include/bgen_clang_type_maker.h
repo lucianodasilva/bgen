@@ -10,6 +10,9 @@
 #include "bgen_visitor.h"
 
 namespace bgen {
+
+    struct visitor_context;
+
     namespace clang {
 
         type_info * make_type (visitor_context & context, const CXType & native_type);

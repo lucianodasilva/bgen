@@ -8,26 +8,42 @@
 
 using namespace std;
 using namespace bgen;
-using namespace bgen::clang;
+using namespace bgen::clang::handlers;
 
 namespace bgen {
     namespace tests {
 
-        struct handler_lookup_test: public ::testing::Test {
+		const CXCursorKind unused_cursor_kind { CXCursorKind::CXCursor_WhileStmt };
+
+		struct handler_lookup_test: public ::testing::Test {
         protected:
+
             virtual void SetUp() {}
+
         };
 
-        TEST(handler_lookup_test, get_handler_match) {
-            auto handler = &clang::handlers::lookup::get (CXCursorKind::CXCursor_ParmDecl);
+		class dummy_handler : public cursor_type_handler {};
 
-            EXPECT_NE(nullptr, dynamic_cast < handlers::param_handler * > (handler));
+        TEST(handler_lookup_test, get_handler_match) {
+			auto lookup = lookup_make_default ();
+
+			cursor_type_handler * new_handler = new dummy_handler();
+
+			lookup.handlers [unused_cursor_kind] = unique_ptr < cursor_type_handler > (new_handler);
+
+			auto handler = &lookup_get (lookup, unused_cursor_kind);
+
+			EXPECT_NE(nullptr, handler);
+			EXPECT_EQ(new_handler, handler);
         }
 
         TEST(handler_lookup_test, get_handler_no_match) {
-            auto handler = &handlers::lookup::get (CXCursorKind::CXCursor_AsmStmt);
+			auto lookup = lookup_make_default ();
 
-            EXPECT_NE(nullptr, dynamic_cast < handlers::cursor_type_handler * > (handler));
+			auto handler = &lookup_get (lookup, unused_cursor_kind);
+
+			EXPECT_NE(nullptr, handler);
+			EXPECT_EQ(lookup.null_handler.get (), handler);
         }
     }
 }
