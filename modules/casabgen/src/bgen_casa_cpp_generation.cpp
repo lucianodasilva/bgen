@@ -1,9 +1,4 @@
 #include "bgen_casa_cpp_generation.h"
-#include "bgen_casa_generation.h"
-
-#include <bgen_core.h>
-#include <string>
-#include <sstream>
 
 using namespace std;
 
