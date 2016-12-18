@@ -45,5 +45,14 @@ namespace bgen {
 			EXPECT_NE(nullptr, handler);
 			EXPECT_EQ(lookup.null_handler.get (), handler);
         }
+
+		struct handler_types_test: public ::testing::Test {
+		protected:
+
+			virtual void SetUp() {}
+
+		};
+
+		// handlers are untestable at this point
     }
 }
