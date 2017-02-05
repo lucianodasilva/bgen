@@ -20,7 +20,7 @@ namespace bgen {
     }
 
     bool casablanca_plugin::accepts (const std::string & lang) const{
-        return lang == "casablanca";
+        return lang == public_name();
     }
 
     void casablanca_plugin::generate (const code_map & symbols) const {

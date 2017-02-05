@@ -21,4 +21,8 @@ namespace bgen {
     void error_status::fail () {
         get ()._status = error_status_type::failure;
     }
+
+    void error_status::reset () {
+        get ()._status = error_status_type::success;
+    }
 }

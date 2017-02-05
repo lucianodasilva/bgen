@@ -22,21 +22,6 @@ namespace bgen {
 
 		struct internal;
 
-		struct context {
-        public:
-            
-			code_map		symbols;
-
-            struct_info *   active_struct { nullptr };
-			method_info		active_method;
-			namespace_info	active_namespace;
-
-			string			active_source_file;
-            
-            map < string, dependency > 
-                            active_dependencies;
-		};
-
 	public:
 
 		static code_map parse();

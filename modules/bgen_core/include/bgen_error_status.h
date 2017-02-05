@@ -26,7 +26,8 @@ namespace bgen {
         
         static void warn ();
         static void fail ();
-        
+
+        static void reset ();
     };
     
 }

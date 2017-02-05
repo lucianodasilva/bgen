@@ -7,6 +7,11 @@ set ( bgen_path ${CMAKE_CURRENT_LIST_DIR})
 include (${bgen_path}/cmake/environment.cmake)
 include (${bgen_path}/cmake/modules.cmake)
 
+# add test infrastructure
+set ( bgen_gtest_path ${CMAKE_CURRENT_LIST_DIR}/extra/googletest )
+add_subdirectory(${bgen_gtest_path})
+
+
 # setup environment
 check_environment ()
 
@@ -17,8 +22,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # -----------------
 
 add_static_module (bgen_core ${bgen_path}/modules/bgen_core)
+add_static_module (bgen_clang ${bgen_path}/modules/bgen_clang bgen_core)
 #add_static_module (javabgen ${bgen_path}/modules/javabgen bgen_core)
 add_static_module (casabgen ${bgen_path}/modules/casabgen bgen_core)
-add_executable_module (bgen ${bgen_path}/modules/bgen bgen_core casabgen)
+add_executable_module (bgen ${bgen_path}/modules/bgen bgen_core bgen_clang casabgen)
 
 project (bgen)

@@ -1,6 +1,5 @@
 #include "bgen_casa_common.h"
 
-
 namespace bgen {
     namespace casa {
 
