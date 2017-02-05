@@ -16,6 +16,7 @@
 #include "bgen_processor.h"
 #include "bgen_source_element.h"
 #include "bgen_source_info.h"
+#include "bgen_source_parser.h"
 #include "bgen_system.h"
 #include "bgen_struct_info.h"
 #include "bgen_type_info.h"

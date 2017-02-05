@@ -3,15 +3,21 @@
 #define _bgen_clang_parser_h_
 
 #include <bgen_core.h>
+#include <string>
+
+namespace std;
 
 namespace bgen {
     namespace clang {
 
         class parser : public bgen::source::parser {
         private:
+
+            static const string pre_compiled_headers = "bgen.pch";
+
         public:
 
-            virtual source::parser_result parse ( bgen::parameters & params ) override;
+            virtual source::parser_result parse ( const  bgen::parameters & params ) override;
 
         };
 

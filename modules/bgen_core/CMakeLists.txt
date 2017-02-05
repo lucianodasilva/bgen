@@ -39,4 +39,4 @@ endif()
 
 add_module_dependencies (bgen_core ${core_dependencies})
 
-include(${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt)
+#include(${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt)

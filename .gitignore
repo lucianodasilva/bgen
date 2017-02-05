@@ -7,3 +7,6 @@ extra/libclang_work
 
 #clion
 .idea
+
+#vscode
+.vscode
