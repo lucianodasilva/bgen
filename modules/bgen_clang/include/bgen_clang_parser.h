@@ -5,7 +5,7 @@
 #include <bgen_core.h>
 #include <string>
 
-namespace std;
+using namespace std;
 
 namespace bgen {
     namespace clang {
@@ -13,7 +13,7 @@ namespace bgen {
         class parser : public bgen::source::parser {
         private:
 
-            static const string pre_compiled_headers = "bgen.pch";
+            static const string pre_compiled_headers;
 
         public:
 

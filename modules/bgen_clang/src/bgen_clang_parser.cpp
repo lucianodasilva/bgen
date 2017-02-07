@@ -8,58 +8,107 @@ using namespace bgen::source;
 
 namespace bgen {
     namespace clang {
+
+        const string parser::pre_compiled_headers = "bgen.pch";
+
         namespace internal {
 
-            type_id_t shallow_type (parser_result & result, const CXType & native_type) {
+            inline void handle_inplace_struct (visitor_context & cxt, const CXType & src_type, type_info * type) {
+                auto decl_cursor = clang_getTypeDeclaration (src_type);
+                auto decl_type = clang_getCursorType(decl_cursor);
+
+                string native_name = clang::get_spelling(decl_type);
+                string stct_name = clang::get_spelling (decl_cursor);
+
+                bool is_struct = decl_cursor.kind == CXCursor_StructDecl || decl_cursor.kind == CXCursor_ClassDecl;
+
+                if (!is_struct)
+                    return;
+
+                type->kind = type_kind::type_kind_struct;
+                type->base_struct = get_or_make_struct (cxt.symbols, native_name);
+
+                type->base_struct->name = stct_name;
+
+                // extract namespace
+                list < string > nspace_info;
+                CXCursor parent = clang_getCursorSemanticParent(decl_cursor);
+
+                while (parent.kind == CXCursorKind::CXCursor_Namespace) {
+                    nspace_info.push_front (clang::get_spelling(parent));
+                    parent = clang_getCursorSemanticParent(parent);
+                }
+
+                type->base_struct->namespace_name = {nspace_info.begin (), nspace_info.end ()};
+
+                int t_num = clang_Type_getNumTemplateArguments(src_type);
+                if (t_num != 0) {
+                    for (int ti = 0; ti < t_num; ++ti) {
+                        auto ttype = clang_Type_getTemplateArgumentAsType(src_type, ti);
+                        if (ttype.kind == CXType_Invalid) {
+                            logger::write (clang::get_location (decl_cursor)) << "unsupported template argument kind";
+                            continue;
+                        }
+
+                        type->template_params.push_back (template_param_info {make_type(cxt, ttype)});
+                    }
+                }
+            }
+
+            type_id_t make_type (parser_result & result, const CXType & native_type) {
                 CXType src_type = native_type;
 
+                // unfold canonical type
                 while (src_type.kind == CXType_Typedef)
                     src_type = clang_getCanonicalType(src_type);
 
-                string native_name = clang::get_spelling(src_type);
+                string native_name = tools::get_spelling(src_type);
 
-                bool is_new_type = cxt.symbols.types.find (native_name) == cxt.symbols.types.end ();
-                auto type = get_or_make_type (cxt.symbols, native_name);
+                auto type_id = find_type(result.types, native_name);
 
-                if (is_new_type) {
+                if (type_id.is_empty()) {
 
-                    type->dimention = 0;
-                    type->is_const = clang_isConstQualifiedType(src_type) != 0;
-                    type->kind = handle_type_kind(cxt, src_type);
-                    type->native_name = native_name;
+                    auto & type = result.types [type_id.id];
 
-                    switch (type->kind) {
+                    type.dimention = 0;
+                    type.is_const = clang_isConstQualifiedType(src_type) != 0;
+                    type.kind = tools::convert_type_kind(src_type.kind);
+                    type.native_name = native_name;
+
+                    // handle specificities
+                    switch (type.kind) {
                         case (type_kind::type_kind_pointer) :
                         case (type_kind::type_kind_lvalue_ref) :
                         case (type_kind::type_kind_rvalue_ref) :
-                            type->base_type = make_type (cxt, clang_getPointeeType(src_type));
+                            type->base_type_id = make_type (result, clang_getPointeeType(src_type));
                             break;
                         case (type_kind::type_kind_struct) :
                             handle_inplace_struct(cxt, src_type, type);
                             break;
-                        case (type_kind::type_kind_unhandled) : {
-                            int t_num = clang_Type_getNumTemplateArguments(src_type);
-                            if (t_num != 0)
-                                handle_inplace_struct(cxt, src_type, type);
-                        }
+                        case (type_kind::type_kind_unhandled) :
+                            {
+                                int t_num = clang_Type_getNumTemplateArguments(src_type);
+                                if (t_num != 0)
+                                    handle_inplace_struct(cxt, src_type, type);
+                            }
                             break;
                         case (type_kind::type_kind_enum) :
                             // still not supported
-                            type->kind = type_kind::type_kind_unhandled;
+                            type.kind = type_kind::type_kind_unhandled;
                             break;
                         case (type_kind::type_kind_constant_array) :
-                            type->dimention = static_cast <uint32_t> (clang_getNumElements(src_type));
-                            type->base_type = make_type (cxt, clang_getArrayElementType(src_type));
+                            type.dimention = static_cast <uint32_t> (clang_getNumElements(src_type));
+                            type.base_type_id = make_type (result, clang_getArrayElementType(src_type));
                             break;
                         case (type_kind::type_kind_incomplete_array) :
-                            type->base_type = make_type (cxt, clang_getArrayElementType(src_type));
+                            type.base_type_id = make_type (result, clang_getArrayElementType(src_type));
                             break;
                         default:
                             break;
                     }
                 }
 
-                return type;
+                return type_id;
             }
 
             inline vector<const char *>

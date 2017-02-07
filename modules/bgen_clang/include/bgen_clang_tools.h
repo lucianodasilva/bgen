@@ -33,7 +33,7 @@ namespace bgen {
 					clang_disposeString(file_spelling);
 				}
 
-				return { line, column, file };
+				return { file, line, column };
 			}
 
 			inline location get_location(const CXCursor & cursor) {
@@ -71,7 +71,7 @@ namespace bgen {
 			inline element_type convert_kind (CXCursorKind kind) {
                 switch (kind) {
                     case (CXCursor_ClassDecl):
-                        return element_type:decl_class;
+                        return element_type::decl_class;
                     case (CXCursor_StructDecl):
                         return element_type::decl_struct;
                     case (CXCursor_CXXBaseSpecifier):
@@ -82,7 +82,7 @@ namespace bgen {
                         return element_type::function;
                     case (CXCursor_ParmDecl):
                         return element_type::parameter;
-                    case (CXCursor_Construcor):
+                    case (CXCursor_Constructor):
                         return element_type::method;
                     case (CXCursor_FieldDecl):
                         return element_type::field;

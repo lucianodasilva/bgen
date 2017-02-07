@@ -3,6 +3,8 @@
 #define _bgen_source_info_h_
 
 #include "bgen_details.h"
+
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -101,6 +103,17 @@ namespace bgen {
         };
 
         using type_vector = vector < type >;
+
+        inline type_id_t find_type (const type_vector & types, const string & type_name) {
+            size_t count = types.size();
+
+            for(size_t i = 0; i < count; ++i) {
+                if (types[i].name == type_name)
+                    return (type_id_t {static_cast < int32_t > (i)});
+            }
+
+            return type_id_t::empty;
+        }
 
     }
 }
