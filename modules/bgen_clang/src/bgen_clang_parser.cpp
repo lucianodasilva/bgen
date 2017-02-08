@@ -9,7 +9,7 @@ using namespace bgen::source;
 namespace bgen {
     namespace clang {
 
-        const string parser::pre_compiled_headers = "bgen.pch";
+        const string pre_compiled_headers = "bgen.pch";
 
         namespace internal {
 

@@ -11,10 +11,6 @@ namespace bgen {
     namespace clang {
 
         class parser : public bgen::source::parser {
-        private:
-
-            static const string pre_compiled_headers;
-
         public:
 
             virtual source::parser_result parse ( const  bgen::parameters & params ) override;
