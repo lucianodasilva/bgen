@@ -1,6 +1,7 @@
 #include "bgen_clang_parser.h"
 #include "bgen_clang_tools.h"
 
+#include <list>
 #include <vector>
 
 using namespace std;
@@ -13,12 +14,18 @@ namespace bgen {
 
         namespace internal {
 
+            inline bool is_valid_kind(type_kind kind) {
+                return kind != type_kind::type_kind_invalid && kind != type_kind::type_kind_unhandled;
+            }
+
             struct visitor_context {
                 context & cxt;
                 parser_result & result;
             };
 
-            inline void handle_inplace_struct (visitor_context & cxt, const CXType & src_type, type_info * type) {
+            size_t make_type (visitor_context & visitor_cxt, const CXType & native_type);
+
+            inline void handle_inplace_struct (visitor_context & visitor_cxt, const CXType & src_type, bgen::source::type & type) {
                 auto decl_cursor = clang_getTypeDeclaration (src_type);
                 auto decl_type = clang_getCursorType(decl_cursor);
 
@@ -30,10 +37,10 @@ namespace bgen {
                 if (!is_struct)
                     return;
 
-                type->kind = type_kind::type_kind_struct;
-                type->base_struct = get_or_make_struct (cxt.symbols, native_name);
-
-                type->base_struct->name = stct_name;
+                type.kind = type_kind::type_kind_struct;
+                type.base_struct_id = visitor_cxt.result.structs.find_or_emplace (native_name).first;
+                
+                visitor_cxt.result.structs [type.base_struct_id].name = native_name;
 
                 // extract namespace
                 list < string > nspace_info;
@@ -44,23 +51,23 @@ namespace bgen {
                     parent = clang_getCursorSemanticParent(parent);
                 }
 
-                type->base_struct->namespace_name = {nspace_info.begin (), nspace_info.end ()};
+                visitor_cxt.result.structs [type.base_struct_id].namespace_name = {nspace_info.begin (), nspace_info.end ()};
 
                 int t_num = clang_Type_getNumTemplateArguments(src_type);
                 if (t_num != 0) {
                     for (int ti = 0; ti < t_num; ++ti) {
                         auto ttype = clang_Type_getTemplateArgumentAsType(src_type, ti);
                         if (ttype.kind == CXType_Invalid) {
-                            logger::write (tools::get_location (decl_cursor)) << "unsupported template argument kind";
+                            visitor_cxt.cxt.status.warn (tools::get_location (decl_cursor)) << "unsupported template argument kind";
                             continue;
                         }
 
-                        type->template_params.push_back (template_param_info {make_type(cxt, ttype)});
+                        type.template_params.push_back (template_param_info { make_type(visitor_cxt, ttype)});
                     }
                 }
             }
 
-            type_id_t make_type (visitor_context & visitor_cxt, const CXType & native_type) {
+            size_t make_type (visitor_context & visitor_cxt, const CXType & native_type) {
                 CXType src_type = native_type;
 
                 // unfold canonical type
@@ -69,23 +76,23 @@ namespace bgen {
 
                 string native_name = tools::get_spelling(src_type);
 
-                auto type_id = find_type(visitor_cxt.result.types, native_name);
+                auto type_id = visitor_cxt.result.types.find_index (native_name);
 
-                if (type_id.is_empty()) {
+                if (type_id == type_vector::nindex) {
 
-                    auto & type = visitor_cxt.result.types [type_id.id];
+                    auto & type = visitor_cxt.result.types [type_id];
 
                     type.dimention = 0;
                     type.is_const = clang_isConstQualifiedType(src_type) != 0;
                     type.kind = tools::convert_type_kind(src_type.kind);
-                    type.native_name = native_name;
+                    type.name = native_name;
 
                     // handle specificities
                     switch (type.kind) {
                         case (type_kind::type_kind_pointer) :
                         case (type_kind::type_kind_lvalue_ref) :
                         case (type_kind::type_kind_rvalue_ref) :
-                            type->base_type_id = make_type (visitor_cxt, clang_getPointeeType(src_type));
+                            type.base_type_id = make_type (visitor_cxt, clang_getPointeeType(src_type));
                             break;
                         case (type_kind::type_kind_struct) :
                             handle_inplace_struct(visitor_cxt, src_type, type);
@@ -103,10 +110,10 @@ namespace bgen {
                             break;
                         case (type_kind::type_kind_constant_array) :
                             type.dimention = static_cast <uint32_t> (clang_getNumElements(src_type));
-                            type.base_type_id = make_type (result, clang_getArrayElementType(src_type));
+                            type.base_type_id = make_type (visitor_cxt, clang_getArrayElementType(src_type));
                             break;
                         case (type_kind::type_kind_incomplete_array) :
-                            type.base_type_id = make_type (result, clang_getArrayElementType(src_type));
+                            type.base_type_id = make_type (visitor_cxt, clang_getArrayElementType(src_type));
                             break;
                         default:
                             break;
@@ -138,10 +145,10 @@ namespace bgen {
                 for (uint32_t i = 0; i < diag_count; ++i) {
                     auto diag = clang_getDiagnostic(tu, i);
 
-                    source_location loc = tools::get_location(diag);
+                    location loc = tools::get_location(diag);
                     string message = tools::get_spelling(diag);
 
-                    cxt.state.warn (loc) << message;
+                    cxt.status.warn (loc) << message;
                 }
             }
 
@@ -164,6 +171,36 @@ namespace bgen {
                 return arguments;
             }
 
+            inline CXTranslationUnit create_translation_unit(
+                    const CXIndex &index,
+                    const string &source,
+                    vector<const char *> arguments,
+                    bool is_first
+            ) {
+                if (is_first) {
+                    return clang_parseTranslationUnit(
+                            index,
+                            source.c_str(),
+                            arguments.data(),
+                            static_cast < int > (arguments.size()),
+                            nullptr,
+                            0,
+                            CXTranslationUnit_ForSerialization |
+                            CXTranslationUnit_SkipFunctionBodies |
+                            CXTranslationUnit_DetailedPreprocessingRecord
+                    );
+                } else {
+                    return clang_createTranslationUnitFromSourceFile(
+                            index,
+                            source.c_str(),
+                            static_cast < int > (arguments.size()),
+                            arguments.data(),
+                            0,
+                            nullptr
+                    );
+                }
+            }
+
             CXChildVisitResult visit_child (
                 CXCursor cursor,
                 CXCursor parent,
@@ -172,33 +209,34 @@ namespace bgen {
                 if (clang_Location_isFromMainFile(clang_getCursorLocation(cursor)) == 0)
                     return CXChildVisit_Continue;
 
-                auto & visitor_cxt = *(visitor_context *)client_data;
-                auto kind = clang_getCursorKind(cursor);
+                CXCursorKind native_cursor_kind = clang_getCursorKind(cursor);
+                element_type kind = tools::convert_kind(native_cursor_kind);
 
-                if (kind == source::element_type::undefined) {
-                    source::location loc = tools::get_location(cursor);
-                    visitor_cxt.cxt.state.warn(loc) << "Unsuported element type";
-
-                    return CXChildVisitResult::CXChildVisit_Continue;
+                if (kind == element_type::undefined) {
+                    // LOG
+                    return CXChildVisitResult::CXChildVisit_Continue; 
                 }
 
+                auto & visitor_cxt = *(visitor_context *)client_data;
+                auto & result = visitor_cxt.result;
                 // create element
                 result.elements.emplace_back ();
                 auto & element = result.elements.back();
 
-                element.location = bgen::tools::get_location (cursor);
-                element.name = bgen::tools::get_spelling(cursor);
-                element.element_type = convert_kind(kind);
+                element.location = tools::get_location (cursor);
+                element.name = tools::get_spelling(cursor);
+                element.element_type = kind;
 
                 // parse flags
                 element.flags.is_virtual = clang_CXXMethod_isVirtual(cursor) != 0;
                 element.flags.is_pure = clang_CXXMethod_isPureVirtual(cursor) != 0;
                 element.flags.is_static = clang_CXXMethod_isStatic(cursor) != 0;
                 element.flags.is_const = clang_CXXMethod_isConst(cursor) != 0;
-                element.flags.is_ctor = (kind == CXCursor_Constructor);
+                element.flags.is_ctor = (native_cursor_kind == CXCursor_Constructor);
 
                 // handle type
-                element.type_id = make_type(visitor_cxt, cursor);
+                auto native_type = clang_getCursorType(cursor);
+                element.type_id = make_type(visitor_cxt, native_type);
 
                 // visit further children
                 clang_visitChildren(cursor, &visit_child, client_data);
@@ -206,6 +244,7 @@ namespace bgen {
                 return CXChildVisitResult::CXChildVisit_Continue;
             }
         }
+
 
         parser_result parser::parse ( bgen::context & cxt, const bgen::parameters & params) {
             parser_result result {};
@@ -240,9 +279,7 @@ namespace bgen {
             // for each source file
             for (auto & source : params.source_files) {
 
-                cxt.active_source_file = source;
-
-                CXTranslationUnit tu = internal::create_translation_unit(
+                CXTranslationUnit tu = internal::create_translation_unit (
                     index,
                     source,
                     args,
@@ -268,7 +305,7 @@ namespace bgen {
                     internal::report_diagnostics(cxt, tu);
 
                     if (internal::check_for_errors (tu)) {
-                        error_status::fail ();
+                        internal::report_diagnostics (cxt, tu);
                         return {};
                     }
                 }

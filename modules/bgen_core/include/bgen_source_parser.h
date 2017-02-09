@@ -13,6 +13,7 @@ namespace bgen {
 
         struct parser_result {
             element_vector elements;
+            struct_vector structs;
             type_vector types;
         };
 

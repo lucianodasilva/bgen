@@ -8,11 +8,10 @@
 #include <iostream>
 #include <string>
 
-#include "bgen_error_status.h"
-#include "bgen_parameters.h"
-
 using namespace std;
 using namespace bgen;
+
+bgen::context cxt;
 
 void show_version( parameters & params ) {
 	cout << "bgen version 0.02" << endl;
@@ -50,7 +49,6 @@ void show_usage ( parameters & params ) {
 vector < bgen::base_plugin * > get_plugins () {
     
 	auto & plugins = bgen::config::get_plugins();
-    auto & args = parameters::get ();
 
 	vector < bgen::base_plugin * > ret_plugins;
 
@@ -75,9 +73,9 @@ void process(parameters & params) {
     if (plugins.size () == 0)
         return;
 
-    code_map symbols = visitor::parse();
+    source::code_map symbols = visitor::parse();
  
-    if (error_status::status () != error_status_type::failure) {
+    if (cxt.status.current_state () != state_type::failure) {
 		for ( auto p : plugins )
         	p->generate (symbols);
 	}
@@ -105,22 +103,19 @@ int main(int arg_c, char * arg_v[]) {
 		usage(option("-h", "--help"))[&show_usage] |
 		usage(main_expression)[&process]
 	;
-
-	auto & params = parameters::get();
     
-    auto parse_result = parse (expression, arg_c, arg_v, params);
+    auto parse_result = parse (expression, arg_c, arg_v, cxt.parameters);
 
 	if (!parse_result) {
-        error_status::fail ();
-        logger::write () << "unexpected command line arguments found";
+        cxt.status.fail () << "unexpected command line arguments found";
         
         for (auto & error : parse_result.messages ())
-            logger::write () << error;
+            cxt.status.fail () << error;
         
-        show_usage(params);
+        show_usage(cxt.parameters);
 	}
     
-    if (error_status::status () == error_status_type::failure)
+    if (cxt.status.current_state () == bgen::state_type::failure)
         return -1;
     
 	return 0;

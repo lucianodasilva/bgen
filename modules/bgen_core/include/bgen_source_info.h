@@ -74,10 +74,8 @@ namespace bgen {
             type_kind_incomplete_array
         };
 
-        using type_id_t = size_t;
-
         struct template_param_info {
-            type_id_t type_id;
+            size_t type_id;
         };
 
         using template_param_vector = vector < template_param_info >;
