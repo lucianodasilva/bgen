@@ -25,22 +25,22 @@ namespace bgen {
 
     void casablanca_plugin::generate (const code_map & symbols) const {
 
-        casa::type_map intermediate;
+        // casa::type_map intermediate;
 
-        casa::validation::validate_and_set(symbols, intermediate);
+        // casa::validation::validate_and_set(symbols, intermediate);
 
-        bgen::casa::gen::cpp::generate (
-            intermediate,
-            "casa_rest_server.h",
-            "resources/casablanca/parser_boilerplate.txt",
-            "resources/casablanca/listener_boilerplate.txt"
-        );
+        // bgen::casa::gen::cpp::generate (
+        //     intermediate,
+        //     "casa_rest_server.h",
+        //     "resources/casablanca/parser_boilerplate.txt",
+        //     "resources/casablanca/listener_boilerplate.txt"
+        // );
 
-        bgen::casa::gen::js::generate (
-            intermediate,
-            "casa_rest_client.js",
-            "resources/casablanca/js_boilerplate.txt"
-        );
+        // bgen::casa::gen::js::generate (
+        //     intermediate,
+        //     "casa_rest_client.js",
+        //     "resources/casablanca/js_boilerplate.txt"
+        // );
 
     }
 

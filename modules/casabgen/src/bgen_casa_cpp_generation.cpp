@@ -23,14 +23,14 @@ namespace bgen {
 
                 struct_element::struct_element(const shared_ptr<simple_struct> &stct) : _struct (stct){}
 
-                void parser_reader_pre::write(bgen::gen::output &out) const {
+                void parser_reader_pre::write(context & cxt, bgen::gen::output &out) const {
                     out.line()
                     << "inline bool read (const value & source, "
                     << _struct->native_struct->native_name
                     << " & dest );";
                 }
 
-                void parser_reader::write(bgen::gen::output &out) const {
+                void parser_reader::write(context & cxt, bgen::gen::output &out) const {
                     out.line()
                     << "inline bool read (const value & source, "
                     << _struct->native_struct->native_name
@@ -60,7 +60,7 @@ namespace bgen {
                     out.line();
                 }
 
-                void parser_writer::write(bgen::gen::output &out) const {
+                void parser_writer::write(context & cxt, bgen::gen::output &out) const {
 
                     out.line()
                     << "inline value write (const "
@@ -87,7 +87,7 @@ namespace bgen {
                     << "}";
                 }
 
-                void parser_writer_pre::write(bgen::gen::output &out) const {
+                void parser_writer_pre::write(context & cxt, bgen::gen::output &out) const {
                     out.line()
                     << "inline value write (const "
                     << _struct->native_struct->native_name
@@ -97,7 +97,7 @@ namespace bgen {
                 listener_post::listener_post(const shared_ptr < service > & service_inst) :
                         _service (service_inst) { }
 
-                void listener_post::write(bgen::gen::output &out) const {
+                void listener_post::write(context & cxt, bgen::gen::output &out) const {
 
                     out.line()
                     << "inline void "
@@ -122,7 +122,7 @@ namespace bgen {
                 listener_get::listener_get(const shared_ptr < service > & service_inst) :
                         _service (service_inst) {}
 
-                void listener_get::write(bgen::gen::output &out) const {
+                void listener_get::write(context & cxt, bgen::gen::output &out) const {
 
                     out.line()
                     << "inline void "
@@ -147,7 +147,7 @@ namespace bgen {
                     : _services (services)
                 {}
 
-                void register_listeners::write(bgen::gen::output &out) const {
+                void register_listeners::write(context & cxt, bgen::gen::output &out) const {
 
                     out.line() << "inline std::vector < http_listener > register_listeners (";
                     ++out.indent;
@@ -201,15 +201,15 @@ namespace bgen {
                 }
 
                 void generate (
+                        context & cxt, 
                         casa::type_map & types,
                         const string & output_file_name,
                         const string & parser_boilerplate_location,
                         const string & listener_boilerplate_location
                 ) {
-                    auto & params = parameters::get ();
 
                     // output file
-                    string rest_server_header_file = system::merge_path (params.host_dest, output_file_name);
+                    string rest_server_header_file = system::merge_path (cxt.parameters.host_dest, output_file_name);
 
                     bgen::gen::file rest_server_header = {rest_server_header_file};
 
@@ -283,7 +283,7 @@ namespace bgen {
                     nspace->make_item<register_listeners>(types.services);
 
                     // write output
-                    rest_server_header.write ();
+                    rest_server_header.write (cxt);
                 }
             }
         }

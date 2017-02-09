@@ -2,16 +2,11 @@
 #ifndef _bgen_visitor_h_
 #define _bgen_visitor_h_
 
-#include "bgen_dependency.h"
-#include "bgen_logger.h"
-#include "bgen_struct_info.h"
-#include "bgen_type_info.h"
-#include "bgen_code_map.h"
-#include "bgen_plugin.h"
-
 #include <string>
 #include <map>
 #include <vector>
+
+#include "bgen_source_code_map.h"
 
 using namespace std;
 
@@ -24,7 +19,7 @@ namespace bgen {
 
 	public:
 
-		static code_map parse();
+		static source::code_map parse();
 
 	};
 	

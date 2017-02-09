@@ -7,7 +7,7 @@
 namespace bgen {
     namespace source {
 
-        struct element_flags {
+        struct method_flags {
             bool is_virtual : 1;
             bool is_pure : 1;
             bool is_static : 1;
@@ -31,8 +31,8 @@ namespace bgen {
             source::location        location;
             string                  name;
             source::element_type    element_type { element_type::undefined };
-            element_flags           flags {};
-            type_id_t               type_id { type_id_t::empty };
+            method_flags            flags {};
+            size_t                  type_id { type_vector::nindex };
         };
 
         using element_vector = vector < element >;

@@ -4,6 +4,7 @@
 #define _bgen_source_parser_h_
 
 #include "bgen_parameters.h"
+#include "bgen_context.h"
 #include "bgen_source_element.h"
 #include "bgen_source_info.h"
 
@@ -17,7 +18,7 @@ namespace bgen {
 
         class parser {
         public:
-            virtual parser_result parse ( const parameters & params ) = 0;
+            virtual parser_result parse ( context & cxt, const parameters & params ) = 0;
         };
 
     }

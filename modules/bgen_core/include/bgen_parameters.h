@@ -25,9 +25,6 @@ namespace bgen {
         
         bool                no_default_includes;
 
-		static parameters & get();
-
-
 	};
 
 }

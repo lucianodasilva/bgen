@@ -15,9 +15,9 @@ namespace bgen {
 
             shared_ptr < simple_type > type_check (const type_info * native_type, casa::type_map & dest);
 
-            shared_ptr < simple_struct > struct_check (const struct_info * src, casa::type_map & dest);
+            shared_ptr < simple_struct > struct_check (const source::struct_info * src, casa::type_map & dest);
 
-            void service_check (const method_info & src, casa::type_map & dest);
+            void service_check (const source::method_info & src, casa::type_map & dest);
 
             void validate_and_set (const code_map & symbols, casa::type_map & dest);
 

@@ -27,11 +27,11 @@ namespace bgen {
                 
                 struct_definition::struct_definition(const string & id) : _id (id) {}
 
-                void struct_definition::write(bgen::gen::output &out) const {
+                void struct_definition::write(context & cxt, bgen::gen::output &out) const {
                     out.line ()
                             << _id << "={";
                     ++out.indent;
-                    bgen::gen::group::write (out);
+                    bgen::gen::group::write (cxt, out);
                     --out.indent;
                     out.line ()
                             << "};";
@@ -211,7 +211,7 @@ namespace bgen {
 
                 inline_definition::inline_definition() : _root(make_shared < nspace_node > ("")) { }
 
-                void inline_definition::write(bgen::gen::output &out) const {
+                void inline_definition::write(context & cxt, bgen::gen::output &out) const {
                     // write root namespaces
                     
                     for (auto & rnode : _root->nodes) {
@@ -231,7 +231,7 @@ namespace bgen {
                 url_element::url_element (const shared_ptr < service > & serv, bool is_last)
                     : _service (serv), _is_last (is_last) {}
 
-                void url_element::write(bgen::gen::output &out) const {
+                void url_element::write(context & cxt, bgen::gen::output &out) const {
                     out.line ()
                             << id_to_var_name (_service->id) << " : " << "\""
                             << id_to_uri (_service->id)
@@ -241,7 +241,7 @@ namespace bgen {
 
                 parser_reader::parser_reader(const shared_ptr<simple_struct> & stct) : _struct (stct) {}
 
-                void parser_reader::write(bgen::gen::output &out) const {
+                void parser_reader::write(context & cxt, bgen::gen::output &out) const {
                     string js_name = id_to_var_name (_struct->id) + "_fromJson";
                     string details_name = "casa.details." + js_name;
 
@@ -278,7 +278,7 @@ namespace bgen {
 
                 init_element::init_element(const vector<shared_ptr<service> > &services) : _services (services){}
 
-                void init_element::write(bgen::gen::output &out) const {
+                void init_element::write(context & cxt, bgen::gen::output &out) const {
                     out.line ()
                             << "casa.init = function (url_base) {";
                     ++out.indent;
@@ -296,15 +296,13 @@ namespace bgen {
                 }
 
                 void generate (
+                        context & cxt,
                         casa::type_map & types,
                         const string & output_file_name,
                         const string & js_boilerplate_location
                 ) {
-
-                    auto & params = parameters::get ();
-
                     // output file
-                    string rest_client_file = system::merge_path (params.host_dest, output_file_name);
+                    string rest_client_file = system::merge_path (cxt.parameters.host_dest, output_file_name);
 
                     bgen::gen::file rest_client = { rest_client_file };
                     
@@ -337,7 +335,7 @@ namespace bgen {
                         proxies->add (s.second);
                     }
 
-                    rest_client.write ();
+                    rest_client.write (cxt);
                 }
             }
         }

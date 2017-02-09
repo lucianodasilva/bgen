@@ -3,7 +3,7 @@
 #define _bgen_gen_cpp_h_
 
 #include "bgen_gen_elements.h"
-#include "bgen_struct_info.h"
+#include "bgen_source_struct_info.h"
 
 using namespace std;
 
@@ -21,7 +21,7 @@ namespace bgen {
 
                 header_guard (string guard_v);
 
-                virtual void write (output & out) const override;
+                virtual void write (context & cxt, output & out) const override;
 
             };
 
@@ -36,7 +36,7 @@ namespace bgen {
                     _files.push_back (file);
                 }
 
-                virtual void write (output & out) const override;
+                virtual void write (context & cxt, output & out) const override;
 
             };
 
@@ -45,11 +45,11 @@ namespace bgen {
 
                 using shared = shared_ptr < cpp_namespace >;
 
-                namespace_info info;
+                source::namespace_info info;
 
-                cpp_namespace (namespace_info & info);
+                cpp_namespace (source::namespace_info & info);
 
-                virtual void write (output & out) const override;
+                virtual void write (context & cxt, output & out) const override;
 
             };
 

@@ -1,7 +1,6 @@
 #include "bgen_gen_file.h"
 
 #include <fstream>
-#include "bgen_logger.h"
 
 using namespace std;
 
@@ -11,22 +10,22 @@ namespace bgen {
         file::file(const string &filename) : _filename (filename)
         { }
 
-        void file::write () const {
+        void file::write (context & cxt) const {
 
             ofstream stream (_filename.c_str ());
 
             if (!stream) {
-                logger::write () << "failed to open output file: " << _filename;
+                cxt.status.fail() << "failed to open output file: " << _filename;
                 return;
             }
 
             output out {stream};
             
-            group::write (out);
+            group::write (cxt, out);
         }
 
-        void file::write(output & out) const {
-            write ();
+        void file::write(context & cxt, output & out) const {
+            write (cxt);
         }
 
     }

@@ -39,13 +39,12 @@ namespace bgen {
             boilerplate::boilerplate ( const string & file )
             : _file_name (file) {}
             
-            void boilerplate::write (bgen::gen::output & out) const {
+            void boilerplate::write (context & cxt, bgen::gen::output & out) const {
                 
                 ifstream stream (_file_name);
                 
                 if (!stream) {
-                    logger::write () << "failed to read resource file at " << _file_name;
-                    error_status::fail();
+                    cxt.status.fail() << "failed to read resource file at " << _file_name;
                     return;
                 }
                 

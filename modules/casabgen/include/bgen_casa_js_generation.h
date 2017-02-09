@@ -56,7 +56,7 @@ namespace bgen {
                     void add (const shared_ptr < casa::service > & serv);
 
                     inline_definition ();
-                    virtual void write (bgen::gen::output & out) const override;
+                    virtual void write (context & cxt, bgen::gen::output & out) const override;
                 };
 
                 class struct_definition : public bgen::gen::group {
@@ -64,7 +64,7 @@ namespace bgen {
                     string _id;
                 public:
                     struct_definition (const string & id);
-                    virtual void write (bgen::gen::output & out) const override;
+                    virtual void write (context & cxt, bgen::gen::output & out) const override;
                 };
 
                 class url_element : public bgen::gen::element_base {
@@ -73,7 +73,7 @@ namespace bgen {
                     bool _is_last;
                 public:
                     url_element (const shared_ptr < service > & serv, bool is_last);
-                    virtual void write (bgen::gen::output & out) const override;
+                    virtual void write (context & cxt, bgen::gen::output & out) const override;
                 };
 
                 class parser_reader : public bgen::gen::element_base {
@@ -81,7 +81,7 @@ namespace bgen {
                     shared_ptr < simple_struct >  _struct;
                 public:
                     parser_reader (const shared_ptr < simple_struct > & stct);
-                    virtual void write (bgen::gen::output & out) const override;
+                    virtual void write (context & cxt, bgen::gen::output & out) const override;
                 };
 
                 class init_element : public bgen::gen::element_base {
@@ -89,10 +89,11 @@ namespace bgen {
                     const vector < shared_ptr < service > > & _services;
                 public:
                     init_element (const vector < shared_ptr < service > > & services);
-                    virtual void write (bgen::gen::output & out) const override;
+                    virtual void write (context & cxt, bgen::gen::output & out) const override;
                 };
 
                 void generate (
+                        context & cxt,
                         casa::type_map & types,
                         const string & output_file_name,
                         const string & js_boilerplate_location

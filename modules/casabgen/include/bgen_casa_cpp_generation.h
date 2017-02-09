@@ -32,26 +32,26 @@ namespace bgen {
                 class parser_reader_pre : public struct_element {
                 public:
                     using struct_element::struct_element;
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
 
                 };
 
                 class parser_reader : public struct_element {
                 public:
                     using struct_element::struct_element;
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
                 };
 
                 class parser_writer_pre : public struct_element {
                 public:
                     using struct_element::struct_element;
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
                 };
 
                 class parser_writer : public struct_element {
                 public:
                     using struct_element::struct_element;
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
                 };
 
                 class listener_post : public bgen::gen::element_base {
@@ -59,7 +59,7 @@ namespace bgen {
                     shared_ptr < service > _service;
                 public:
                     listener_post(const shared_ptr < service > & service_inst);
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
                 };
 
                 class listener_get : public bgen::gen::element_base {
@@ -67,7 +67,7 @@ namespace bgen {
                     shared_ptr < service > _service;
                 public:
                     listener_get(const shared_ptr < service > & service_inst);
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
                 };
 
                 class register_listeners : public bgen::gen::element_base {
@@ -75,7 +75,7 @@ namespace bgen {
                     const vector < shared_ptr < service > > & _services;
                 public:
                     register_listeners (const vector < shared_ptr < service > > & services);
-                    virtual void write(bgen::gen::output &out) const override;
+                    virtual void write(context & cxt, bgen::gen::output &out) const override;
                 };
 
                 void generate (

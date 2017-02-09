@@ -12,12 +12,12 @@ namespace bgen {
             header_guard::header_guard(string guard_v) : guard (guard_v)
             {}
 
-            void header_guard::write(output & out) const {
+            void header_guard::write(context & cxt, output & out) const {
                 out.line () << "#pragma once";
                 out.line () << "#ifndef " << guard;
                 out.line () << "#define " << guard;
 
-                group::write (out);
+                group::write (cxt, out);
 
                 out.line () << "#endif";
             }
@@ -26,7 +26,7 @@ namespace bgen {
             
             includes::includes ( const vector < string > & files ) : _files(files) {}
 
-            void includes::write(output & out) const {
+            void includes::write(context & cxt, output & out) const {
                 for (auto & f : _files)
                     out.line () << "#include <" << f << ">";
 
@@ -36,10 +36,10 @@ namespace bgen {
 
             // namespace
 
-            cpp_namespace::cpp_namespace(namespace_info &info) : info (info)
+            cpp_namespace::cpp_namespace(source::namespace_info &info) : info (info)
             { }
 
-            void cpp_namespace::write(output & out) const {
+            void cpp_namespace::write(context & cxt, output & out) const {
 
                 size_t size = info.size ();
 
@@ -51,7 +51,7 @@ namespace bgen {
                 if (size > 0)
                     out.line ();
 
-                group::write (out);
+                group::write (cxt, out);
 
                 for (size_t i = 0; i < size; ++i) {
                     --out.indent;

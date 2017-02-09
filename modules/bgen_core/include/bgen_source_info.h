@@ -3,6 +3,8 @@
 #define _bgen_source_info_h_
 
 #include "bgen_details.h"
+#include "bgen_indexed_vector.h"
+#include "bgen_source_info.h"
 
 #include <algorithm>
 #include <string>
@@ -14,6 +16,8 @@ namespace bgen {
     namespace source {
 
         struct location {
+            static const location empty; 
+
             string file;
 
             uint32_t 
@@ -70,16 +74,7 @@ namespace bgen {
             type_kind_incomplete_array
         };
 
-        struct index_t {
-            int32_t id;
-
-            static const index_t empty;
-            inline bool is_empty () const { return id == empty.id; } 
-        };
-
-        const index_t index_t::empty = { -1 };
-
-        using type_id_t = index_t;
+        using type_id_t = size_t;
 
         struct template_param_info {
             type_id_t type_id;
@@ -87,14 +82,12 @@ namespace bgen {
 
         using template_param_vector = vector < template_param_info >;
 
-        using struct_id_t = index_t;
-
         struct type {
             string                  name;
             template_param_vector   template_params;
 
-            type_id_t               base_type_id { type_id_t::empty };
-            struct_id_t             base_struct { struct_id_t::empty };
+            size_t                  base_type_id { indexed_vector_nindex };
+            size_t                  base_struct_id { indexed_vector_nindex };
 
             bool                    is_const { false };
 
@@ -102,18 +95,7 @@ namespace bgen {
             uint32_t                dimention {};
         };
 
-        using type_vector = vector < type >;
-
-        inline type_id_t find_type (const type_vector & types, const string & type_name) {
-            size_t count = types.size();
-
-            for(size_t i = 0; i < count; ++i) {
-                if (types[i].name == type_name)
-                    return (type_id_t {static_cast < int32_t > (i)});
-            }
-
-            return type_id_t::empty;
-        }
+        using type_vector = indexed_vector < string, type >;
 
     }
 }

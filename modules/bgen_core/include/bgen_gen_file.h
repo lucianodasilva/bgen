@@ -25,9 +25,9 @@ namespace bgen {
 
             file (const string & filename);
 
-            void write () const;
+            void write (context & cxt) const;
 
-            virtual void write (output & out) const override;
+            virtual void write (context & cxt, output & out) const override;
 
 
         };

@@ -27,7 +27,7 @@ namespace bgen {
 
             js_type cast_type_to_js ( const type_info * type );
 
-            bool check_types_support ( const method_info & method );
+            bool check_types_support ( const source::method_info & method );
 
             string id_to_string ( const casa::id_t & id, const string & separator);
 
@@ -42,7 +42,7 @@ namespace bgen {
                 
                 boilerplate ( const string & file );
                 
-                virtual void write (bgen::gen::output & out) const override;
+                virtual void write (context & cxt, bgen::gen::output & out) const override;
                 
             };
         }

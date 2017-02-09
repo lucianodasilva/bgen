@@ -33,7 +33,7 @@ namespace bgen {
                 return type_inst;
             }
 
-            shared_ptr < simple_struct > struct_check (const struct_info * src, casa::type_map & dest) {
+            shared_ptr < simple_struct > struct_check (const source::struct_info * src, casa::type_map & dest) {
 
                 casa::id_t id = { src->name, src->namespace_name };
 
@@ -49,13 +49,13 @@ namespace bgen {
                 dest.structures [struct_inst->id] = struct_inst;
 
                 for ( auto & f : src->fields) {
-                    if (f.visibility != visibility_type::visibility_public)
+                    if (f.visibility != source::visibility_type::visibility_public)
                         continue;
 
                     shared_ptr < simple_type > ftype = type_check (f.type, dest);
 
                     if (!ftype) {
-                        logger::write(f.location) << "\"" << src->name << ":" << f.name << "\" unsupported type";
+                        // logger::write(f.location) << "\"" << src->name << ":" << f.name << "\" unsupported type";
                         continue;
                     }
 
@@ -68,47 +68,47 @@ namespace bgen {
                 return struct_inst;
             }
 
-            void service_check (const method_info & src, casa::type_map & dest) {
+            void service_check (context & cxt, const source::method_info & src, casa::type_map & dest) {
 
-                bool is_supported = true;
-                auto service_inst = make_shared < service > ();
+                // bool is_supported = true;
+                // auto service_inst = make_shared < service > ();
 
-                service_inst->id = { src.name, src.namespace_name };
-                service_inst->native_method = src;
+                // service_inst->id = { src.name, src.namespace_name };
+                // service_inst->native_method = src;
 
-                service_inst->return_type = type_check (src.return_type, dest);
-                if (!service_inst->return_type) {
-                    logger::write (src.location) << "\"" << src.name << "\" unsuported return type";
-                    is_supported = false;
-                }
+                // service_inst->return_type = type_check (src.return_type, dest);
+                // if (!service_inst->return_type) {
+                //     cxt.status.warn (src.location) << "\"" << src.name << "\" unsuported return type";
+                //     is_supported = false;
+                // }
 
-                if (src.params.size () == 1) {
-                    service_inst->param_type = type_check (src.params[0].type, dest);
+                // if (src.params.size () == 1) {
+                //     service_inst->param_type = type_check (src.params[0].type, dest);
 
-                    if (!service_inst->param_type) {
-                        logger::write (src.location) << "\"" << src.name << "\" unsuported argument type";
-                        is_supported = false;
-                    }
-                } else if (src.params.size () > 1){
-                    logger::write (src.location) << "\"" << src.name << "\" too many arguments, expected zero or one";
-                    is_supported = false;
-                }
+                //     if (!service_inst->param_type) {
+                //         cxt.status.warn(src.location) << "\"" << src.name << "\" unsuported argument type";
+                //         is_supported = false;
+                //     }
+                // } else if (src.params.size () > 1){
+                //     cxt.status.warn (src.location) << "\"" << src.name << "\" too many arguments, expected zero or one";
+                //     is_supported = false;
+                // }
 
-                if (is_supported)
-                    dest.services.push_back (service_inst);
+                // if (is_supported)
+                //     dest.services.push_back (service_inst);
             }
 
             void validate_and_set ( const bgen::code_map & symbols, casa::type_map & dest) {
-                auto & structs = symbols.sorted_dependencies;
+                // auto & structs = symbols.sorted_dependencies;
 
-                for (auto & s : structs) {
-                    if (s->is_visited)
-                        struct_check (s, dest);
-                }
+                // for (auto & s : structs) {
+                //     if (s->is_visited)
+                //         struct_check (s, dest);
+                // }
 
-                for (auto & m : symbols.global->methods) {
-                    service_check (m, dest);
-                }
+                // for (auto & m : symbols.global->methods) {
+                //     service_check (m, dest);
+                // }
             }
         }
     }

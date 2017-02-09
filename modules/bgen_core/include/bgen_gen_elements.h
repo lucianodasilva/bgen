@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "bgen_context.h"
+
 using namespace std;
 
 namespace bgen {
@@ -94,7 +96,7 @@ namespace bgen {
 
             using shared = shared_ptr < element_base >;
 
-            virtual void write (output & out) const = 0;
+            virtual void write (context & cxt, output & out) const = 0;
 
         };
 
@@ -108,7 +110,7 @@ namespace bgen {
 
             using shared = shared_ptr < text > ;
 
-            virtual void write (output & out) const override;
+            virtual void write (context & cxt, output & out) const override;
 
         };
 
@@ -126,7 +128,7 @@ namespace bgen {
                 return item;
             }
 
-            virtual void write (output & out) const override;
+            virtual void write (context & cxt, output & out) const override;
 
         };
 
