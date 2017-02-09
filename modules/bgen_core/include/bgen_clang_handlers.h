@@ -6,7 +6,6 @@
 #ifndef _bgen_clang_handlers_h_
 #define _bgen_clang_handlers_h_
 
-#include <clang-c/Index.h>
 #include "bgen_details.h"
 
 #include <map>

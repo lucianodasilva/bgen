@@ -2,6 +2,7 @@
 set (BGEN_LIBCLANG_INCLUDE_PATH "" CACHE PATH "libClang include path")
 set (BGEN_LIBCLANG_LIB_PATH "" CACHE PATH "libClang lib path")
 
+include_directories(${BGEN_LIBCLANG_INCLUDE_PATH})
 link_directories(${BGEN_LIBCLANG_LIB_PATH})
 
 if (MSVC)
@@ -12,15 +13,15 @@ if (MSVC)
 	)
 
 	set (BGEN_LIBCLANG_DLL_PATH "" CACHE FILEPATH "libClang dll file")
-	add_custom_command (TARGET bgen_core 
-		POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_DLL_PATH} $<TARGET_FILE_DIR:bgen_core>
+	add_custom_command (TARGET bgen_clang
+		POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_DLL_PATH} $<TARGET_FILE_DIR:bgen_clang>
 	)
 
 	list(APPEND clang_dependencies libClang)
 else ()
 	if (APPLE)
-	    add_custom_command (TARGET bgen_core 
-			POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib $<TARGET_FILE_DIR:bgen_core>
+	    add_custom_command (TARGET bgen_clang 
+			POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib $<TARGET_FILE_DIR:bgen_clang>
 		)
         install (
             FILES ${BGEN_LIBCLANG_LIB_PATH}/libclang.dylib 

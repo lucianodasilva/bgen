@@ -1,9 +1,4 @@
-#include <clang-c/Index.h>
-#include <list>
-#include "bgen_clang_handlers.h"
 #include "bgen_visitor.h"
-#include "bgen_parameters.h"
-#include "bgen_system.h"
 
 namespace bgen {
 

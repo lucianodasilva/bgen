@@ -159,6 +159,20 @@ namespace bgen {
 						return type_kind::type_kind_unhandled;
 				}
 			}
+
+			bool check_for_errors(const CXTranslationUnit &tu);
+
+			void report_diagnostics(context &cxt, const CXTranslationUnit &tu);
+
+			vector<const char *> make_clang_arguments(const vector<string> &definitions, const vector<string> &includes);
+
+			CXTranslationUnit create_translation_unit(
+					const CXIndex &index,
+					const string &source,
+					vector<const char *> arguments,
+					bool is_first
+			);
+
 		}
 	}
 }

@@ -52,7 +52,7 @@ vector < bgen::base_plugin * > get_plugins () {
 
 	vector < bgen::base_plugin * > ret_plugins;
 
-	for (auto & name : args.plugins) {
+	for (auto & name : cxt.parameters.plugins) {
 		for (auto * p : plugins) {
 			if (p->accepts (name)) {
 				ret_plugins.push_back (p);

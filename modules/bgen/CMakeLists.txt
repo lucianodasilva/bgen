@@ -1,7 +1,7 @@
 
 
 foreach (mod ${bgen_modules})
-	if ( NOT ${mod} STREQUAL "bgen_core")
+	if ( NOT ${mod} STREQUAL "bgen_core" AND NOT ${mod} STREQUAL "bgen_clang")
 		string (CONCAT BGEN_PLUGIN_DEF "extern base_plugin * make_${mod}_plugin ();")
 		string (CONCAT BGEN_PLUGIN_LIST "make_${mod}_plugin (),")
 	endif()

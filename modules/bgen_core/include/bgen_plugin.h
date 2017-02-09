@@ -10,7 +10,9 @@ using namespace std;
 
 namespace bgen {
 
-	struct code_map;
+	namespace source {
+		struct code_map;
+	}
 
 	class base_plugin {
 	public:
@@ -20,7 +22,7 @@ namespace bgen {
 		virtual string public_name() const = 0;
 		virtual bool accepts (const std::string & name) const = 0;
 
-		virtual void generate (const code_map & types) const = 0;
+		virtual void generate (const source::code_map & types) const = 0;
 
 	};
 
