@@ -13,8 +13,10 @@ namespace bgen {
 
         const string pre_compiled_headers = "bgen.pch";
 
-        parser_result parser::parse ( bgen::context & cxt, const bgen::parameters & params) {
+        parser_result parser::parse ( bgen::context & cxt ) {
             parser_result result {};
+
+            auto & params = cxt.parameters;
 
             auto pch_file = bgen::system::merge_path (params.client_dest, pre_compiled_headers);
             auto include_search_paths = params.include_paths;

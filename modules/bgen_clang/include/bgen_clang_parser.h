@@ -13,7 +13,7 @@ namespace bgen {
         class parser : public bgen::source::parser {
         public:
 
-            virtual source::parser_result parse ( context & cxt, const  bgen::parameters & params ) override;
+            virtual source::parser_result parse ( context & cxt ) override;
 
         };
 

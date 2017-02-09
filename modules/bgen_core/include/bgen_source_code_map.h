@@ -15,12 +15,11 @@ using namespace std;
 namespace bgen {
     namespace source {
         struct code_map {
-            source::struct_info  global {};
-        
             type_vector                 types;
             struct_vector               structs;
 
             dependency_vector           sorted_dependencies;
+            source::struct_info         global {};
         };
     }
 }

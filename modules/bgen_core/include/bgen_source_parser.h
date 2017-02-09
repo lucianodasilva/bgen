@@ -19,7 +19,7 @@ namespace bgen {
 
         class parser {
         public:
-            virtual parser_result parse ( context & cxt, const parameters & params ) = 0;
+            virtual parser_result parse ( context & cxt ) = 0;
         };
 
     }

@@ -2,6 +2,7 @@
 
 #include <bgen_core.h>
 #include <bgen_config.h>
+#include <bgen_clang_parser.h>
 
 #include <cmd_args.h>
 
@@ -14,7 +15,7 @@ using namespace bgen;
 bgen::context cxt;
 
 void show_version( parameters & params ) {
-	cout << "bgen version 0.02" << endl;
+	cout << "bgen version 0.05" << endl;
 }
 
 void show_usage ( parameters & params ) {
@@ -73,12 +74,12 @@ void process(parameters & params) {
     if (plugins.size () == 0)
         return;
 
-    source::code_map symbols = visitor::parse();
- 
-    if (cxt.status.current_state () != state_type::failure) {
-		for ( auto p : plugins )
-        	p->generate (symbols);
-	}
+	bgen::source::processor proc (
+		new bgen::clang::parser (),
+		plugins 
+	);
+
+    proc.process (cxt);
 }
 
 int main(int arg_c, char * arg_v[]) {

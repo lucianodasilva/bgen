@@ -4,6 +4,9 @@
 
 #include <cinttypes>
 #include <utility>
+#include <gsl/gsl>
+
+using namespace gsl;
 
 namespace bgen {
 
