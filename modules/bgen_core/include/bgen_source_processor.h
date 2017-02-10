@@ -5,7 +5,6 @@
 
 #include "bgen_source_code_map.h"
 #include "bgen_source_parser.h"
-#include "bgen_plugin.h"
 
 #include "bgen_details.h"
 
@@ -15,15 +14,7 @@ using namespace std;
 
 namespace bgen {
 	namespace source {
-
-		class processor {
-		private:
-			unique_ptr < parser > 	_parser;
-			plugin_vector 			_plugins;
-		public:
-			processor (owner < parser * > parser_instance, const plugin_vector & plugins);
-			code_map process (context & cxt);
-		};
+		code_map process (parser * parser_instance, context & cxt);
 	}
 }
 

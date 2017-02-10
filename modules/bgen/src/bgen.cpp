@@ -74,12 +74,7 @@ void process(parameters & params) {
     if (plugins.size () == 0)
         return;
 
-	bgen::source::processor proc (
-		new bgen::clang::parser (),
-		plugins 
-	);
-
-    proc.process (cxt);
+	bgen::source::process (nullptr, cxt);
 }
 
 int main(int arg_c, char * arg_v[]) {

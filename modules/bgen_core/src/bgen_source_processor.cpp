@@ -3,19 +3,14 @@
 namespace bgen {
     namespace source {
 
-        processor::processor (owner < parser * > parser_instance, const plugin_vector & plugins) :
-            _parser (parser_instance),
-            _plugins (plugins)
-        {}
+        code_map process (parser * parser_instance, context & cxt) {
 
-        code_map processor::process (context & cxt) {
-
-            if (!_parser) {
+            if (!parser_instance) {
                 cxt.status.fail() << "invalid parser";
                 return {};
             }
 
-            parser_result parser_info = _parser->parse (cxt);
+            parser_result parser_info = parser_instance->parse (cxt);
 
             if (cxt.status.current_state() == state_type::failure) {
                 return {};
@@ -29,10 +24,7 @@ namespace bgen {
 
             // post process information into code code_map
 
-
-            // run generation plugins
-            for (auto & plug : _plugins)
-                plug->generate (running_map);
+            return {};
         }
 
     }

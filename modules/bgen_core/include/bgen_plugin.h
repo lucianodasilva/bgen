@@ -3,6 +3,7 @@
 #define _bgen_plugin_h_
 
 #include "bgen_details.h"
+#include "bgen_context.h"
 
 #include <vector>
 #include <memory>
@@ -22,7 +23,7 @@ namespace bgen {
 		virtual string public_name() const = 0;
 		virtual bool accepts (const std::string & name) const = 0;
 
-		virtual void generate (const source::code_map & types) const = 0;
+		virtual void generate (context & cxt, const source::code_map & types) const = 0;
 
 	};
 

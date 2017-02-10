@@ -13,6 +13,11 @@ namespace bgen {
 		namespace tools {
 
 			template < class _t >
+			struct handle : public native_handle {
+				_t native;
+			};
+
+			template < class _t >
 			inline location get_location(const _t & item, CXSourceLocation (*_location_f)(_t)) {
 				auto loc = _location_f(item);
 				
