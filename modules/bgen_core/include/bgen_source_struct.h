@@ -63,7 +63,7 @@ namespace bgen {
             string                  identifier;
             string                  native_identifier;
 
-            field_vector            field;
+            field_vector            fields;
             method_vector           methods;
             
             struct_id_vector        parent_struct_ids;
