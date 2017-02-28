@@ -2,7 +2,11 @@
 #ifndef _bgen_parser_type_h_
 #define _bgen_parser_type_h_
 
-namespace bgen{
+#include "bgen_details.h"
+#include <string>
+#include <vector>
+
+namespace bgen {
     namespace parser {
 
         enum class type_kind : uint32_t {
@@ -35,32 +39,27 @@ namespace bgen{
             type_kind_rvalue_ref,
             type_kind_struct,
             type_kind_enum,
+            type_kind_typedef,
             type_kind_constant_array,
             type_kind_incomplete_array
         };
 
-        struct native_handle;
-
         struct type {
-            string              name;
+            string      identifier;
 
-            native_handle *     native;
-            type_kind           kind;
-            uint32_t            dimention;
-
-            bool                is_const;
+            bool        is_const;
+            type_kind   kind;
+            uint32_t    dimensions;
         };
 
-        using type_vector = vector < type >;
-        
-        struct template_parameter {
-            string              name;
-            native_handle *     native;
+        struct template_argument {
+            parser::type    type;
+            string          identifier;
         };
 
-        using template_parameter_vector = vector < template_parameter >;
-
+        using template_arg_vector = vector < template_argument >;
     }
+    
 }
 
 #endif

@@ -2,7 +2,6 @@
 
 #include <bgen_core.h>
 #include <bgen_config.h>
-#include <bgen_clang_parser.h>
 
 #include <cmd_args.h>
 
@@ -12,10 +11,8 @@
 using namespace std;
 using namespace bgen;
 
-bgen::context cxt;
-
 void show_version( parameters & params ) {
-	cout << "bgen version 0.05" << endl;
+	cout << "bgen version 0.06" << endl;
 }
 
 void show_usage ( parameters & params ) {
@@ -53,66 +50,66 @@ vector < bgen::base_plugin * > get_plugins () {
 
 	vector < bgen::base_plugin * > ret_plugins;
 
-	for (auto & name : cxt.parameters.plugins) {
-		for (auto * p : plugins) {
-			if (p->accepts (name)) {
-				ret_plugins.push_back (p);
-				break;
-			}
+	// for (auto & name : cxt.parameters.plugins) {
+	// 	for (auto * p : plugins) {
+	// 		if (p->accepts (name)) {
+	// 			ret_plugins.push_back (p);
+	// 			break;
+	// 		}
 
-			cout << "error: unavailable plugin named \"" << name << "\"" << endl;
-			return {};
-		}
-	}
+	// 		cout << "error: unavailable plugin named \"" << name << "\"" << endl;
+	// 		return {};
+	// 	}
+	// }
 
 	return ret_plugins;
 }
 
-void process(parameters & params) {
-	auto plugins = get_plugins ();
+// void process(parameters & params) {
+// 	auto plugins = get_plugins ();
     
-    if (plugins.size () == 0)
-        return;
+//     if (plugins.size () == 0)
+//         return;
 
-	bgen::source::process (nullptr, cxt);
-}
+// 	bgen::source::process (nullptr, cxt);
+// }
 
 int main(int arg_c, char * arg_v[]) {
+
+	// using namespace command_line;
+
+	// auto main_expression =
+	// 	*(
+	// 		key ("-p", "--plugin")[&parameters::plugins] |
+	// 		key ("-i", "--include")[&parameters::include_files] |
+    //         key ("--include-path")[&parameters::include_paths] |
+	// 		key ("-s", "--source")[&parameters::source_files] |
+	// 		key ("-cp", "--client_path")[&parameters::client_dest] |
+	// 		key ("-hd", "--host-path")[&parameters::host_dest] |
+	// 		key ("-ca", "--compile-args")[&parameters::compile_args] |
+    //         option ("--no-default-includes")[&parameters::no_default_includes]
+	// 	);
+
+	// auto expression =
+    //     usage(none)[&show_usage] |
+	// 	usage(option("-v", "--version"))[&show_version] |
+	// 	usage(option("-h", "--help"))[&show_usage] |
+	// 	usage(main_expression)[&process]
+	// ;
     
-	using namespace command_line;
+    // auto parse_result = parse (expression, arg_c, arg_v, cxt.parameters);
 
-	auto main_expression =
-		*(
-			key ("-p", "--plugin")[&parameters::plugins] |
-			key ("-i", "--include")[&parameters::include_files] |
-            key ("--include-path")[&parameters::include_paths] |
-			key ("-s", "--source")[&parameters::source_files] |
-			key ("-cp", "--client_path")[&parameters::client_dest] |
-			key ("-hd", "--host-path")[&parameters::host_dest] |
-			key ("-ca", "--compile-args")[&parameters::compile_args] |
-            option ("--no-default-includes")[&parameters::no_default_includes]
-		);
-
-	auto expression =
-        usage(none)[&show_usage] |
-		usage(option("-v", "--version"))[&show_version] |
-		usage(option("-h", "--help"))[&show_usage] |
-		usage(main_expression)[&process]
-	;
-    
-    auto parse_result = parse (expression, arg_c, arg_v, cxt.parameters);
-
-	if (!parse_result) {
-        cxt.status.fail () << "unexpected command line arguments found";
+	// if (!parse_result) {
+    //     cxt.status.fail () << "unexpected command line arguments found";
         
-        for (auto & error : parse_result.messages ())
-            cxt.status.fail () << error;
+    //     for (auto & error : parse_result.messages ())
+    //         cxt.status.fail () << error;
         
-        show_usage(cxt.parameters);
-	}
+    //     show_usage(cxt.parameters);
+	// }
     
-    if (cxt.status.current_state () == bgen::state_type::failure)
-        return -1;
+    // if (cxt.status.current_state () == bgen::state_type::failure)
+    //     return -1;
     
 	return 0;
 }

@@ -7,6 +7,7 @@
 #include <gsl/gsl>
 
 using namespace gsl;
+using namespace std;
 
 namespace bgen {
 

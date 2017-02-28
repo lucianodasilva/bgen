@@ -3,7 +3,7 @@
 #define _bgen_status_h_
 
 #include "bgen_details.h"
-#include "bgen_source_info.h"
+#include "bgen_parser_cursor.h"
 
 #include <iostream>
 #include <sstream>
@@ -19,7 +19,7 @@ namespace bgen {
     };
 
     struct status_message_builder {
-        bgen::source::location   location;
+        parser::location  location;
         bool                    has_copy;
         stringstream            builder;
         
@@ -29,7 +29,7 @@ namespace bgen {
             return *this;
         }
         
-        inline status_message_builder (const bgen::source::location & loc) :
+        inline status_message_builder (const parser::location & loc) :
             location (loc),
             has_copy (false)
         {}
@@ -65,18 +65,18 @@ namespace bgen {
         
         inline state_type current_state () { return _current_state; }
         
-        inline status_message_builder info (const source::location & location = source::location::empty) const {
+        inline status_message_builder info (const parser::location & location = {}) const {
             return {location};
         }
 
-        inline status_message_builder warn (const source::location & location = source::location::empty) {
+        inline status_message_builder warn (const parser::location & location = {}) {
             if (_current_state != state_type::failure)
                 _current_state = state_type::warnings;
 
             return {location};
         }
 
-        inline status_message_builder fail (const source::location & location = source::location::empty) {
+        inline status_message_builder fail (const parser::location & location = {}) {
             _current_state = state_type::failure;
             return {location};
         }
