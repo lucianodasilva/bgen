@@ -19,9 +19,10 @@ namespace bgen {
     };
 
     struct status_message_builder {
-        parser::location  location;
-        bool                    has_copy;
-        stringstream            builder;
+        stringstream        builder;
+        ostream &           outstream;
+        parser::location    location;
+        bool                has_copy;
         
         template < class _t >
         inline status_message_builder & operator << (const _t & v) {
@@ -29,27 +30,30 @@ namespace bgen {
             return *this;
         }
         
-        inline status_message_builder (const parser::location & loc) :
+        inline status_message_builder (ostream & out, const parser::location & loc) :
+            builder(),
+            outstream(out),
             location (loc),
             has_copy (false)
         {}
         
         inline status_message_builder (status_message_builder && origin) :
+            builder (move (origin.builder)),
+            outstream (origin.outstream),
             location (move (origin.location)),
-            has_copy (false),
-            builder (move (origin.builder))
+            has_copy (false)
         {
             origin.has_copy = true;
         }
         
         virtual ~status_message_builder() {
             if (!has_copy) {
-                cout << builder.str();
+                outstream << builder.str();
                 
                 if (!location.is_empty ())
-                    cout << " @" << location.file << ":" << location.line<< ":" << location.column;
+                    outstream << " @" << location.file << ":" << location.line<< ":" << location.column;
                 
-                cout << endl;
+                outstream << endl;
             }
         }
     };
@@ -57,28 +61,35 @@ namespace bgen {
     class status : no_copy {
     private:
 
-        state_type  _current_state;
+        ostream &   _outstream;
+        state_type  _current_state = state_type::success;
 
     public:
 
-        status ()= default;
+        inline status () : 
+            _outstream (std::cout)
+        {}
+
+        inline status (ostream & out) : 
+            _outstream(out)
+        {}
         
         inline state_type current_state () { return _current_state; }
         
         inline status_message_builder info (const parser::location & location = {}) const {
-            return {location};
+            return {_outstream, location};
         }
 
         inline status_message_builder warn (const parser::location & location = {}) {
             if (_current_state != state_type::failure)
                 _current_state = state_type::warnings;
 
-            return {location};
+            return {_outstream, location};
         }
 
         inline status_message_builder fail (const parser::location & location = {}) {
             _current_state = state_type::failure;
-            return {location};
+            return {_outstream, location};
         }
 
     };
