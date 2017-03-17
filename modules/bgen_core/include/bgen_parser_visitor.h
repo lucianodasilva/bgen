@@ -2,13 +2,13 @@
 #ifndef _bgen_parser_visitor_h_
 #define _bgen_parser_visitor_h_
 
-#include "bgen_details.h"
+#include "bgen_common_details.h"
 #include "bgen_interpreter.h"
 
 #include "bgen_parser_cursor.h"
 #include "bgen_parser_driver.h"
 
-#include "bgen_source_map.h"
+#include "bgen_parser_source_map.h"
 
 #include "bgen_status.h"
 
@@ -20,7 +20,7 @@ namespace bgen {
         struct context;
 
         using cursor_interpreter = bgen::interpreter < cursor_kind, void (context &, const parser::cursor &) >;
-        using type_interpreter = bgen::interpreter < type_kind, source::type_id (context &, const parser::type &) >;
+        using type_interpreter = bgen::interpreter < type_kind, parser::type_id (context &, const parser::cursor_type &) >;
 
         class interpreter : 
             cursor_interpreter,
@@ -40,9 +40,9 @@ namespace bgen {
             const parser::interpreter           interpreter;
 
             semantic_path                       path;
-            source::map                         source_map;
+            parser::map                         source_map;
 
-            vector < source::struct_info >      struct_stack;
+            vector < parser::struct_info >      struct_stack;
 
             bgen::status &                      status;
         };

@@ -29,7 +29,7 @@ macro (add_module module_name module_path)
 			endif ()
 		endif ()
 
-		# evaluate and glob source files
+		# evaluate and glob parser files
 		if (EXISTS ${module_path})
 
 			project (${module_name})

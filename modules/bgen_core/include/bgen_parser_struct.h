@@ -1,19 +1,21 @@
 #pragma once
-#ifndef _bgen_source_struct_h_
-#define _bgen_source_struct_h_
+#ifndef _bgen_parser_struct_h_
+#define _bgen_parser_struct_h_
 
-#include "bgen_details.h"
+#include "bgen_common_details.h"
 #include "bgen_parser_cursor.h"
 
-#include "bgen_indexed_vector.h"
+#include "bgen_common_indexed_vector.h"
 
 #include <vector>
 
 namespace bgen {
-    namespace source {
+    namespace parser {
 
 
         using semantic_name = vector < string >;
+
+        semantic_name semantic_name_from_path (const parser::semantic_path & path);
 
         using type_id = size_t;
 
@@ -58,7 +60,7 @@ namespace bgen {
         };
 
         struct struct_info {
-            semantic_name           path;
+            semantic_name           name;
             parser::location        location;
             string                  identifier;
             string                  native_identifier;

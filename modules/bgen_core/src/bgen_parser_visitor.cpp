@@ -12,7 +12,7 @@ namespace bgen {
             cxt.struct_stack.emplace_back ();
 
             // add a "root" structure to represent global fields and methods;
-            source::struct_info & global = cxt.struct_stack.back ();
+            parser::struct_info & global = cxt.struct_stack.back ();
 
             global.identifier = "[GLOBAL]"; 
         }

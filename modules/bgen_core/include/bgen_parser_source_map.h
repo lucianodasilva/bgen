@@ -1,13 +1,13 @@
 #pragma once
-#ifndef _bgen_source_map_h_
-#define _bgen_source_map_h_
+#ifndef _bgen_parser_source_map_h_
+#define _bgen_parser_source_map_h_
 
-#include "bgen_details.h"
-#include "bgen_source_struct.h"
-#include "bgen_source_type.h"
+#include "bgen_common.h"
+#include "bgen_parser_struct.h"
+#include "bgen_parser_type.h"
 
 namespace bgen {
-    namespace source {
+    namespace parser {
 
         struct map {
             struct_vector   structs;

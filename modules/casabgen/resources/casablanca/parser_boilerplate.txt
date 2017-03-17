@@ -7,37 +7,37 @@ namespace details {
             bool (_class_t::*_val_method)() const,
             _t (_class_t::*_get_method)() const
     >
-    inline bool read(const _class_t &source, _t &dest) {
-        if (!(source.*_val_method)())
+    inline bool read(const _class_t &parser, _t &dest) {
+        if (!(parser.*_val_method)())
             return false;
-        dest = (source.*_get_method)();
+        dest = (parser.*_get_method)();
         return true;
     }
 
-    inline bool read(const value & source, string & dest) {
-        if (!source.is_string ())
+    inline bool read(const value & parser, string & dest) {
+        if (!parser.is_string ())
             return false;
-        dest = source.as_string();
+        dest = parser.as_string();
         return true;
     }
 }
 
 
-inline bool read (const value & source, bool & dest ) {
+inline bool read (const value & parser, bool & dest ) {
     return details::read <
             bool,
             value,
             &value::is_boolean,
             &value::as_bool
-    > ( source, dest);
+    > ( parser, dest);
 }
 
-inline bool read (const value & source, string & dest ) {
-    return details::read (source, dest);
+inline bool read (const value & parser, string & dest ) {
+    return details::read (parser, dest);
 }
 
-inline bool read (const value & source, int32_t & dest ) {
-    if (!source.is_number ())
+inline bool read (const value & parser, int32_t & dest ) {
+    if (!parser.is_number ())
         return false;
 
     return details::read <
@@ -45,11 +45,11 @@ inline bool read (const value & source, int32_t & dest ) {
             number,
             &number::is_int32,
             &number::to_int32
-    >( source.as_number (), dest );
+    >( parser.as_number (), dest );
 }
 
-inline bool read (const value & source, int64_t & dest ) {
-    if (!source.is_number ())
+inline bool read (const value & parser, int64_t & dest ) {
+    if (!parser.is_number ())
         return false;
 
     return details::read <
@@ -57,11 +57,11 @@ inline bool read (const value & source, int64_t & dest ) {
             number,
             &number::is_int64,
             &number::to_int64
-    >( source.as_number (), dest );
+    >( parser.as_number (), dest );
 }
 
-inline bool read (const value & source, uint32_t & dest ) {
-    if (!source.is_number ())
+inline bool read (const value & parser, uint32_t & dest ) {
+    if (!parser.is_number ())
         return false;
 
     return details::read <
@@ -69,11 +69,11 @@ inline bool read (const value & source, uint32_t & dest ) {
             number,
             &number::is_uint32,
             &number::to_uint32
-    >( source.as_number (), dest );
+    >( parser.as_number (), dest );
 }
 
-inline bool read (const value & source, uint64_t & dest ) {
-    if (!source.is_number ())
+inline bool read (const value & parser, uint64_t & dest ) {
+    if (!parser.is_number ())
         return false;
 
     return details::read <
@@ -81,15 +81,15 @@ inline bool read (const value & source, uint64_t & dest ) {
             number,
             &number::is_uint64,
             &number::to_uint64
-    >( source.as_number (), dest );
+    >( parser.as_number (), dest );
 }
 
 template < class _t >
-inline bool read (const value & source, vector < _t > & dest) {
-    if (!source.is_array())
+inline bool read (const value & parser, vector < _t > & dest) {
+    if (!parser.is_array())
         return false;
 
-    auto array_obj = source.as_array ();
+    auto array_obj = parser.as_array ();
     uint64_t size = static_cast < uint64_t > (array_obj.size ());
 
     dest.resize (size);
@@ -112,24 +112,24 @@ template < class _t > inline bool read_field_details (const object & obj, const 
 }
 
 // writers
-inline value write (const std::string & source) {
-    return web::json::value::string(source);
+inline value write (const std::string & parser) {
+    return web::json::value::string(parser);
 }
 
-inline value write (bool source) {
-    return web::json::value::boolean(source);
+inline value write (bool parser) {
+    return web::json::value::boolean(parser);
 }
 
-inline value write (int source) {
-    return web::json::value::number (source);
+inline value write (int parser) {
+    return web::json::value::number (parser);
 }
 
-inline value write (unsigned int source) {
-    return web::json::value::number (source);
+inline value write (unsigned int parser) {
+    return web::json::value::number (parser);
 }
 
-inline value write ( double source ) {
-    return web::json::value::number (source);
+inline value write ( double parser ) {
+    return web::json::value::number (parser);
 }
 
 inline value write_null () {
@@ -139,9 +139,9 @@ inline value write_null () {
 template <
         class _t
 >
-inline value write (const vector < _t > & source) {
+inline value write (const vector < _t > & parser) {
 
-    size_t size = source.size ();
+    size_t size = parser.size ();
 
     if (size == 0)
         return write_null();
@@ -149,7 +149,7 @@ inline value write (const vector < _t > & source) {
     auto array = value::array(size);
 
     for (size_t i = 0; i < size; ++i)
-        array[i] = write (source[i]);
+        array[i] = write (parser[i]);
 
     return array;
 }

@@ -6,26 +6,17 @@ namespace bgen {
     namespace parser {
         namespace actions {
 
-            inline bool is_valid_type (const source::type & t) {
+            inline bool is_valid_type (const parser::type & t) {
                 return t.kind != type_kind::type_kind_invalid && t.kind != type_kind::type_kind_unhandled;
-            }
-
-            inline source::semantic_name semantic_path_to_name (const semantic_path & path) {
-                source::semantic_name name;
-                
-                for (const cursor & c : path)
-                    name.push_back (c.identifier);
-
-                return name;
             }
 
             void cursor_default_action (context & cxt, const parser::cursor & cursor) {}
 
-            void struct_base_action (context & cxt, const parser::cursor & cursor, source::struct_kind kind) {
+            void struct_base_action (context & cxt, const parser::cursor & cursor, parser::struct_kind kind) {
                 auto emplace_ret = cxt.source_map.structs.find_or_emplace (cursor.identifier);
                 auto & source_struct = emplace_ret.second;
 
-                source_struct.path = semantic_path_to_name (cxt.path);
+                source_struct.name = parser::semantic_name_from_path(cxt.path);
                 source_struct.identifier = cursor.identifier;
                 source_struct.location = cursor.location;
                 source_struct.kind = kind;
@@ -40,11 +31,11 @@ namespace bgen {
             }
 
             void struct_action (context & cxt, const parser::cursor & cursor) {
-                struct_base_action (cxt, cursor, source::struct_kind::struct_struct);
+                struct_base_action (cxt, cursor, parser::struct_kind::struct_struct);
             }
 
             void class_action (context & cxt, const parser::cursor & cursor) {
-                struct_base_action (cxt, cursor, source::struct_kind::struct_class);
+                struct_base_action (cxt, cursor, parser::struct_kind::struct_class);
             }
 
             void base_spec_action (context & cxt, const parser::cursor & cursor) {
@@ -53,28 +44,28 @@ namespace bgen {
             }
 
             void field_action (context & cxt, const parser::cursor & cursor) {
-                parser::type type = cxt.driver->get_type (cursor);
+                parser::cursor_type type = cxt.driver->get_type (cursor);
 
-                source::type_id source_type_id = cxt.interpreter.execute (
+                parser::type_id source_type_id = cxt.interpreter.execute (
                     type.kind,
                     cxt, 
                     type
                 );
 
-                source::type & source_type = cxt.source_map.types[source_type_id];
+                parser::type & source_type = cxt.source_map.types[source_type_id];
 
                 if (!is_valid_type (source_type)) {
-                    cxt.status.warn (cursor.location) << "invalid or unexpected type for field";
+                    cxt.status.warn (cursor.location) << "invalid or unexpected cursor_type for field";
                     return;
                 }
 
-                source::struct_info & active_struct = cxt.struct_stack.back ();
+                parser::struct_info & active_struct = cxt.struct_stack.back ();
 
                 active_struct.fields.emplace_back ();
 
                 auto & field = active_struct.fields.back ();
 
-                field.path = semantic_path_to_name (cxt.path);
+                field.path = parser::semantic_name_from_path (cxt.path);
                 field.location = cursor.location;
                 field.identifier = cursor.identifier;
                 field.type = source_type_id;
@@ -88,7 +79,10 @@ namespace bgen {
             }
 
             void parameter_action (context & cxt, const parser::cursor & cursor) {
-            }
+
+
+
+			}
 
             void namespace_action (context & cxt, const parser::cursor & cursor) {
                 cxt.path.push_back (cxt.cursor);

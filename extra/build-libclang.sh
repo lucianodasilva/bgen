@@ -19,7 +19,7 @@ llvm_build="$llvm_root/build"
 
 clang_root="$work/clang"
 
-# get llvm source
+# get llvm parser
 mkdir -p $llvm_root || on_fail "Failed creating work directory"
 
 cd $llvm_root
@@ -28,7 +28,7 @@ git clone -b stable --single-branch --depth 1 http://llvm.org/git/llvm . \
 
 cd $work
 
-# get clang source
+# get clang parser
 mkdir -p $clang_root
 
 cd $clang_root
@@ -77,7 +77,7 @@ if [[ "$platform" == "Darwin" ]]; then
 fi
 
 # find file
-libclang_file_path=`find $clang_out -type f -name "$libclang_lib"`
+libclang_file_path=`find $clang_out -cursor_type f -name "$libclang_lib"`
 libclang_file_path=`echo $libclang_file_path | head -1`
 
 cp $libclang_file_path "$origin_out_lib/$libclang_lib" \

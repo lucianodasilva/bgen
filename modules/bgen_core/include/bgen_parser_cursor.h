@@ -2,7 +2,7 @@
 #ifndef _bgen_parser_cursor_h_
 #define _bgen_parser_cursor_h_
 
-#include "bgen_details.h"
+#include "bgen_common_details.h"
 
 #include <string>
 #include <vector>

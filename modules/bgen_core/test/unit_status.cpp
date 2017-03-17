@@ -13,7 +13,7 @@ using namespace bgen;
 namespace bgen {
     namespace tests {
 
-        struct status_test: public ::testing::Test {
+        struct unit_status_test: public ::testing::Test {
         protected:
             virtual void SetUp() {}
         public:
@@ -44,7 +44,7 @@ namespace bgen {
 
         };
 
-        TEST(status_test, default_status) {
+        TEST(unit_status_test, default_status) {
             stringstream out;
             bgen::status status (out);
 
@@ -52,7 +52,7 @@ namespace bgen {
             EXPECT_EQ(out.str (), string());
         }
 
-        TEST(status_test, call_warn) {
+        TEST(unit_status_test, call_warn) {
             stringstream out;
             bgen::status status (out);
 
@@ -60,13 +60,13 @@ namespace bgen {
 
             status.warn () << WARNING_MESSAGE;
 
-            string expectancy = status_test::make_expectancy().add_line(WARNING_MESSAGE);
+            string expectancy = unit_status_test::make_expectancy().add_line(WARNING_MESSAGE);
 
             EXPECT_EQ(status.current_state(), state_type::warnings);
             EXPECT_EQ(out.str (), expectancy);
         }
 
-        TEST(status_test, call_warn_with_location) {
+        TEST(unit_status_test, call_warn_with_location) {
             stringstream out;
             bgen::status status (out);
 
@@ -77,7 +77,7 @@ namespace bgen {
             };
 
             const string WARNING_MESSAGE = "WARNING";
-            const string expectancy = status_test::make_expectancy()
+            const string expectancy = unit_status_test::make_expectancy()
                     .add_line (WARNING_MESSAGE, loc);
 
             status.warn (loc) << WARNING_MESSAGE;
@@ -86,12 +86,12 @@ namespace bgen {
             EXPECT_EQ(out.str (), expectancy);
         }
 
-        TEST(status_test, call_fail) {
+        TEST(unit_status_test, call_fail) {
             stringstream out;
             bgen::status status (out);
 
             const string FAIL_MESSAGE = "FAIL";
-            const string expectancy = status_test::make_expectancy()
+            const string expectancy = unit_status_test::make_expectancy()
                     .add_line(FAIL_MESSAGE);
 
             status.fail () << FAIL_MESSAGE;
@@ -100,13 +100,13 @@ namespace bgen {
             EXPECT_EQ(out.str (), expectancy);
         }
 
-        TEST(status_test, call_info) {
+        TEST(unit_status_test, call_info) {
             stringstream out;
             bgen::status status (out);
 
             const string INFO_MESSAGE = "INFO";
 
-            const string expectancy = status_test::make_expectancy()
+            const string expectancy = unit_status_test::make_expectancy()
                     .add_line(INFO_MESSAGE);
 
             status.info () << INFO_MESSAGE;
@@ -115,14 +115,14 @@ namespace bgen {
             EXPECT_EQ(out.str (), expectancy);
         }
 
-        TEST(status_test, call_warn_after_fail) {
+        TEST(unit_status_test, call_warn_after_fail) {
             stringstream out;
             bgen::status status (out);
 
             const string WARNING_MESSAGE = "WARNING";
             const string FAIL_MESSAGE = "FAIL";
 
-            const string expectancy = status_test::make_expectancy()
+            const string expectancy = unit_status_test::make_expectancy()
                     .add_line(FAIL_MESSAGE)
                     .add_line(WARNING_MESSAGE);
 

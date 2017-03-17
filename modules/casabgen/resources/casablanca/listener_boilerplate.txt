@@ -13,7 +13,7 @@ inline void handle_post ( http_request & request ) {
             .extract_json()
             .then ([&status, &return_value](pplx::task<json::value> task) {
                 try {
-                    typename decay <_pt>::type parameter = {};
+                    typename decay <_pt>::cursor_type parameter = {};
                     parse::read (task.get(), parameter);
 
                     _rt ret = _call_t (parameter);
@@ -44,7 +44,7 @@ inline void handle_get ( http_request & request ) {
             .extract_json()
             .then ([&status, &return_value](pplx::task<json::value> task) {
                 try {
-                    typename decay <_rt>::type ret = _call_t ();
+                    typename decay <_rt>::cursor_type ret = _call_t ();
 
                     // serialize to json
                     return_value = parse::write (ret);

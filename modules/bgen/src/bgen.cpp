@@ -32,7 +32,7 @@ void show_usage ( parameters & params ) {
     cout << "-p (--plugin): plugin names" << endl;
     cout << "-i (--include): additional includes" << endl;
     cout << "--include_path: include paths" << endl;
-    cout << "-s (--source): source files" << endl;
+    cout << "-s (--parser): parser files" << endl;
     cout << "-cp (--client-path): path to client output directory" << endl;
     cout << "-hd (--host-path): path to host output directory" << endl;
     cout << "-ca (--compile-args): required compile arguments" << endl;
@@ -71,7 +71,7 @@ vector < bgen::base_plugin * > get_plugins () {
 //     if (plugins.size () == 0)
 //         return;
 
-// 	bgen::source::process (nullptr, cxt);
+// 	bgen::parser::process (nullptr, cxt);
 // }
 
 int main(int arg_c, char * arg_v[]) {
@@ -82,12 +82,12 @@ int main(int arg_c, char * arg_v[]) {
 	// 	*(
 	// 		key ("-p", "--plugin")[&parameters::plugins] |
 	// 		key ("-i", "--include")[&parameters::include_files] |
-    //         key ("--include-path")[&parameters::include_paths] |
-	// 		key ("-s", "--source")[&parameters::source_files] |
+    //      key ("--include-path")[&parameters::include_paths] |
+	// 		key ("-s", "--parser")[&parameters::source_files] |
 	// 		key ("-cp", "--client_path")[&parameters::client_dest] |
 	// 		key ("-hd", "--host-path")[&parameters::host_dest] |
 	// 		key ("-ca", "--compile-args")[&parameters::compile_args] |
-    //         option ("--no-default-includes")[&parameters::no_default_includes]
+    //      option ("--no-default-includes")[&parameters::no_default_includes]
 	// 	);
 
 	// auto expression =
