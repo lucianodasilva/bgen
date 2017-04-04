@@ -2,7 +2,7 @@
 #ifndef	_bgen_plugin_h_
 #define _bgen_plugin_h_
 
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 
 #include <vector>
 #include <memory>

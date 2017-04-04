@@ -5,7 +5,7 @@
 
 #include <string>
 #include <vector>
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 
 using namespace std;
 

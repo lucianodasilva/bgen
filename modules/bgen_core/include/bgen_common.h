@@ -98,4 +98,9 @@ namespace bgen {
 
 }
 
+#include "bgen_common_indexed_vector.h"
+#include "bgen_common_pool.h"
+#include "bgen_common_small_vector.h"
+#include "bgen_common_vector_ptr.h"
+
 #endif //_bgen_common_h_

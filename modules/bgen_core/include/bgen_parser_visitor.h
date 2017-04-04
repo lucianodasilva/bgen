@@ -2,7 +2,7 @@
 #ifndef _bgen_parser_visitor_h_
 #define _bgen_parser_visitor_h_
 
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 #include "bgen_interpreter.h"
 
 #include "bgen_parser_cursor.h"

@@ -14,31 +14,28 @@ namespace bgen {
 
     const size_t indexed_vector_nindex = std::numeric_limits < size_t >::max();
 
-    template < class _key_t, class _value_t >
+    template < class _key_t, class _value_t, class _vector_t = vector < _value_t >, class _map_t = unordered_map < _key_t, size_t > >
     class indexed_vector {
     private:
 
-        using map_type = unordered_map < _key_t, size_t >;
-        using vector_type = vector < _value_t >;
-
-        map_type _indexes;
-        vector_type _vector;
+        _map_t 		_indexes;
+        _vector_t 	_vector;
 
     public:
 
-        using value_type =      typename vector_type::value_type;
-        using key_type =        typename map_type::key_type;
-        using pointer =         typename vector_type::pointer;
-        using const_pointer =   typename vector_type::const_pointer;
-        using reference =       typename vector_type::reference;
-        using const_reference = typename vector_type::const_reference;
-        using iterator =        typename vector_type::iterator;
-        using const_iterator =  typename vector_type::const_iterator;
-        using reverse_iterator = typename vector_type::reverse_iterator;
-        using const_reverse_iterator = typename vector_type::const_reverse_iterator;
-        using size_type =       typename vector_type::size_type;
-        using difference_type = typename vector_type::difference_type;
-        using allocator_type =  typename vector_type::allocator_type;
+        using value_type =      typename _vector_t::value_type;
+        using key_type =        typename _map_t::key_type;
+        using pointer =         typename _vector_t::pointer;
+        using const_pointer =   typename _vector_t::const_pointer;
+        using reference =       typename _vector_t::reference;
+        using const_reference = typename _vector_t::const_reference;
+        using iterator =        typename _vector_t::iterator;
+        using const_iterator =  typename _vector_t::const_iterator;
+        using reverse_iterator = typename _vector_t::reverse_iterator;
+        using const_reverse_iterator = typename _vector_t::const_reverse_iterator;
+        using size_type =       typename _vector_t::size_type;
+        using difference_type = typename _vector_t::difference_type;
+        using allocator_type =  typename _vector_t::allocator_type;
 
         static const size_type nindex = indexed_vector_nindex;
 

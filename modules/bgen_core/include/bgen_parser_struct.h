@@ -2,7 +2,7 @@
 #ifndef _bgen_parser_struct_h_
 #define _bgen_parser_struct_h_
 
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 #include "bgen_parser_cursor.h"
 
 #include "bgen_common_indexed_vector.h"
@@ -60,14 +60,14 @@ namespace bgen {
         };
 
         struct struct_info {
+            pool_span < field_info >    fields;
+            pool_span < method_info >   methods;
+
             semantic_name           name;
             parser::location        location;
             string                  identifier;
             string                  native_identifier;
 
-            field_vector            fields;
-            method_vector           methods;
-            
             struct_id_vector        parent_struct_ids;
             struct_id_vector        dependencies;
 

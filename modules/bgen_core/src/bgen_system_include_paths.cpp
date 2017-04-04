@@ -1,5 +1,5 @@
 #include "bgen_system.h"
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 
 #include <cinttypes>
 #include <regex>

@@ -2,7 +2,7 @@
 #ifndef _bgen_interpreter_h_
 #define _bgen_interpreter_h_
 
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 
 #include <functional>
 #include <unordered_map>

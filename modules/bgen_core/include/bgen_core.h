@@ -2,8 +2,7 @@
 #ifndef _bgen_core_h_
 #define _bgen_core_h_
 
-#include "bgen_common_details.h"
-#include "bgen_common_indexed_vector.h"
+#include "bgen_common.h"
 #include "bgen_parameters.h"
 #include "bgen_parser_visitor.h"
 #include "bgen_parser_driver.h"
