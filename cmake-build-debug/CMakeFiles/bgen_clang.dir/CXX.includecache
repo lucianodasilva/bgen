@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../modules/bgen_clang/include/bgen_clang.h
+
+/Users/lasilva/Documents/bgen.git/modules/bgen_clang/src/bgen_clang.cpp
+bgen_clang.h
+/Users/lasilva/Documents/bgen.git/modules/bgen_clang/src/bgen_clang.h
+

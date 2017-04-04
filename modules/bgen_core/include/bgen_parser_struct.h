@@ -5,8 +5,6 @@
 #include "bgen_common.h"
 #include "bgen_parser_cursor.h"
 
-#include "bgen_common_indexed_vector.h"
-
 #include <vector>
 
 namespace bgen {
@@ -60,8 +58,8 @@ namespace bgen {
         };
 
         struct struct_info {
-            pool_span < field_info >    fields;
-            pool_span < method_info >   methods;
+            //pool_span < field_info >    fields;
+            //pool_span < method_info >   methods;
 
             semantic_name           name;
             parser::location        location;

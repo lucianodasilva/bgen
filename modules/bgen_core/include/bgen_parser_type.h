@@ -13,11 +13,9 @@ namespace bgen {
             type_id type;
         };
 
-        using template_arg_vector = vector < template_argument >;
-
         struct type {
             string                  identifier;
-            template_arg_vector     template_arguments;
+            //template_arg_vector     template_arguments;
 
             type_id                 base_type;
             struct_id               base_struct;

@@ -61,6 +61,7 @@ namespace bgen {
 
                 parser::struct_info & active_struct = cxt.struct_stack.back ();
 
+                /*
                 active_struct.fields.emplace_back ();
 
                 auto & field = active_struct.fields.back ();
@@ -69,7 +70,8 @@ namespace bgen {
                 field.location = cursor.location;
                 field.identifier = cursor.identifier;
                 field.type = source_type_id;
-                field.visibility = cxt.driver->get_visibility (cursor);      
+                field.visibility = cxt.driver->get_visibility (cursor);
+                */
             }
 
             void method_action (context & cxt, const parser::cursor & cursor) {

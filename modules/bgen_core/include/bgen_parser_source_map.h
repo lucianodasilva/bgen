@@ -3,7 +3,6 @@
 #define _bgen_parser_source_map_h_
 
 #include "bgen_common.h"
-#include "bgen_common_pool.h"
 
 #include "bgen_parser_struct.h"
 #include "bgen_parser_type.h"
@@ -15,8 +14,8 @@ namespace bgen {
             struct_vector   structs;
             type_vector     types;
 
-			common::pool < field_info > fields;
-			common::pool < method_info > methods;
+			pool < field_info > fields;
+			pool < method_info > methods;
         };
 
         template < class _t, class _key_t >

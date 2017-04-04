@@ -23,6 +23,8 @@ namespace bgen {
 				base_struct.name = parser::semantic_name_from_path(path);
 
                 // extract template arguments
+
+                /*
                 if (template_arguments.size() > 0) {
                     for (const cursor_template_argument & ta : template_arguments) {
                         source_type.template_arguments.push_back (parser::template_argument {
@@ -31,6 +33,7 @@ namespace bgen {
                         });
                     }
                 }
+                */
             }
 
             struct type_action_context {

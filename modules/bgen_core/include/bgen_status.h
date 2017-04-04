@@ -2,7 +2,7 @@
 #ifndef _bgen_status_h_
 #define _bgen_status_h_
 
-#include "bgen_common_details.h"
+#include "bgen_common.h"
 #include "bgen_parser_cursor.h"
 
 #include <iostream>
