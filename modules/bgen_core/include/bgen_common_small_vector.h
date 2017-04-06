@@ -583,7 +583,11 @@ namespace bgen {
 			small_vector_base<_t>::small_vector_base(_n, v) {
 		}
 
-		inline small_vector(const small_vector_base<_t> &v) :
+		template < size_t _v_n >
+		inline small_vector(const small_vector<_t, _v_n > & v ) :
+			small_vector_base<_t>::small_vector_base(v, _n) {}
+
+		inline small_vector ( const small_vector < _t, _n > & v ) :
 			small_vector_base<_t>::small_vector_base(v, _n) {}
 
 		inline small_vector(small_vector_base<_t> &&v) noexcept :
