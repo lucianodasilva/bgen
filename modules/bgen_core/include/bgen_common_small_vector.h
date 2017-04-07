@@ -217,7 +217,7 @@ namespace bgen {
 			if (end() >= _capacity_ptr)
 				grow();
 
-			new(end()) _t(std::forward(args...));
+			new(end()) _t(args...);
 			set_end(end() + 1);
 		}
 
@@ -453,7 +453,7 @@ namespace bgen {
 			if (n <= capacity())
 				return;
 
-			auto new_begin = new _t[n];
+			auto new_begin = reinterpret_cast < pointer > (new uint8_t [sizeof (_t) * n]);
 			auto data_size = size();
 
 			if (std::is_trivially_copyable<_t>::value) {
@@ -485,7 +485,7 @@ namespace bgen {
 			auto data_size = std::min(size(), n);
 			auto cut_point = begin() + data_size;
 
-			auto new_begin = new _t[n];
+			auto new_begin = reinterpret_cast < pointer > (new uint8_t [sizeof (_t) * n]);
 
 			if (std::is_trivially_copyable<_t>::value) {
 				std::copy(begin(), cut_point, new_begin);

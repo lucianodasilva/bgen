@@ -66,6 +66,57 @@ namespace bgen {
 
         TEST(unit_small_vector_test, ctor_move) {
 
+			// object move / copy counters
+			static size_t s_copy_count = 0;
+			static size_t s_move_count = 0;
+
+			// structures to be moved
+			struct move_obj {
+
+				size_t & move_counter;
+				size_t & copy_counter;
+
+				move_obj (size_t & m_counter, size_t & c_counter) :
+					move_counter (m_counter),
+					copy_counter (c_counter) {}
+
+				move_obj ( move_obj && m ) :
+					move_counter (m.move_counter),
+					copy_counter (m.copy_counter)
+				{
+					++move_counter;
+				}
+
+				move_obj (const move_obj & m) :
+					move_counter (m.move_counter),
+					copy_counter (m.copy_counter)
+				{
+					++copy_counter;
+				}
+
+				move_obj & operator = (const move_obj & m) {
+					move_counter = m.move_counter;
+					copy_counter = m.copy_counter;
+					return *this;
+				}
+
+			};
+
+			small_vector<move_obj, unit_small_vector_test::test_size>
+					source;
+
+			for (int i = 0; i < unit_small_vector_test::test_size; ++i) {
+				source.emplace_back(
+					s_move_count,
+					s_copy_count
+				);
+			}
+
+			small_vector < move_obj, unit_small_vector_test::test_size >
+				dest = std::move(source);
+
+			EXPECT_EQ (s_copy_count, 0);
+			EXPECT_EQ (s_move_count, unit_small_vector_test::test_size);
         }
     }
 
