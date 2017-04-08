@@ -32,19 +32,19 @@ namespace bgen {
 	public:
 
 		using value_type                = _t;
-		using reference                = _t &;
-		using const_reference            = _t const &;
-		using pointer                    = _t *;
-		using const_pointer            = _t const *;
+		using reference                 = _t &;
+		using const_reference           = _t const &;
+		using pointer                   = _t *;
+		using const_pointer				= _t const *;
 
-		using size_type                = size_t;
-		using difference_type            = ptrdiff_t;
+		using size_type					= size_t;
+		using difference_type           = ptrdiff_t;
 
-		using iterator                    = pointer;
+		using iterator                  = pointer;
 		using const_iterator            = const_pointer;
 
-		using reverse_iterator            = std::reverse_iterator<iterator>;
-		using const_reverse_iterator    = std::reverse_iterator<const_iterator>;
+		using reverse_iterator          = std::reverse_iterator<iterator>;
+		using const_reverse_iterator	= std::reverse_iterator<const_iterator>;
 
 		inline iterator begin() noexcept { return _begin_ptr; }
 
@@ -379,32 +379,10 @@ namespace bgen {
 				// both "large" just swap all buffers
 				swap_itrs(v);
 			} else {
-
-				// grow smaller one if no fit
-				size_type
-					this_size = this->size(),
-					v_size = v.size();
-
-				small_vector_base &smaller_v = *this;
-				size_type larger_size = v_size;
-
-				if (this_size < v_size) {
-					smaller_v = v;
-					larger_size = this_size;
-				}
-
-				if (smaller_v.capacity() < larger_size)
-					smaller_v.grow(larger_size);
-
-				// move stuff around
-				set_end(begin() + v_size);
-				v.set_end(v.begin() + this_size);
-
-				move_range(
-					begin(),
-					begin() + larger_size,
-					v.begin()
-				);
+				if (size () > v.size())
+					swap_vectors(*this, v);
+				else
+					swap_vectors(v, *this);
 			}
 		}
 
@@ -433,7 +411,9 @@ namespace bgen {
 			operator=(v);
 		}
 
-		small_vector_base(small_vector_base &&v, size_type self_size) noexcept {
+		small_vector_base(small_vector_base &&v, size_type self_size) noexcept :
+			small_vector_base (self_size)
+		{
 			swap(v);
 		}
 
@@ -513,9 +493,11 @@ namespace bgen {
 		}
 
 		inline static void destroy_range(pointer b, pointer e) {
-			while (b < e) {
-				--e;
-				e->~_t();
+			if (!std::is_pointer < _t > ()) {
+				while (b < e) {
+					--e;
+					e->~_t();
+				}
 			}
 		}
 
@@ -534,6 +516,45 @@ namespace bgen {
 			}
 			return d_e;
 		};
+
+		template < class _input_it_t, class _output_it_t >
+		inline static _output_it_t move_uninit_range (_input_it_t i, _input_it_t e, _output_it_t d) {
+			for (; i < e; ++i, ++d) {
+				new (d) _t (std::move(*i));
+			}
+
+			return d;
+		};
+
+		inline static void swap_vectors ( small_vector_base & large, small_vector_base & small ) {
+			size_type
+				large_size = large.size(),
+				small_size = small.size();
+
+			if (small.capacity() < large_size)
+				small.grow(large_size);
+
+			// move stuff around
+			small.set_end (small.begin() + large_size);
+			large.set_end (large.begin() + small_size);
+
+			// move common range
+			move_range(
+				small.begin(),
+				small.begin () + small_size,
+				large.begin ()
+			);
+
+			// move uninitialized range
+			move_uninit_range(
+				large.begin() + small_size,
+				large.begin() + large_size,
+				small.begin () + small_size
+			);
+
+			// shrink new small
+			large.shrink(small_size);
+		}
 
 		inline void swap_itrs(iterator &begin_ptr, iterator &end_ptr, iterator &capacity_ptr) {
 			std::swap(_begin_ptr, begin_ptr);
@@ -573,8 +594,8 @@ namespace bgen {
 	struct small_vector : public small_vector_base<_t> {
 	public:
 
-		using value_type        = typename small_vector_base<_t>::value_type;
-		using const_reference    = typename small_vector_base<_t>::const_reference;
+		using value_type		= typename small_vector_base<_t>::value_type;
+		using const_reference 	= typename small_vector_base<_t>::const_reference;
 
 		inline small_vector() noexcept :
 			small_vector_base<_t>::small_vector_base(_n) {}
@@ -590,15 +611,33 @@ namespace bgen {
 		inline small_vector ( const small_vector < _t, _n > & v ) :
 			small_vector_base<_t>::small_vector_base(v, _n) {}
 
-		inline small_vector(small_vector_base<_t> &&v) noexcept :
-			small_vector_base<_t>::small_vector_base(std::forward(v), _n) {}
+		inline small_vector(small_vector <_t, _n> && v) noexcept :
+			small_vector_base<_t>::small_vector_base(std::move(v), _n) {}
+
+		inline small_vector(small_vector_base<_t> && v) noexcept :
+			small_vector_base<_t>::small_vector_base(std::move(v), _n) {}
 
 		inline small_vector(std::initializer_list<value_type> il) :
 			small_vector_base<_t>::small_vector_base(il, _n) {}
 
-		template<class InputIterator>
-		inline small_vector(InputIterator first, InputIterator last) :
+		template<class _input_it_t>
+		inline small_vector(_input_it_t first, _input_it_t last) :
 			small_vector_base<_t>::small_vector_base(first, last, _n) {}
+
+		inline small_vector < _t, _n > & operator = (const small_vector_base < _t > & v) {
+			small_vector_base < _t >::operator = (v);
+			return *this;
+		}
+
+		inline small_vector < _t, _n > & operator = (small_vector_base < _t > && v) {
+			small_vector_base < _t >::operator = (std::move(v));
+			return *this;
+		}
+
+		inline small_vector < _t, _n > & operator = (std::initializer_list<_t> il) {
+			small_vector_base < _t >::operator = (il);
+			return *this;
+		}
 
 	private:
 		__typeless_array<_t, _n - 1> _small_data;
