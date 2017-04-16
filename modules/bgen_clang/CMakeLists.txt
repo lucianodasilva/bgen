@@ -12,9 +12,9 @@ if (MSVC)
 		-D_CRT_SECURE_NO_WARNINGS=1
 	)
 
-	set (BGEN_LIBCLANG_DLL_PATH "" CACHE FILEPATH "libClang dll file")
+	set (BGEN_LIBCLANG_DLL_PATH "" CACHE PATH "libClang dll file")
 	add_custom_command (TARGET bgen_clang
-		POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_DLL_PATH} $<TARGET_FILE_DIR:bgen_clang>
+		POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BGEN_LIBCLANG_DLL_PATH}/libclang.dll $<TARGET_FILE_DIR:bgen_clang>
 	)
 
 	list(APPEND clang_dependencies libClang)

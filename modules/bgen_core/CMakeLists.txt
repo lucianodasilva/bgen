@@ -11,6 +11,9 @@ if (MSVC)
 		-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1
 		-D_CRT_SECURE_NO_WARNINGS=1
 	)
+
+	# add natvis definitions
+	target_sources(bgen_core PUBLIC ${bgen_extra_path}/vs/bgen.natvis)
 endif()
 
 add_module_dependencies (bgen_core ${core_dependencies})

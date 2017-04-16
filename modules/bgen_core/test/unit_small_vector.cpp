@@ -20,6 +20,57 @@ using namespace bgen;
 namespace bgen {
     namespace tests {
 
+		// structures to be moved
+		struct small_vector_move_item {
+
+			size_t * move_counter;
+			size_t * copy_counter;
+
+			small_vector_move_item(size_t & m_counter, size_t & c_counter) :
+				move_counter(&m_counter),
+				copy_counter(&c_counter) {}
+
+			small_vector_move_item(small_vector_move_item && m) :
+				move_counter(m.move_counter),
+				copy_counter(m.copy_counter)
+			{
+				++(*move_counter);
+			}
+
+			small_vector_move_item(const small_vector_move_item & m) :
+				move_counter(m.move_counter),
+				copy_counter(m.copy_counter)
+			{
+				++(*copy_counter);
+			}
+
+			small_vector_move_item & operator = (const small_vector_move_item & m) {
+				move_counter = m.move_counter;
+				copy_counter = m.copy_counter;
+
+				++(*copy_counter);
+				return *this;
+			}
+
+			small_vector_move_item & operator = (small_vector_move_item && m) {
+				std::swap(move_counter, m.move_counter);
+				std::swap(copy_counter, m.copy_counter);
+
+				++(*move_counter);
+				return *this;
+			}
+
+			static inline void init_items(small_vector_base < small_vector_move_item > & victim, size_t item_count, size_t & copy_count, size_t & move_count) {
+				for (int i = 0; i < item_count; ++i) {
+					victim.emplace_back(
+						move_count,
+						copy_count
+					);
+				}
+			}
+
+		};
+
         struct unit_small_vector_test : public ::testing::Test {
         protected:
             virtual void SetUp() {}
@@ -81,13 +132,13 @@ namespace bgen {
 
 			const size_t double_size = unit_small_vector_test::test_size * 2;
 
-			small_vector < int, double_size > expectancy;
+			small_vector < size_t, double_size > expectancy;
 
 			for (size_t i = 0; i < double_size; ++i) {
 				expectancy.push_back(i);
 			}
 
-			small_vector < int, unit_small_vector_test::test_size > victim;
+			small_vector < size_t, unit_small_vector_test::test_size > victim;
 
 			victim.operator = (expectancy);
 
@@ -121,59 +172,17 @@ namespace bgen {
 			size_t s_copy_count = 0;
 			size_t s_move_count = 0;
 
-			// structures to be moved
-			struct move_obj {
-
-				size_t * move_counter;
-				size_t * copy_counter;
-
-				move_obj (size_t & m_counter, size_t & c_counter) :
-					move_counter (&m_counter),
-					copy_counter (&c_counter) {}
-
-				move_obj ( move_obj && m ) :
-					move_counter (m.move_counter),
-					copy_counter (m.copy_counter)
-				{
-					++(*move_counter);
-				}
-
-				move_obj (const move_obj & m) :
-					move_counter (m.move_counter),
-					copy_counter (m.copy_counter)
-				{
-					++(*copy_counter);
-				}
-
-				move_obj & operator = (const move_obj & m) {
-					move_counter = m.move_counter;
-					copy_counter = m.copy_counter;
-
-					++(*copy_counter);
-					return *this;
-				}
-
-				move_obj & operator = (move_obj && m) {
-					std::swap(move_counter, m.move_counter);
-					std::swap(copy_counter, m.copy_counter);
-
-					++(*move_counter);
-					return *this;
-				}
-
-			};
-
-			small_vector<move_obj, unit_small_vector_test::test_size>
+			small_vector<small_vector_move_item, unit_small_vector_test::test_size>
 					source;
 
-			for (int i = 0; i < unit_small_vector_test::test_size; ++i) {
-				source.emplace_back(
-					s_move_count,
-					s_copy_count
-				);
-			}
+			small_vector_move_item::init_items(
+				source,
+				unit_small_vector_test::test_size,
+				s_copy_count,
+				s_move_count
+			);
 
-			small_vector < move_obj, unit_small_vector_test::test_size > dest = std::move(source);
+			small_vector < small_vector_move_item, unit_small_vector_test::test_size > dest = std::move(source);
 
 			EXPECT_EQ (s_copy_count, 0);
 			EXPECT_EQ (s_move_count, unit_small_vector_test::test_size);
@@ -186,61 +195,19 @@ namespace bgen {
 			size_t s_copy_count = 0;
 			size_t s_move_count = 0;
 
-			// structures to be moved
-			struct move_obj {
-
-				size_t * move_counter;
-				size_t * copy_counter;
-
-				move_obj (size_t & m_counter, size_t & c_counter) :
-					move_counter (&m_counter),
-					copy_counter (&c_counter) {}
-
-				move_obj ( move_obj && m ) :
-					move_counter (m.move_counter),
-					copy_counter (m.copy_counter)
-				{
-					++(*move_counter);
-				}
-
-				move_obj (const move_obj & m) :
-					move_counter (m.move_counter),
-					copy_counter (m.copy_counter)
-				{
-					++(*copy_counter);
-				}
-
-				move_obj & operator = (const move_obj & m) {
-					move_counter = m.move_counter;
-					copy_counter = m.copy_counter;
-
-					++(*copy_counter);
-					return *this;
-				}
-
-				move_obj & operator = (move_obj && m) {
-					std::swap(move_counter, m.move_counter);
-					std::swap(copy_counter, m.copy_counter);
-
-					++(*move_counter);
-					return *this;
-				}
-
-			};
-
 			const size_t half_size = unit_small_vector_test::test_size / 2;
 
-			small_vector<move_obj, half_size>
+			small_vector<small_vector_move_item, half_size>
 				source;
 
-			for (int i = 0; i < half_size; ++i) {
-				source.emplace_back(
-					s_move_count,
-					s_copy_count
-				);
-			}
+			small_vector_move_item::init_items(
+				source,
+				half_size,
+				s_copy_count,
+				s_move_count
+			);
 
-			small_vector < move_obj, unit_small_vector_test::test_size > dest;
+			small_vector < small_vector_move_item, unit_small_vector_test::test_size > dest;
 
 			dest.operator=(std::move(source));
 
@@ -348,13 +315,13 @@ namespace bgen {
 
 		TEST(unit_small_vector_test, assign_iterators) {
 
-			small_vector < int, unit_small_vector_test::test_size > expectancy;
+			small_vector < size_t, unit_small_vector_test::test_size > expectancy;
 
 			for (size_t i = 0; i < unit_small_vector_test::test_size; ++i) {
 				expectancy.push_back(i);
 			}
 
-			small_vector < int, unit_small_vector_test::test_size >
+			small_vector < size_t, unit_small_vector_test::test_size >
 				victim;
 
 			victim.assign(expectancy.begin (), expectancy.end());
@@ -542,6 +509,121 @@ namespace bgen {
 
 			EXPECT_EQ (0, victim.size());
 			EXPECT_EQ (capacity, victim.capacity());
+		}
+
+		TEST(unit_small_vector_test, insert_copy_at_position) {
+
+			int const insert_value = 999;
+			int const insert_position = 5;
+			int const expected_size = 11;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			auto position = victim.insert(victim.begin() + insert_position, insert_value);
+
+			EXPECT_EQ(expected_size, victim.size());
+			EXPECT_EQ(insert_value, victim[insert_position]);
+			EXPECT_EQ(victim.begin() + insert_position, position);
+		}
+
+		TEST(unit_small_vector_test, insert_move_at_position) {
+
+			int const insert_value = 999;
+			int const insert_position = 5;
+			int const expected_size = 11;
+
+			// object move / copy counters
+			size_t s_copy_count = 0;
+			size_t s_move_count = 0;
+
+			small_vector < small_vector_move_item, expected_size * 2 > victim;
+
+			small_vector_move_item::init_items(
+				victim,
+				unit_small_vector_test::test_size,
+				s_copy_count,
+				s_move_count
+			);
+
+			// reset copy and move counts
+			s_copy_count = 0;
+			s_move_count = 0;
+
+			small_vector_move_item move_it{ s_move_count, s_copy_count };
+
+			auto position = victim.insert(victim.begin() + insert_position, std::move (move_it));
+
+			EXPECT_EQ(expected_size, victim.size());
+			EXPECT_EQ(s_copy_count, 0);
+			EXPECT_EQ(s_move_count, insert_position + 1);
+			EXPECT_EQ(position, victim.begin() + insert_position);
+		}
+
+		TEST(unit_small_vector_test, insert_n_copies_at_position) {
+
+			size_t const insert_value = 1;
+			size_t const insert_count = 5;
+			size_t const border_count = 4;
+			size_t const half_border = border_count / 2;
+			size_t const expected_size = insert_count + border_count;
+			size_t const border_value = 8;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim(border_count, border_value);
+
+			auto position = victim.insert(victim.begin() + half_border, insert_count, insert_value);
+
+			EXPECT_EQ(expected_size, victim.size());
+
+			const size_t left_border_count = std::count(
+				victim.begin(), victim.begin() + half_border,
+				border_value
+			);
+
+			EXPECT_EQ(left_border_count, half_border);
+
+			const size_t right_border_count = std::count(
+				victim.end() - half_border, victim.end(),
+				border_value
+			);
+
+			EXPECT_EQ(right_border_count, half_border);
+
+			const size_t inserted_items_count = std::count(
+				victim.begin() + half_border, victim.end() - half_border,
+				insert_value
+			);
+
+			EXPECT_EQ(inserted_items_count, insert_count);
+
+			EXPECT_EQ(position, victim.begin() + half_border);
+		}
+
+		TEST(unit_small_vector_test, insert_zero_copies_at_position) {
+
+			size_t const expected_count = 8;
+			size_t const expected_value = 8;
+
+			size_t const expected_pos = expected_count / 2;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim(expected_count, expected_value);
+
+			auto position = victim.insert(victim.begin() + expected_pos, 0, expected_value);
+
+			EXPECT_EQ(victim.size(), expected_count);
+			EXPECT_EQ(position, victim.begin() + expected_pos);
+		}
+
+		TEST(unit_small_vector_test, insert_position_out_of_range) {
+
+			std::unique_ptr < int > dummy_pos = make_unique < int >(123);
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim(8, 8);
+
+			EXPECT_THROW(victim.insert(dummy_pos.get(), 8, 8), std::out_of_range);
 		}
 
     }

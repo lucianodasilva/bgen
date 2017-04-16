@@ -11,15 +11,18 @@ include (${bgen_path}/cmake/modules.cmake)
 set ( bgen_gtest_path ${CMAKE_CURRENT_LIST_DIR}/extra/googletest )
 add_subdirectory(${bgen_gtest_path})
 
-
 # setup environment
 check_environment ()
+
+#fix runtime to static in windows
+set_runtime_to_static ()
 
 set(CMAKE_C_STANDARD 14)
 set(CMAKE_CXX_STANDARD 14)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # -----------------
+set (bgen_extra_path ${CMAKE_CURRENT_LIST_DIR}/extra)
 
 add_static_module (bgen_core ${bgen_path}/modules/bgen_core)
 add_static_module (bgen_clang ${bgen_path}/modules/bgen_clang bgen_core)

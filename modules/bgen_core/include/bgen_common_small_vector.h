@@ -10,22 +10,35 @@
 
 namespace bgen {
 
-	template<class _t, size_t _n>
-	struct __typeless_array {
-		uint8_t data[sizeof(_t) * _n];
+	namespace common {
+		namespace details {
 
-		inline _t &operator[](size_t i) {
-			return *reinterpret_cast < _t * > ((i * sizeof(_t)) + data);
+			template < class _t, class = void >
+			struct is_iterator : std::false_type {};
+
+			template < class _t >
+			struct is_iterator<_t, void_t<typename std::iterator_traits<_t>::iterator_category>> :
+			std::true_type {};
+
+			template<class _t, size_t _n>
+			struct __typeless_array {
+				uint8_t data[sizeof(_t) * _n];
+
+				inline _t &operator[](size_t i) {
+					return *reinterpret_cast <_t *> ((i * sizeof(_t)) + data);
+				}
+
+				inline const _t *location() const {
+					return reinterpret_cast <const _t *> (+data);
+				};
+
+				inline _t *location() {
+					return reinterpret_cast <_t *> (+data);
+				};
+			};
+
 		}
-
-		inline const _t *location() const {
-			return reinterpret_cast < const _t * > (+data);
-		};
-
-		inline _t *location() {
-			return reinterpret_cast < _t * > (+data);
-		};
-	};
+	}
 
 	template<class _t>
 	struct small_vector_base {
@@ -145,10 +158,12 @@ namespace bgen {
 		}
 
 		template<class _input_it_t>
-		inline void assign(_input_it_t first, _input_it_t last) {
+		inline std::enable_if_t < common::details::is_iterator < _input_it_t >::value, void > 
+			assign(_input_it_t first, _input_it_t last) 
+		{
 			clear();
 
-			auto elements = last - first;
+			size_type elements = last - first;
 
 			if (capacity() < elements)
 				grow(elements);
@@ -201,7 +216,7 @@ namespace bgen {
 				grow();
 
 			new(_end_ptr) _t(x);
-			set_end(++end());
+			set_end(end() + 1);
 		}
 
 		inline void push_back(value_type &&x) {
@@ -232,7 +247,7 @@ namespace bgen {
 		template<class... Args>
 		inline iterator emplace(const_iterator position, Args &&... args) {
 			if (position == end()) {
-				emplace_back(args...);
+				emplace_back(std::move(args...));
 				return end() - 1;
 			}
 
@@ -248,9 +263,12 @@ namespace bgen {
 			iterator place = begin() + offset;
 
 			// move items forward
-			move_range_reverse(place, end(), end() + 1);
+			move_range_reverse(place, end(), end());
 
-			new(place) _t(args...);
+			// emplace items
+			new(place) _t(std::move (args...));
+
+			set_end(end() + 1);
 
 			return place;
 		}
@@ -260,11 +278,14 @@ namespace bgen {
 		}
 
 		inline iterator insert(const_iterator position, value_type &&x) {
-			return emplace(position, std::forward(x));
+			return emplace(position, std::move(x));
 		}
 
 		inline iterator insert(const_iterator position, size_type n, const value_type &x) {
 			size_type offset = position - begin();
+
+			if (n == 0)
+				return begin () + offset;
 
 			if (position == end()) {
 				insert(end(), n, x);
@@ -280,14 +301,18 @@ namespace bgen {
 			iterator place = begin() + offset;
 
 			// move items forward
-			move_range_reverse(place, end(), end() + n);
+			move_range_reverse(place, end(), end() + (n - 1));
 			std::uninitialized_fill_n(place, n, x);
+
+			set_end(end() + n);
 
 			return place;
 		}
 
 		template<class _input_it_t>
-		iterator insert(const_iterator position, _input_it_t first, _input_it_t last) {
+		inline std::enable_if_t < common::details::is_iterator < _input_it_t >::value, iterator >
+			insert(const_iterator position, _input_it_t first, _input_it_t last) 
+		{
 
 			size_type n = last - first;
 			size_type offset = position - begin();
@@ -304,11 +329,12 @@ namespace bgen {
 				grow(size() + n);
 
 			auto place = begin() + offset;
-			auto end_it = end();
 
 			// move items forward
-			move_range_reverse(place, end_it, end_it + n);
+			move_range_reverse(place, end(), end() + n);
 			std::copy(first, last, begin() + offset);
+
+			set_end(end() + n);
 
 			return place;
 		}
@@ -586,7 +612,7 @@ namespace bgen {
 		pointer _end_ptr;
 		pointer _capacity_ptr;
 
-		__typeless_array<_t, 1> _small;
+		common::details::__typeless_array<_t, 1> _small;
 		// reserved: do not define any variables after _first
 	};
 
@@ -640,7 +666,7 @@ namespace bgen {
 		}
 
 	private:
-		__typeless_array<_t, _n - 1> _small_data;
+		common::details::__typeless_array<_t, _n - 1> _small_data;
 	};
 
 }
