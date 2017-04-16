@@ -16,12 +16,20 @@ namespace bgen {
 
 		namespace details {
 
+			/*
 			template < class _t, class = void >
 			struct is_iterator : std::false_type {};
 
 			template < class _t >
 			struct is_iterator<_t, void_t<typename std::iterator_traits<_t>::iterator_category>> :
 			std::true_type {};
+			*/
+
+			template < class _t >
+			struct _not : std::integral_constant < bool, !_t::value > {};
+
+			template < class _t >
+			using is_iterator = _not < std::is_integral < _t > >;
 
 			template<class _t, size_t _n>
 			struct __typeless_array {
@@ -636,6 +644,7 @@ namespace bgen {
 
 		using value_type		= typename small_vector_base<_t>::value_type;
 		using const_reference 	= typename small_vector_base<_t>::const_reference;
+		using size_type			= typename small_vector_base<_t>::size_type;
 
 		inline small_vector() noexcept :
 			small_vector_base<_t>::small_vector_base(_n) {}
