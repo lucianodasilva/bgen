@@ -15,12 +15,12 @@ namespace bgen {
 		string get_executable_path() {
 			HMODULE hModule = GetModuleHandle(NULL);
 			WCHAR path[MAX_PATH];
-			DWORD len = GetModuleFileNameW(hModule, path, MAX_PATH);
+			auto len = GetModuleFileNameW(hModule, path, MAX_PATH);
 
 			if (!len)
 				return "";
 
-			DWORD dest_len = wcstombs(nullptr, +path, len);
+			auto dest_len = wcstombs(nullptr, +path, len);
 
 			if (!dest_len)
 				return "";

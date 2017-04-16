@@ -74,6 +74,21 @@ namespace bgen {
 			};
 
 		}
+
+		template < class _t >
+		constexpr inline _t next_pow_2(_t v) {
+
+			_t bit_ceil = sizeof(_t) * 8;
+			_t bit = 1;
+
+			while (bit < bit_ceil) {
+				v |= (v >> bit);
+				bit = bit << 1;
+			}
+
+			return v + 1;
+		}
+
 	}
 
 	template < class _method_t >

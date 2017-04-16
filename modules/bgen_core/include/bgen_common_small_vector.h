@@ -8,9 +8,12 @@
 #include <limits>
 #include <type_traits>
 
+#include "bgen_common.h"
+
 namespace bgen {
 
 	namespace common {
+
 		namespace details {
 
 			template < class _t, class = void >
@@ -150,7 +153,7 @@ namespace bgen {
 
 		inline void reserve(size_type n) {
 			if (n > capacity())
-				grow(n);
+				grow_near_pow_2(n);
 		}
 
 		inline void shrink_to_fit() noexcept {
@@ -166,7 +169,7 @@ namespace bgen {
 			size_type elements = last - first;
 
 			if (capacity() < elements)
-				grow(elements);
+				grow_near_pow_2(elements);
 
 			set_end(begin() + elements);
 			std::uninitialized_copy(first, last, begin());
@@ -176,7 +179,7 @@ namespace bgen {
 			clear();
 
 			if (capacity() < n)
-				grow(n);
+				grow_near_pow_2(n);
 
 			set_end(begin() + n);
 			std::uninitialized_fill(begin(), end(), u);
@@ -287,16 +290,11 @@ namespace bgen {
 			if (n == 0)
 				return begin () + offset;
 
-			if (position == end()) {
-				insert(end(), n, x);
-				return begin() + offset;
-			}
-
 			if (position < begin() || position > end())
 				throw std::out_of_range("insert () position out of range");
 
 			if (capacity() < (size() + n))
-				grow(size() + n);
+				grow_near_pow_2(size() + n);
 
 			iterator place = begin() + offset;
 
@@ -317,16 +315,11 @@ namespace bgen {
 			size_type n = last - first;
 			size_type offset = position - begin();
 
-			if (position == end()) {
-				insert(end(), first, last);
-				return begin() + offset;
-			}
-
 			if (position < begin() || position > end())
 				throw std::out_of_range("insert () position out of range");
 
 			if (capacity() < (size() + n))
-				grow(size() + n);
+				grow_near_pow_2(size() + n);
 
 			auto place = begin() + offset;
 
@@ -427,8 +420,8 @@ namespace bgen {
 			_capacity_ptr = _begin_ptr + n;
 		}
 
-		inline small_vector_base(size_type n, const_reference v) noexcept :
-			small_vector_base(n) {
+		inline small_vector_base(size_type n, const_reference v, size_type self_size) noexcept :
+			small_vector_base(self_size) {
 			assign(n, v);
 		}
 
@@ -449,7 +442,11 @@ namespace bgen {
 		}
 
 		template<class _input_it_t>
-		small_vector_base(_input_it_t first, _input_it_t last, size_type self_size) :
+		small_vector_base(
+			_input_it_t first, 
+			_input_it_t last, 
+			size_type self_size
+		) :
 			small_vector_base(self_size) {
 			assign(first, last);
 		}
@@ -480,7 +477,24 @@ namespace bgen {
 		}
 
 		inline void grow() {
-			grow(capacity() * 2);
+			grow(get_next_capacity (capacity()));
+		}
+
+		inline void grow_near_pow_2(size_type size) {
+			if (size == 0)
+				size = 1;
+
+			grow(get_next_capacity(size - 1));
+		}
+
+		inline size_type get_next_capacity(size_type size) {
+			size_type next_cap = common::next_pow_2(size);
+
+			if (next_cap == 0) {
+				next_cap = this->max_size();
+			}
+
+			return next_cap;
 		}
 
 		inline void shrink(size_type n) {
@@ -558,7 +572,7 @@ namespace bgen {
 				small_size = small.size();
 
 			if (small.capacity() < large_size)
-				small.grow(large_size);
+				small.grow_near_pow_2(large_size);
 
 			// move stuff around
 			small.set_end (small.begin() + large_size);
@@ -626,8 +640,8 @@ namespace bgen {
 		inline small_vector() noexcept :
 			small_vector_base<_t>::small_vector_base(_n) {}
 
-		inline small_vector(const_reference v) noexcept :
-			small_vector_base<_t>::small_vector_base(_n, v) {
+		inline small_vector(size_type n, const_reference v) noexcept :
+			small_vector_base<_t>::small_vector_base(n, v, _n) {
 		}
 
 		template < size_t _v_n >
@@ -647,7 +661,11 @@ namespace bgen {
 			small_vector_base<_t>::small_vector_base(il, _n) {}
 
 		template<class _input_it_t>
-		inline small_vector(_input_it_t first, _input_it_t last) :
+		inline small_vector(
+			_input_it_t first, 
+			_input_it_t last,
+			typename std::enable_if_t < common::details::is_iterator < _input_it_t >::value> * = nullptr
+		) :
 			small_vector_base<_t>::small_vector_base(first, last, _n) {}
 
 		inline small_vector < _t, _n > & operator = (const small_vector_base < _t > & v) {
@@ -670,6 +688,5 @@ namespace bgen {
 	};
 
 }
-
 
 #endif

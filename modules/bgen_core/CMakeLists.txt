@@ -6,12 +6,6 @@ include_directories (
 link_directories(${BGEN_LIBCLANG_LIB_PATH})
 
 if (MSVC)
-	add_definitions(
-		-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
-		-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1
-		-D_CRT_SECURE_NO_WARNINGS=1
-	)
-
 	# add natvis definitions
 	target_sources(bgen_core PUBLIC ${bgen_extra_path}/vs/bgen.natvis)
 endif()

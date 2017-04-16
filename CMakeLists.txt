@@ -7,6 +7,13 @@ set ( bgen_path ${CMAKE_CURRENT_LIST_DIR})
 include (${bgen_path}/cmake/environment.cmake)
 include (${bgen_path}/cmake/modules.cmake)
 
+if (MSVC)
+	add_definitions(
+		-D_SCL_SECURE_NO_WARNINGS=1
+	)
+
+endif()
+
 # add test infrastructure
 set ( bgen_gtest_path ${CMAKE_CURRENT_LIST_DIR}/extra/googletest )
 add_subdirectory(${bgen_gtest_path})

@@ -86,7 +86,7 @@ namespace bgen {
 
         };
 
-        const size_t unit_small_vector_test::test_size = 10;
+        const size_t unit_small_vector_test::test_size = 16;
 
         TEST(unit_small_vector_test, ctor_default) {
             small_vector < int, unit_small_vector_test::test_size > victim;
@@ -130,7 +130,7 @@ namespace bgen {
 
 		TEST(unit_small_vector_test, operator_equal_vector_grow) {
 
-			const size_t double_size = unit_small_vector_test::test_size * 2;
+			const size_t double_size = common::next_pow_2(unit_small_vector_test::test_size * 2);
 
 			small_vector < size_t, double_size > expectancy;
 
@@ -475,7 +475,7 @@ namespace bgen {
 			small_vector < int, unit_small_vector_test::test_size >
 				victim = { 0, 1, 2, 3, 4 };
 
-			const size_t expected_capacity = unit_small_vector_test::test_size * 4;
+			const size_t expected_capacity = common::next_pow_2(unit_small_vector_test::test_size * 4);
 
 			size_t size = victim.size();
 
@@ -531,7 +531,7 @@ namespace bgen {
 
 			int const insert_value = 999;
 			int const insert_position = 5;
-			int const expected_size = 11;
+			int const expected_size = unit_small_vector_test::test_size + 1;
 
 			// object move / copy counters
 			size_t s_copy_count = 0;
@@ -556,7 +556,7 @@ namespace bgen {
 
 			EXPECT_EQ(expected_size, victim.size());
 			EXPECT_EQ(s_copy_count, 0);
-			EXPECT_EQ(s_move_count, insert_position + 1);
+			EXPECT_EQ(s_move_count, expected_size - insert_position);
 			EXPECT_EQ(position, victim.begin() + insert_position);
 		}
 
@@ -616,6 +616,28 @@ namespace bgen {
 			EXPECT_EQ(position, victim.begin() + expected_pos);
 		}
 
+		TEST(unit_small_vector_test, insert_position_end) {
+
+			size_t const initial_count = 8;
+			size_t const initial_value = 8;
+			size_t const insert_count = 3;
+			size_t const insert_value = 3;
+
+			size_t const expected_count = initial_count + insert_count;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim(initial_count, initial_value);
+
+			victim.insert(victim.end(), insert_count, insert_value);
+
+			EXPECT_EQ(expected_count, victim.size());
+
+			EXPECT_EQ(
+				std::count(victim.end() - insert_count, victim.end(), insert_value),
+				insert_count
+			);
+		}
+
 		TEST(unit_small_vector_test, insert_position_out_of_range) {
 
 			std::unique_ptr < int > dummy_pos = make_unique < int >(123);
@@ -624,6 +646,67 @@ namespace bgen {
 				victim(8, 8);
 
 			EXPECT_THROW(victim.insert(dummy_pos.get(), 8, 8), std::out_of_range);
+		}
+
+		TEST(unit_small_vector_test, insert_position_span) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = { 0, 1, 2, 3, 4, 5 };
+
+			size_t
+				victim_original_size = victim.size(),
+				victim_original_half_size = victim_original_size / 2;
+
+			auto insert_pos = victim.begin () + victim_original_half_size;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				source = { 10, 11, 12, 13 };
+
+			auto pos = victim.insert(insert_pos, source.begin(), source.end());
+
+			EXPECT_EQ(victim_original_size + source.size(), victim.size());
+
+			EXPECT_TRUE(std::equal(
+				pos, pos + source.size(),
+				source.begin(), source.end()
+			));
+		}
+
+		TEST(unit_small_vector_test, insert_position_span_out_of_range) {
+
+			std::unique_ptr < int > dummy_pos = make_unique < int >(123);
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim(8, 8);
+
+			small_vector < int, unit_small_vector_test::test_size >
+				source = { 10, 11, 12, 13 };
+
+			EXPECT_THROW(victim.insert(dummy_pos.get(), source.begin(), source.end()), std::out_of_range);
+		}
+
+		TEST(unit_small_vector_test, insert_position_init_list) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = { 0, 1, 2, 3, 4, 5 };
+
+			size_t
+				victim_original_size = victim.size(),
+				victim_original_half_size = victim_original_size / 2;
+
+			auto insert_pos = victim.begin() + victim_original_half_size;
+
+			std::initializer_list < int >
+				source = { 10, 11, 12, 13 };
+
+			auto pos = victim.insert(insert_pos, source);
+
+			EXPECT_EQ(victim_original_size + source.size(), victim.size());
+
+			EXPECT_TRUE(std::equal(
+				pos, pos + source.size(),
+				source.begin(), source.end()
+			));
 		}
 
     }
