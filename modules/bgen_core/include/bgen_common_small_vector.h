@@ -238,8 +238,8 @@ namespace bgen {
 			set_end(end() + 1);
 		}
 
-		template<class... Args>
-		inline void emplace_back(Args &&... args) {
+		template<class... _args_tv>
+		inline void emplace_back(_args_tv &&... args) {
 			if (end() >= _capacity_ptr)
 				grow();
 
@@ -251,14 +251,17 @@ namespace bgen {
 			if (empty())
 				return;
 
-			destroy_range(end() - 1, end());
+			destroy(end() - 1);
 			set_end(end() - 1);
+
+			if (common::next_pow_2(size() - 1) < capacity())
+				shrink_to_fit();
 		}
 
-		template<class... Args>
-		inline iterator emplace(const_iterator position, Args &&... args) {
+		template<class ... _args_tv>
+		inline iterator emplace(const_iterator position, _args_tv &&... args) {
 			if (position == end()) {
-				emplace_back(std::move(args...));
+				emplace_back(std::forward < _args_tv > (args)...);
 				return end() - 1;
 			}
 
@@ -277,7 +280,7 @@ namespace bgen {
 			move_range_reverse(place, end(), end());
 
 			// emplace items
-			new(place) _t(std::move (args...));
+			new(place) _t(std::forward < _args_tv > (args)...);
 
 			set_end(end() + 1);
 
@@ -349,19 +352,22 @@ namespace bgen {
 			if (empty())
 				return end();
 
+			if (position < begin() || position > end())
+				throw std::out_of_range("erase () position out of range");
+
+			size_type offset = position - begin();
+			iterator pos = begin () + offset;
+
 			// is last item
-			if (position == end() - 1) {
+			if (pos == end() - 1) {
 				pop_back();
 				return end();
 			}
 
-			if (position < begin() || position > end())
-				throw std::out_of_range("erase () position out of range");
-
-			move_range(position + 1, end(), position);
+			move_range(pos + 1, end(), pos);
 			pop_back();
 
-			return iterator(position);
+			return begin () + offset;
 		}
 
 		inline iterator erase(const_iterator first, const_iterator last) {
@@ -375,14 +381,21 @@ namespace bgen {
 			if (last > end())
 				throw std::out_of_range("erase () last past the end");
 
-			iterator place = iterator(first);
+			size_type offset = first - begin();
+			size_type offset_last = last - begin();
 
-			iterator last_place = move_range(last, end(), place);
+			iterator place = begin() + offset;
+			iterator last_place = begin() + offset_last;
+
+			last_place = move_range(last_place, end(), place);
 			destroy_range(last_place, end());
 
 			set_end(last_place);
 
-			return place;
+			if (common::next_pow_2(size() - 1) < capacity())
+				shrink(common::next_pow_2(size() - 1));
+
+			return begin () + offset;
 		}
 
 		inline void resize(size_type sz) {

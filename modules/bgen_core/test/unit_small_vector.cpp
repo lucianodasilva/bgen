@@ -709,5 +709,81 @@ namespace bgen {
 			));
 		}
 
+		TEST(unit_small_vector_test, emplace_at_position) {
+
+			int const value_a = 999;
+			int const value_b = 666;
+
+			int const insert_position = 5;
+			int const expected_size = 11;
+
+			struct test_struct {
+				int a;
+				int b;
+
+				test_struct() = default;
+				test_struct(const test_struct &) = default;
+				test_struct (int va, int vb) : a (va), b (vb) {}
+			};
+
+			small_vector < test_struct, unit_small_vector_test::test_size >
+				victim(10, { 1, 1 });
+
+			auto position = victim.emplace(victim.begin() + insert_position, value_a, value_b);
+
+			EXPECT_EQ(expected_size, victim.size());
+
+			EXPECT_EQ(value_a, victim[insert_position].a);
+			EXPECT_EQ(value_b, victim[insert_position].b);
+
+			EXPECT_EQ(victim.begin() + insert_position, position);
+		}
+
+		TEST(unit_small_vector_test, erase_at_position) {
+
+			int const expected_size = 9;
+			int const erase_index = 5;
+			int const erase_value = 5;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			auto position = victim.erase(victim.begin() + erase_index);
+
+			EXPECT_EQ(victim.size(), expected_size);
+			EXPECT_EQ(find(victim.begin(), victim.end(), erase_value), victim.end());
+			EXPECT_EQ(victim.begin() + erase_index, position);
+		}
+
+		TEST(unit_small_vector_test, erase_iterator_range) {
+
+			const small_vector < int, unit_small_vector_test::test_size >
+				origin = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = origin;
+
+			size_t const erase_offset = 3;
+			size_t const expected_size = erase_offset * 2;
+
+			auto position = victim.erase(victim.begin() + erase_offset, victim.end() - erase_offset);
+
+			EXPECT_EQ(victim.size(), expected_size);
+
+			EXPECT_TRUE(std::equal(
+				victim.begin(),
+				victim.begin() + erase_offset,
+				origin.begin(),
+				origin.begin() + erase_offset
+			));
+
+			EXPECT_TRUE(std::equal(
+				victim.end() - erase_offset,
+				victim.end(),
+				origin.end() - erase_offset,
+				origin.end()
+			));
+		}
+
     }
 }
