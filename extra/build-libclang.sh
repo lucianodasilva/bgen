@@ -53,9 +53,9 @@ cmake \
     -DCMAKE_INSTALL_PREFIX:PATH=$clang_out \
     -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOLEAN=FALSE \
     ..
-    
-make libclang || on_fail "Build failed"
-make install || on_fail "Move output failed"
+
+cmake --build . --target libclang --config Release || on_fail "Build failed"
+cmake --build . --target install || on_fail "Move output failed"
 
 cd $origin
 
@@ -77,7 +77,7 @@ if [[ "$platform" == "Darwin" ]]; then
 fi
 
 # find file
-libclang_file_path=`find $clang_out -cursor_type f -name "$libclang_lib"`
+libclang_file_path=`find "$clang_out" -name "$libclang_lib"`
 libclang_file_path=`echo $libclang_file_path | head -1`
 
 cp $libclang_file_path "$origin_out_lib/$libclang_lib" \
