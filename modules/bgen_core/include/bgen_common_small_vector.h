@@ -239,12 +239,14 @@ namespace bgen {
 		}
 
 		template<class... _args_tv>
-		inline void emplace_back(_args_tv &&... args) {
+		inline reference emplace_back(_args_tv &&... args) {
 			if (end() >= _capacity_ptr)
 				grow();
 
-			new(end()) _t(args...);
+			new(end()) _t(std::forward < _args_tv > (args)...);
 			set_end(end() + 1);
+
+			return back ();
 		}
 
 		inline void pop_back() {
@@ -667,13 +669,13 @@ namespace bgen {
 		}
 
 		template < size_t _v_n >
-		inline small_vector(const small_vector<_t, _v_n > & v ) :
+		inline small_vector(const small_vector & v ) :
 			small_vector_base<_t>::small_vector_base(v, _n) {}
 
-		inline small_vector ( const small_vector < _t, _n > & v ) :
+		inline small_vector (const small_vector & v ) :
 			small_vector_base<_t>::small_vector_base(v, _n) {}
 
-		inline small_vector(small_vector <_t, _n> && v) noexcept :
+		inline small_vector(small_vector && v) noexcept :
 			small_vector_base<_t>::small_vector_base(std::move(v), _n) {}
 
 		inline small_vector(small_vector_base<_t> && v) noexcept :
@@ -690,17 +692,27 @@ namespace bgen {
 		) :
 			small_vector_base<_t>::small_vector_base(first, last, _n) {}
 
-		inline small_vector < _t, _n > & operator = (const small_vector_base < _t > & v) {
+		inline small_vector & operator = (const small_vector_base < _t > & v) {
 			small_vector_base < _t >::operator = (v);
 			return *this;
 		}
 
-		inline small_vector < _t, _n > & operator = (small_vector_base < _t > && v) {
+		inline small_vector & operator = (const small_vector & v) {
+			small_vector_base < _t >::operator = (v);
+			return *this;
+		}
+
+		inline small_vector & operator = (small_vector_base < _t > && v) {
 			small_vector_base < _t >::operator = (std::move(v));
 			return *this;
 		}
 
-		inline small_vector < _t, _n > & operator = (std::initializer_list<_t> il) {
+		inline small_vector & operator = (small_vector && v) {
+			small_vector_base < _t >::operator = (std::move(v));
+			return *this;
+		}
+
+		inline small_vector & operator = (std::initializer_list<_t> il) {
 			small_vector_base < _t >::operator = (il);
 			return *this;
 		}

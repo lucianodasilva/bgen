@@ -783,6 +783,221 @@ namespace bgen {
 				origin.end() - erase_offset,
 				origin.end()
 			));
+
+		}
+
+		TEST(unit_small_vector_test, push_back_copy) {
+
+			const small_vector < int, unit_small_vector_test::test_size >
+				origin = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			size_t const expected_size = origin.size() + 1;
+			
+			int const value = 999;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = origin;
+
+			victim.push_back(value);
+
+			EXPECT_EQ(victim.size(), expected_size);
+			EXPECT_EQ(victim.back(), value);
+		}
+
+		TEST(unit_small_vector_test, push_back_move) {
+
+			small_vector < small_vector_move_item, unit_small_vector_test::test_size >
+				victim;
+
+			size_t const expected_size = 1;
+
+			// reset copy and move counts
+			size_t s_copy_count = 0;
+			size_t s_move_count = 0;
+
+			small_vector_move_item item(s_move_count, s_copy_count);
+
+			victim.push_back(std::move(item));
+
+			EXPECT_EQ(victim.size(), expected_size);
+
+			EXPECT_EQ(s_copy_count, 0);
+			EXPECT_EQ(s_move_count, 1);
+		}
+
+		TEST(unit_small_vector_test, emplace_back) {
+
+			int const value_a = 999;
+			int const value_b = 666;
+
+			int const insert_position = 5;
+			int const expected_size = 11;
+
+			struct test_struct {
+				int a;
+				int b;
+
+				test_struct() = default;
+				test_struct(const test_struct &) = default;
+				test_struct(int va, int vb) : a(va), b(vb) {}
+			};
+
+			small_vector < test_struct, unit_small_vector_test::test_size >
+				victim(10, { 1, 1 });
+
+			victim.emplace_back(value_a, value_b);
+
+			EXPECT_EQ(expected_size, victim.size());
+
+			EXPECT_EQ(value_a, victim.back().a);
+			EXPECT_EQ(value_b, victim.back().b);
+
+		}
+
+		TEST(unit_small_vector_test, pop_back) {
+
+			const small_vector < int, unit_small_vector_test::test_size >
+				origin = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			size_t const expected_size = origin.size() - 1;
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim = origin;
+
+			victim.pop_back();
+
+			EXPECT_EQ(victim.size(), expected_size);
+			
+			EXPECT_TRUE(std::equal(
+				victim.begin(),
+				victim.end(),
+				origin.begin(),
+				origin.begin() + expected_size
+			));
+		}
+
+		TEST(unit_small_vector_test, resize_size_large) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim;
+
+			size_t const expected_size = unit_small_vector_test::test_size * 2;
+
+			victim.resize(expected_size);
+
+			EXPECT_EQ(victim.size(), expected_size);
+			EXPECT_EQ(
+				std::count(victim.begin(), victim.end(), int()),
+				expected_size
+			);
+		}
+
+		TEST(unit_small_vector_test, resize_size_large_with_default_value) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim;
+
+			size_t const expected_size = unit_small_vector_test::test_size * 2;
+			int const default_value = 999;
+
+			victim.resize(expected_size, default_value);
+
+			EXPECT_EQ(victim.size(), expected_size);
+			EXPECT_EQ(
+				std::count(victim.begin(), victim.end(), default_value),
+				expected_size
+			);
+		}
+
+		TEST(unit_small_vector_test, resize_size_small) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim;
+
+			size_t const expected_size = unit_small_vector_test::test_size;
+
+			victim.resize(expected_size * 2);
+			victim.resize(unit_small_vector_test::test_size);
+
+			EXPECT_EQ(victim.size(), expected_size);
+			EXPECT_EQ(
+				std::count(victim.begin(), victim.end(), int()),
+				expected_size
+			);
+		}
+
+		TEST(unit_small_vector_test, resize_size_small_with_default_value) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				victim;
+
+			size_t const expected_size = unit_small_vector_test::test_size;
+			int const default_value = 999;
+
+			victim.resize(expected_size * 2, default_value);
+			victim.resize(expected_size, default_value);
+
+			EXPECT_EQ(victim.size(), expected_size);
+			EXPECT_EQ(
+				std::count(victim.begin(), victim.end(), default_value),
+				expected_size
+			);
+		}
+
+		TEST(unit_small_vector_test, swap_small_small) {
+
+			const small_vector < int, unit_small_vector_test::test_size >
+				origin_a = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			const small_vector < int, unit_small_vector_test::test_size >
+				origin_b = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
+			auto victim_a = origin_a;
+			auto victim_b = origin_b;
+
+			std::swap(victim_a, victim_b);
+
+			EXPECT_TRUE(std::equal(victim_a.begin(), victim_a.end(), origin_b.begin(), origin_b.end()));
+			EXPECT_TRUE(std::equal(victim_b.begin(), victim_b.end(), origin_a.begin(), origin_a.end()));
+		}
+
+		TEST(unit_small_vector_test, swap_small_large) {
+
+			const small_vector < int, unit_small_vector_test::test_size >
+				origin_a = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			small_vector < int, unit_small_vector_test::test_size >
+				origin_b = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
+			origin_b.resize(unit_small_vector_test::test_size * 2);
+
+			auto victim_a = origin_a;
+			auto victim_b = origin_b;
+
+			std::swap(victim_a, victim_b);
+
+			EXPECT_TRUE(std::equal(victim_a.begin(), victim_a.end(), origin_b.begin(), origin_b.end()));
+			EXPECT_TRUE(std::equal(victim_b.begin(), victim_b.end(), origin_a.begin(), origin_a.end()));
+		}
+
+		TEST(unit_small_vector_test, swap_large_large) {
+
+			small_vector < int, unit_small_vector_test::test_size >
+				origin_a = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+			small_vector < int, unit_small_vector_test::test_size >
+				origin_b = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
+			origin_a.resize(unit_small_vector_test::test_size * 2);
+			origin_b.resize(unit_small_vector_test::test_size * 2);
+
+			auto victim_a = origin_a;
+			auto victim_b = origin_b;
+
+			std::swap(victim_a, victim_b);
+
+			EXPECT_TRUE(std::equal(victim_a.begin(), victim_a.end(), origin_b.begin(), origin_b.end()));
+			EXPECT_TRUE(std::equal(victim_b.begin(), victim_b.end(), origin_a.begin(), origin_a.end()));
 		}
 
     }
