@@ -1,1 +1,0 @@
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/bgen.dir/modules/bgen/src/bgen.cpp.o  -o bgen  -L/usr/local/Cellar/llvm/3.9.1/lib -Wl,-rpath,/usr/local/Cellar/llvm/3.9.1/lib  libbgen_core.a libbgen_clang.a -lclang libbgen_core.a 

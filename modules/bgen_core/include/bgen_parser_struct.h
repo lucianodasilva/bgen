@@ -10,8 +10,8 @@
 namespace bgen {
     namespace parser {
 
-
-        using semantic_name = vector < string >;
+		size_t const semantic_name_default_size = 4;
+        using semantic_name = small_vector < string, semantic_name_default_size >;
 
         semantic_name semantic_name_from_path (const parser::semantic_path & path);
 
@@ -25,21 +25,22 @@ namespace bgen {
             parser::visibility  visibility;
         };
 
-        using field_vector = vector < field_info >;
+		size_t const field_vector_default_size = 8;
+        using field_vector = small_vector < field_info, field_vector_default_size >;
 
         struct param_info {
             string  identifier;
             type_id type;
         };
 
-        using param_vector = vector < param_info >;
+		size_t const param_vector_default_size = 8;
+        using param_vector = small_vector < param_info, param_vector_default_size >;
 
         struct method_info {
+			param_vector            parameters;
             semantic_name           path;
             parser::location        location;
             string                  identifier;
-            
-            param_vector            parameters;
             type_id                 return_type;
             parser::visibility      visibility;
             parser::cursor_flags    flags;

@@ -52,7 +52,8 @@ namespace bgen {
             cursor_kind         kind;
         };
 
-        using semantic_path = vector < cursor >;
+		size_t const semantic_path_default_size = 8;
+        using semantic_path = small_vector < cursor, semantic_path_default_size >;
 
     }
 }

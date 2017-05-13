@@ -4,8 +4,6 @@
 
 #include "bgen_common.h"
 #include <string>
-#include <vector>
-
 namespace bgen {
     namespace parser {
 
@@ -57,7 +55,8 @@ namespace bgen {
             string              identifier;
         };
 
-        using template_arg_vector = vector < cursor_template_argument >;
+		size_t const template_arg_vector_default_size = 4;
+        using template_arg_vector = small_vector < cursor_template_argument, template_arg_vector_default_size >;
     }
     
 }
